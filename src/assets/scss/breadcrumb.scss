@@ -1,0 +1,14 @@
+.breadcrumb {
+  .page_title {
+    padding-top: 5px;
+    font-family: "Urbanist", sans-serif;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 41.6px;
+    text-align: left;
+    @media screen and (max-width: 600px) {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}

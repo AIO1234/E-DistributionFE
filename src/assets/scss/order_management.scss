@@ -1,0 +1,1650 @@
+.order_management {
+  .shop_balance_amount {
+    width: 100%;
+    height: 50px;
+    padding: 12px 17px 19px 25px;
+    border-radius: 8px;
+    background-color: #ffe2bb;
+    @media (max-width: 768px) {
+      width: 100%;
+      height: 100%;
+    }
+    .text {
+      font-family: Urbanist;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 26px;
+      text-align: left;
+      color: #3d3c3c;
+      .amount {
+        font-weight: 750;
+      }
+    }
+  }
+  .search_input {
+    width: 100%;
+    height: 39px;
+    border-radius: 6px;
+    font-family: Urbanist;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    border: 1px solid #67b108;
+  }
+  .search_date {
+    width: 100%;
+    height: 39px;
+    border-radius: 6px;
+    font-family: Urbanist;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    border: 1px solid #67b108;
+  }
+  .search_button {
+    width: 100%;
+    border-radius: 55px;
+    background-color: #67b108;
+    border: 0.2px solid #ffffff;
+    border-radius: 8px;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 15.96px;
+      text-align: right;
+      color: white;
+    }
+  }
+
+  .exfort_button {
+    width: 100%;
+    border-radius: 55px;
+    background-color: #7a8e49;
+    border: 0.2px solid #ffffff;
+    border-radius: 8px;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 15.96px;
+      text-align: right;
+      color: white;
+    }
+  }
+
+  .clear_button {
+    width: 100%;
+    border-radius: 55px;
+    background-color: #67b108;
+    border: 0.2px solid #ffffff;
+    border-radius: 8px;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 15.96px;
+      text-align: right;
+      color: white;
+    }
+  }
+  .order_create_button {
+    width: 171px;
+    height: 39px;
+    border: 1px;
+    background-color: #0d6938;
+    .text {
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 26px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #ffffff;
+    }
+  }
+  .user_select_button {
+    width: 227px;
+    height: 39px;
+    border-radius: 6px;
+    font-family: Urbanist;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    border: 1px solid #67b108;
+  }
+  .create_form {
+    font-family: Urbanist;
+    font-size: 19.72px;
+    font-weight: 600;
+    line-height: 19.72px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    .create_date {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .select_product {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .product_input {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .add_product_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 17.53px;
+        font-weight: 500;
+        line-height: 28.49px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #ffffff;
+      }
+    }
+    .submit_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #b28b00;
+      border-radius: 4px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+    }
+  }
+  .update_form {
+    font-family: Urbanist;
+    font-size: 19.72px;
+    font-weight: 600;
+    line-height: 19.72px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    .update_date {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .select_product {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .product_input {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .add_product_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 17.53px;
+        font-weight: 500;
+        line-height: 28.49px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #ffffff;
+      }
+    }
+    .submit_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #b28b00;
+      border-radius: 4px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+    }
+  }
+  .send_distributer {
+    .title {
+      font-family: Urbanist;
+      font-size: 25.72px;
+      font-weight: 700;
+      line-height: 19.72px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+    }
+    .send_date {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .select_distributer {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .select_product {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .product_input {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .add_product_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 17.53px;
+        font-weight: 500;
+        line-height: 28.49px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #ffffff;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .delete_disributer {
+      min-width: 46px;
+      height: 39px;
+      border-radius: 4px;
+      opacity: 0px;
+      background-color: transparent;
+      border: 1px solid #b28b00;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #b28b00;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .add_disributer {
+      width: 171px;
+      height: 39px;
+      border-radius: 4px;
+      border: 1px;
+      background-color: #7a8e49;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .submit_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #b28b00;
+      border-radius: 4px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+  }
+  .distributer_selection_model {
+    .salesrep_button {
+      width: 327px;
+      height: 39px;
+      border-radius: 4px;
+      opacity: 0px;
+      background-color: #67b108;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 19.2px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+    }
+    .subdistributer_button {
+      width: 327px;
+      height: 39px;
+      border-radius: 4px;
+      opacity: 0px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 19.2px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+    }
+  }
+  .send_salesrep {
+    .title {
+      font-family: Urbanist;
+      font-size: 25.72px;
+      font-weight: 700;
+      line-height: 19.72px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+    }
+    .send_date {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .select_salesrep {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .select_product {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .product_input {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .add_product_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 17.53px;
+        font-weight: 500;
+        line-height: 28.49px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #ffffff;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .delete_salesrep {
+      min-width: 46px;
+      height: 39px;
+      border-radius: 4px;
+      opacity: 0px;
+      background-color: transparent;
+      border: 1px solid #b28b00;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #b28b00;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .add_salesrep {
+      width: 171px;
+      height: 39px;
+      border-radius: 4px;
+      border: 1px;
+      background-color: #7a8e49;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .submit_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #b28b00;
+      border-radius: 4px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+  }
+  .send_shops {
+    .send_date {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .select_shop {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .select_product {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .product_input {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .add_product_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 17.53px;
+        font-weight: 500;
+        line-height: 28.49px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #ffffff;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .delete_shop {
+      min-width: 46px;
+      height: 39px;
+      border-radius: 4px;
+      opacity: 0px;
+      background-color: transparent;
+      border: 1px solid #b28b00;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #b28b00;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .add_shop {
+      width: 171px;
+      height: 39px;
+      border-radius: 4px;
+      border: 1px;
+      background-color: #7a8e49;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .submit_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #b28b00;
+      border-radius: 4px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+  }
+
+  .send_subdistributer {
+    .select_subdistributer {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+
+    .send_date {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .select_product {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .product_input {
+      width: 100%;
+      height: 39px;
+      border-radius: 6px;
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      border: 1px solid #67b108;
+    }
+    .add_product_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #0d6938;
+      .text {
+        font-family: Urbanist;
+        font-size: 17.53px;
+        font-weight: 500;
+        line-height: 28.49px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #ffffff;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .delete_subdistributer {
+      min-width: 46px;
+      height: 39px;
+      border-radius: 4px;
+      opacity: 0px;
+      background-color: transparent;
+      border: 1px solid #b28b00;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: #b28b00;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .add_subdistributer {
+      width: 171px;
+      height: 39px;
+      border-radius: 4px;
+      border: 1px;
+      background-color: #7a8e49;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .submit_button {
+      width: 171px;
+      height: 39px;
+      border: 1px;
+      background-color: #b28b00;
+      border-radius: 4px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+  }
+  .order_summary {
+    .table_header {
+      background-color: black;
+      .text {
+        color: white;
+        padding: 7px;
+        font-family: "Lato", sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+    .table-data {
+      .text {
+        padding: 4px;
+        font-family: "Lato", sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        color: #060606;
+        text-align: center;
+      }
+    }
+    .order_id_title {
+      font-family: Urbanist;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 26px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+    }
+    .sub_title {
+      font-family: Urbanist;
+      font-size: 19.72px;
+      font-weight: 600;
+      line-height: 19.72px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #b28b00;
+    }
+    .sub_title_two {
+      font-family: Urbanist;
+      font-size: 19.72px;
+      font-weight: 600;
+      line-height: 19.72px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #02401f;
+    }
+    .hrclass_one {
+      width: 100%;
+      height: 2px;
+      top: 203px;
+      left: 39px;
+      gap: 0px;
+      opacity: 0px;
+      background-color: #000000;
+    }
+    .hrclass_two {
+      width: 100%;
+      height: 1.5px;
+      top: 203px;
+      left: 39px;
+      gap: 0px;
+      opacity: 0px;
+      background-color: #000000;
+    }
+    .item_header {
+      font-family: Roboto;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 18.75px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #3f4254;
+    }
+    .item_text {
+      font-family: Roboto;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 18.75px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #0d6938;
+    }
+    .thclass {
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 19.2px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #5b5b5b;
+    }
+    .tdclass {
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 19.2px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #474747;
+    }
+    .content_card {
+      width: 100%;
+      border-radius: 4px;
+      border: 2px solid #67b108;
+
+      .distributer_inner_view {
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 12px;
+        .right_align_class {
+          text-align: right;
+          @media screen and (max-width: 768px) {
+            text-align: left;
+          }
+        }
+        .hrclass {
+          width: 100%;
+          height: 2px;
+          background-color: #c9c9c9;
+        }
+        .heading {
+          font-family: Urbanist;
+          font-size: 24px;
+          font-weight: 700;
+          line-height: 36px;
+          text-align: left;
+          text-underline-position: from-font;
+          text-decoration-skip-ink: none;
+          color: #000000;
+        }
+        .sub_heading {
+          font-family: Urbanist;
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 24px;
+          text-align: left;
+          text-underline-position: from-font;
+          color: #000000;
+        }
+        .sales_rep_view {
+          background-color: #eeeeee;
+          width: 100%;
+          padding-left: 15px;
+          padding-right: 15px;
+          padding-top: 12px;
+          .heading {
+            font-family: Urbanist;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 30px;
+            text-align: left;
+            text-underline-position: from-font;
+            text-decoration-skip-ink: none;
+            color: #0d6938;
+          }
+          .sub_heading {
+            font-family: Urbanist;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 24px;
+            text-align: left;
+            text-underline-position: from-font;
+            text-decoration-skip-ink: none;
+            color: #000000;
+          }
+          .shop_view {
+            background-color: #ffffff;
+            width: 100%;
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-top: 12px;
+            .heading {
+              font-family: Urbanist;
+              font-size: 20px;
+              font-weight: 700;
+              line-height: 30px;
+              text-align: left;
+              text-underline-position: from-font;
+              text-decoration-skip-ink: none;
+              color: #67b108;
+            }
+            .sub_heading {
+              font-family: Urbanist;
+              font-size: 16px;
+              font-weight: 700;
+              line-height: 24px;
+              text-align: left;
+              text-underline-position: from-font;
+              text-decoration-skip-ink: none;
+              color: #000000;
+            }
+          }
+        }
+      }
+    }
+    .total {
+      font-family: Urbanist;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 19.2px;
+      text-align: left;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+      color: #000000;
+    }
+    .table_borders {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+  }
+  .factory_invoice {
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .header {
+      padding-left: 50px;
+      padding-right: 50px;
+      .left_col {
+        .company_name {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 25px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .company_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 140%;
+          letter-spacing: 0%;
+        }
+      }
+      .right_col {
+        .invoice_no {
+          padding: 5px;
+          width: 120px;
+          background-color: black;
+          .text {
+            color: white;
+            font-family: Urbanist;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 130%;
+            letter-spacing: 0%;
+          }
+        }
+        .text-1 {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .client_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+      }
+    }
+    .footer_note {
+      color: #000000;
+      font-family: Urbanist;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 90%;
+      letter-spacing: 0%;
+    }
+  }
+
+  .distributer_invoice {
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .header {
+      padding-left: 50px;
+      padding-right: 50px;
+      .left_col {
+        .company_name {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 25px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .company_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 140%;
+          letter-spacing: 0%;
+        }
+        .invoice_to {
+          padding: 10px;
+          max-width: 80%;
+          min-height: 140px;
+          border: 1px solid black;
+          @media screen and (max-width: 768px) {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+      .right_col {
+        .invoice_no {
+          padding: 5px;
+          width: 120px;
+          background-color: black;
+          .text {
+            color: white;
+            font-family: Urbanist;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 130%;
+            letter-spacing: 0%;
+          }
+        }
+        .text-1 {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .client_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+      }
+    }
+    .footer_note {
+      color: #000000;
+      font-family: Urbanist;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 90%;
+      letter-spacing: 0%;
+    }
+  }
+
+  .salesrep_invoice {
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .header {
+      padding-left: 50px;
+      padding-right: 50px;
+      .left_col {
+        .company_name {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 25px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .company_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 140%;
+          letter-spacing: 0%;
+        }
+        .invoice_to {
+          padding: 10px;
+          max-width: 80%;
+          min-height: 140px;
+          border: 1px solid black;
+          @media screen and (max-width: 768px) {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+      .right_col {
+        .invoice_no {
+          padding: 5px;
+          width: 120px;
+          background-color: black;
+          .text {
+            color: white;
+            font-family: Urbanist;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 130%;
+            letter-spacing: 0%;
+          }
+        }
+        .text-1 {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .client_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+      }
+    }
+    .footer_note {
+      color: #000000;
+      font-family: Urbanist;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 90%;
+      letter-spacing: 0%;
+    }
+  }
+
+  .shop_invoice {
+    .download_invoice {
+      width: 158px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .header {
+      padding-left: 50px;
+      padding-right: 50px;
+
+      .left_col {
+        .company_name {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 25px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .company_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 140%;
+          letter-spacing: 0%;
+        }
+        .invoice_to {
+          padding: 10px;
+          max-width: 90%;
+          min-height: 140px;
+          border: 1px solid black;
+          @media screen and (max-width: 768px) {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+      .right_col {
+        .invoice_no {
+          padding: 5px;
+          width: 120px;
+          background-color: black;
+          .text {
+            color: white;
+            font-family: Urbanist;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 130%;
+            letter-spacing: 0%;
+          }
+        }
+        .text-1 {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .client_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+      }
+    }
+    .footer_note {
+      color: #000000;
+      font-family: Urbanist;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 90%;
+      letter-spacing: 0%;
+    }
+  }
+
+  .shop_delivery_note {
+    .download_invoice {
+      width: 200px;
+      height: 39px;
+      border: 1px;
+      background-color: #67b108;
+      border-radius: 4px;
+      border: 1px;
+      .text {
+        font-family: Urbanist;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 26px;
+        text-align: left;
+        text-underline-position: from-font;
+        text-decoration-skip-ink: none;
+        color: white;
+      }
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+    }
+    .header {
+      padding-left: 50px;
+      padding-right: 50px;
+      .left_col {
+        .invoice_no {
+          padding: 5px;
+          width: 150px;
+          background-color: black;
+          .text {
+            color: white;
+            font-family: Urbanist;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 130%;
+            letter-spacing: 0%;
+          }
+        }
+        .text-1 {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .company_name {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 600;
+          font-size: 25px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+        .company_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 140%;
+          letter-spacing: 0%;
+        }
+        .invoice_to {
+          padding: 10px;
+          max-width: 80%;
+          min-height: 140px;
+          border: 1px solid black;
+          @media screen and (max-width: 768px) {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+      .right_col {
+        .client_text {
+          color: #000000;
+          font-family: Urbanist;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 130%;
+          letter-spacing: 0%;
+        }
+      }
+    }
+    .footer_note {
+      page-break-inside: avoid;
+      page-break-after: auto;
+      color: #000000;
+      font-family: Urbanist;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 90%;
+      letter-spacing: 0%;
+    }
+  }
+}
