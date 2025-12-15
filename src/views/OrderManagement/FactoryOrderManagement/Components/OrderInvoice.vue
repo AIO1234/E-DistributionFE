@@ -329,10 +329,10 @@
 
                   <span class="footer_note">
                     Bank Details :
-                    <div class="pt-1"></div>
-                    Bank - Commercial Bank <br />
+                    <!-- <div class="pt-1"></div> -->
+                    <!-- Bank - Commercial Bank <br />
                     Branch - Nugegoda Branch <br />
-                    Account No - 1000586877
+                    Account No - 1000586877 -->
                   </span>
                 </div>
 
