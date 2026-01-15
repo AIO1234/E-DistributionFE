@@ -181,7 +181,6 @@ export default {
   async created() {
     await this.getShops();
     await this.initializeData();
-    await this.getAllshopOrders();
   },
 
   methods: {
@@ -191,7 +190,7 @@ export default {
       const { getSelectedShopId } = store.getters;
 
       // check weather store shop id is null
-      if (getSelectedShopId !== null) {
+      if (getSelectedShopId !== null && getSelectedShopId !== undefined) {
         // set shop id from the store(if available)
         this.shop_id = getSelectedShopId;
 
