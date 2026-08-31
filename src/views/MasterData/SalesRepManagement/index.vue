@@ -2,9 +2,20 @@
   <div class="mt-9 masterdata">
     <div class="pt-12">
       <v-row>
-        <v-col lg="6" class="text-right" cols="12"> </v-col>
+        <!-- search sales rep -->
+        <v-col lg="3" cols="12">
+          <v-text-field
+            v-model="searchdata"
+            placeholder="Search Sales Rep"
+            class="search_input"
+          >
+            <template v-slot:prepend-inner>
+              <v-icon icon="tabler-search"></v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
         <!-- create order -->
-        <v-col lg="6" class="text-right" cols="12">
+        <v-col lg="9" class="text-right" cols="12">
           <v-btn class="create_btn" variant="none" @click="show = true">
             <template v-slot:prepend>
               <img src="@/assets/images/IconsSolid.png" />
@@ -17,7 +28,16 @@
       <div class="pt-12"></div>
       <!-- table -->
       <v-card>
-        <Table :SalesReps="SalesReps" :loading="loading" @close="closeModal" />
+        <Table
+          :SalesReps="SalesReps"
+          :loading="loading"
+          :totalItems="totalItems"
+          :currentPage="page"
+          :itemsPerPage="itemsPerPage"
+          @close="closeModal"
+          @pagechange="pageChange"
+          @pagesizechange="pageSizeChange"
+        />
       </v-card>
     </div>
 
@@ -64,11 +84,27 @@ export default {
       show: false,
       SalesReps: [],
       loading: false,
+      searchdata: "",
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
     };
   },
   components: {
     Table,
     Create,
+  },
+
+  watch: {
+    // re-search server-side as the user types (debounced), same live-filter
+    // feel as before but no longer limited to whatever page was loaded
+    searchdata() {
+      if (!this.debouncedSearch) {
+        this.debouncedSearch = this.debounce(() => this.search(), 400);
+      }
+
+      this.debouncedSearch();
+    },
   },
 
   async created() {
@@ -79,10 +115,42 @@ export default {
     // get all  SalesReps
     async getAllSalesReps() {
       this.loading = true;
-      const res = await SalesRepApi.allSalesReps();
-      this.SalesReps = res.data.data;
+
+      const payload = {
+        seacrh_data: this.searchdata,
+        page: this.page,
+        per_page: this.itemsPerPage,
+      };
+      const res = await SalesRepApi.allSalesReps(payload);
+      const pagination = res.data.data;
+
+      this.SalesReps = pagination.data;
+      this.totalItems = pagination.total;
+      this.page = pagination.current_page;
+      this.itemsPerPage = pagination.per_page;
       this.loading = false;
     },
+
+    // search - reset to page 1 since the previous page may not exist
+    // anymore under the new search text
+    async search() {
+      this.page = 1;
+      await this.getAllSalesReps();
+    },
+
+    // page change
+    async pageChange(data) {
+      this.page = data.page;
+      await this.getAllSalesReps();
+    },
+
+    // items-per-page change
+    async pageSizeChange(data) {
+      this.page = data.page;
+      this.itemsPerPage = data.per_page;
+      await this.getAllSalesReps();
+    },
+
     // close
     async closeModal() {
       this.show = false;

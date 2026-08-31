@@ -103,6 +103,7 @@
 
 <script>
 import ShopsApi from "@/Api/Modules/shop";
+import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 
 export default {
@@ -129,9 +130,11 @@ export default {
       await this.getAreas();
     },
 
-    // get areas from the globals
+    // get areas - /areas/index is paginated, request a large per_page to
+    // effectively get everything in one page for the dropdown
     async getAreas() {
-      this.areas = await commonmixins.methods.getAreas();
+      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
+      this.areas = res.data.data.data;
     },
     // close shop add modal
     close(data) {

@@ -46,9 +46,9 @@
             </AppDateTimePicker>
           </v-col>
 
-          <!-- search button -->
+          <!-- search button: searching happens live in the browser as you type, no click needed -->
           <v-col lg="3" cols="12">
-            <v-btn class="search_button" variant="none" @click="getAlOrders()"
+            <v-btn class="search_button" variant="none"
               ><span class="text">Search</span></v-btn
             >
           </v-col>
@@ -65,14 +65,28 @@
           <v-col lg="3" cols="12">
             <v-btn class="exfort_button" variant="none">
               <download-excel
-                :data="factoryOrders"
+                :data="exportOrders"
                 :fields="headers"
                 worksheet="All Factory Orders"
                 :name="`as of ${todaydate} allfactoryorders.xls`"
+                :before-generate="loadExportOrders"
               >
                 <span class="text">Export</span>
               </download-excel>
             </v-btn>
+          </v-col>
+        </v-row>
+
+        <div class="pt-3"></div>
+        <!-- remaining quantity in factory -->
+        <v-row>
+          <v-col lg="3" cols="12">
+            <div class="shop_balance_amount">
+              <span class="text">
+                Remaining Full Quantity In Factory :
+                <b class="amount">{{ remainingFactoryQuantity }}</b>
+              </span>
+            </div>
           </v-col>
         </v-row>
       </div>
@@ -84,7 +98,12 @@
         <Table
           :FactryOrders="factoryOrders"
           :loading="loading"
+          :totalItems="totalItems"
+          :currentPage="page"
+          :itemsPerPage="itemsPerPage"
           @close="closeModal"
+          @pagechange="pageChange"
+          @pagesizechange="pageSizeChange"
         />
       </v-card>
     </div>
@@ -130,6 +149,8 @@ import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
 
 export default {
+  // needed for this.debounce(), used by the searchdata watcher below
+  mixins: [mixin],
   data() {
     return {
       todaydate: mixin.methods.momentFormat(
@@ -141,7 +162,13 @@ export default {
       enddate: "",
       show: false,
       factoryOrders: [],
+      // full result set matching the current filters (not just the current
+      // page), lazily loaded right before Export fires
+      exportOrders: [],
       loading: false,
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
       headers: {
         "Order Id": "order_reference_id",
         "Invoice No": "invoice_no",
@@ -158,39 +185,121 @@ export default {
     downloadExcel: JsonExcel,
   },
 
+  computed: {
+    // sum the live remaining quantity for each product in the currently
+    // loaded page of orders (table is now server-paginated, so this is no
+    // longer a true grand total across every matching order)
+    remainingFactoryQuantity() {
+      return this.factoryOrders.reduce((total, order) => {
+        const orderQuantity = (order.order_products || []).reduce(
+          (productTotal, product) =>
+            productTotal + Number(product.pivot?.uptodate_quantity || 0),
+          0,
+        );
+
+        return total + orderQuantity;
+      }, 0);
+    },
+  },
+
+  watch: {
+    // re-search server-side as the user types (debounced), same live-filter
+    // feel as before but no longer limited to whatever page was loaded
+    searchdata() {
+      if (!this.debouncedSearch) {
+        this.debouncedSearch = this.debounce(() => this.search(), 400);
+      }
+
+      this.debouncedSearch();
+    },
+
+    // date filters take effect immediately, same as before
+    startdate() {
+      this.search();
+    },
+    enddate() {
+      this.search();
+    },
+  },
+
   async created() {
+    // load factory orders when the page is opened
     await this.getAlOrders();
   },
 
   methods: {
-    // get all factory orders
+    // get factory orders for the current page/filters
     async getAlOrders() {
       const payload = {
         searchdata: this.searchdata,
         startdate: this.startdate,
         enddate: this.enddate,
+        page: this.page,
+        per_page: this.itemsPerPage,
       };
 
       this.loading = true;
+
       const res = await OrderApi.allFactoryOrders(payload);
-      this.factoryOrders = res.data.data;
+      const pagination = res.data.data;
+
+      this.factoryOrders = pagination.data;
+      this.totalItems = pagination.total;
+      this.page = pagination.current_page;
+      this.itemsPerPage = pagination.per_page;
+
       this.loading = false;
     },
+
+    // load the complete filtered order list (not just the current page) right
+    // before the export fires, so the exported file matches the active filters
+    async loadExportOrders() {
+      const payload = {
+        searchdata: this.searchdata,
+        startdate: this.startdate,
+        enddate: this.enddate,
+        page: 1,
+        per_page: 100000,
+      };
+
+      const res = await OrderApi.allFactoryOrders(payload);
+
+      this.exportOrders = res.data.data.data;
+    },
+
+    // search - reset to page 1 since the previous page may not exist
+    // anymore under the new search text/dates
+    async search() {
+      this.page = 1;
+      await this.getAlOrders();
+    },
+
+    // page change
+    async pageChange(data) {
+      this.page = data.page;
+      await this.getAlOrders();
+    },
+
+    // items-per-page change
+    async pageSizeChange(data) {
+      this.page = data.page;
+      this.itemsPerPage = data.per_page;
+      await this.getAlOrders();
+    },
+
     // close order create
     async closeModal() {
+      // close the create-order dialog before refreshing the order list
       this.show = false;
       // call orders
       await this.getAlOrders();
     },
 
     // clear searches
-
-    async clear() {
-      // reset searches
+    clear() {
       this.searchdata = "";
       this.startdate = "";
       this.enddate = "";
-      await this.getAlOrders();
     },
   },
 };

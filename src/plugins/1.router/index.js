@@ -8,6 +8,8 @@ import masterdata_routes from "@/routes/masterdata_route";
 import auth_routes from "@/routes/auth_routes";
 import auth_controller from "./auth_controller";
 import report_controller from "@/routes/report_routes";
+import supply_chain_route from "@/routes/supply_chain_route";
+import expense_management_routes from "@/routes/expense_management";
 
 import { store } from "@/store";
 
@@ -30,6 +32,8 @@ const routes = [
   ...return_routes,
   ...auth_routes,
   ...report_controller,
+  ...supply_chain_route,
+  ...expense_management_routes,
 ];
 
 const router = createRouter({

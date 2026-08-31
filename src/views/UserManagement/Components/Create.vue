@@ -33,7 +33,7 @@
 
           <!-- Mobile -->
           <v-col lg="12" cols="12">
-            <label class="label">Mobile*</label>
+            <label class="label">Mobile</label>
             <div class="mt-2"></div>
             <v-text-field
               placeholder="Mobile"
@@ -44,7 +44,7 @@
 
           <!-- Address -->
           <v-col lg="12" cols="12">
-            <label class="label">Address*</label>
+            <label class="label">Address</label>
             <div class="mt-2"></div>
             <v-text-field
               placeholder="Address"
@@ -79,8 +79,21 @@
               :rules="[required, password]"
               label="Password"
               placeholder="Enter Password"
-              type="password"
-            ></v-text-field>
+              :type="showPassword ? 'password' : 'text'"
+            >
+              <template #append-inner>
+                <img
+                  @click="showPassword = !showPassword"
+                  src="@/assets/images/eye.png"
+                  style="
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                    cursor: pointer;
+                  "
+                />
+              </template>
+            </v-text-field>
           </v-col>
 
           <!-- confirm password -->
@@ -93,8 +106,21 @@
               :rules="[required, confirm_password]"
               label="Confirm Password"
               placeholder="Confirm Password"
-              type="password"
-            ></v-text-field>
+              :type="showConfirmPassword ? 'password' : 'text'"
+            >
+              <template #append-inner>
+                <img
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  src="@/assets/images/eye.png"
+                  style="
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                    cursor: pointer;
+                  "
+                />
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
         <div class="pt-15" />
@@ -128,6 +154,8 @@ export default {
       loading: false,
       isFormValid: false,
       roles: [],
+      showPassword: true,
+      showConfirmPassword: true,
     };
   },
   async created() {

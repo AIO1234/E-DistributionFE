@@ -14,6 +14,10 @@ import "@/assets/scss/payment_management.scss";
 import "@/assets/scss/return_management.scss";
 import "@/assets/scss/masterdata.scss";
 import "@/assets/scss/report_management.scss";
+import "@/assets/scss/category.scss";
+import "@/assets/scss/supplier.scss";
+import "@/assets/scss/SupplierPaymentManagement.scss";
+import "@/assets/scss/expense_management.scss";
 
 document.addEventListener("contextmenu", (event) => event.preventDefault());
 

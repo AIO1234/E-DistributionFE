@@ -84,7 +84,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Number of Distributors
+                      <span class="item_header"></span>Number of ShowRooms
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -115,22 +115,6 @@
                     <v-col lg="7">
                       <span class="item_text">{{
                         summary.main_order_details.shop_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Distributor
-                      Commission
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(
-                          summary.main_order_details.distributer_commision
-                        )
                       }}</span>
                     </v-col>
                   </v-row>
@@ -172,8 +156,7 @@
                       <span class="item_text">{{
                         getPrice(
                           summary.shop_order_amount -
-                            summary.main_order_details.distributer_commision -
-                            summary.main_order_details.salesrep_commision
+                            summary.main_order_details.salesrep_commision,
                         )
                       }}</span>
                     </v-col>
@@ -198,7 +181,6 @@
                 <tr>
                   <th class="thclass">Product Code</th>
                   <th class="thclass">Product Name</th>
-                  <th class="thclass">Unit Size</th>
                   <th class="thclass">Qty</th>
                   <th class="thclass">Remain Qty</th>
                   <th class="thclass">Unit Price(Rs)</th>
@@ -212,15 +194,7 @@
                 >
                   <td class="tdclass">{{ product.product_code }}</td>
                   <td class="tdclass">{{ product.product_name }}</td>
-                  <td class="tdclass" v-if="product.product_type === 'Liquid'">
-                    {{ getVolume(product.product_volume) }}
-                  </td>
-                  <td
-                    class="tdclass"
-                    v-else-if="product.product_type === 'Solid'"
-                  >
-                    {{ getWeight(product.product_weight) }}
-                  </td>
+
                   <td class="tdclass">{{ product.pivot.quantity }}</td>
                   <td class="tdclass">{{ product.pivot.uptodate_quantity }}</td>
                   <td class="tdclass">
@@ -244,47 +218,20 @@
                     <v-col class="heading" lg="6" cols="12">
                       <span
                         >{{ distributerorder.distributer.distributer_name }} -
-                        Distributer ({{
-                          distributerorder.distributer.position
-                        }})</span
-                      >
+                        ShowRoom
+                      </span>
                     </v-col>
 
-                    <v-col lg="2" class="pt-5 text-center" cols="12">
-                      <span class="sub_heading"
-                        >Total Order Commision -
-                        {{
-                          getPrice(distributerorder.distributer_commision)
-                        }}</span
-                      >
-                    </v-col>
+                    <v-col lg="2" class="pt-5 text-center" cols="12"> </v-col>
 
-                    <v-col lg="1" class="pt-5" cols="12">
-                      <v-btn
-                        color="transparent"
-                        variant="none"
-                        @click="
-                          show = true;
-                          modeltype = 'Distributer_Commision';
-                          selectedOrderNo = distributerorder.order_reference_id;
-                          (selectedOrderid = distributerorder.id),
-                            (selectedCommisionvalue =
-                              distributerorder.distributer_commision);
-                        "
-                      >
-                        <img
-                          src="@/assets/images/edit.png"
-                          style="width: 70%"
-                        />
-                      </v-btn>
-                    </v-col>
+                    <v-col lg="1" class="pt-5" cols="12"> </v-col>
 
                     <v-col lg="3" class="pt-5 right_align_class" cols="12">
                       <v-btn
                         color="primary"
                         @click="
                           $router.push(
-                            `/distributeorderinvoice/${distributerorder.id}`
+                            `/distributeorderinvoice/${distributerorder.id}`,
                           )
                         "
                         ><span>View Invoice</span>
@@ -302,7 +249,6 @@
                       <tr>
                         <th class="thclass">Product Code</th>
                         <th class="thclass">Product Name</th>
-                        <th class="thclass">Unit Size</th>
                         <th class="thclass">Qty</th>
                         <th class="thclass">Remain Qty</th>
                         <th class="thclass">Unit Price(Rs)</th>
@@ -319,20 +265,6 @@
                         </td>
                         <td class="tdclass">
                           {{ distributerproduct.product_name }}
-                        </td>
-                        <td
-                          class="tdclass"
-                          v-if="distributerproduct.product_type === 'Liquid'"
-                        >
-                          {{ getVolume(distributerproduct.product_volume) }}
-                        </td>
-                        <td
-                          class="tdclass"
-                          v-else-if="
-                            distributerproduct.product_type === 'Solid'
-                          "
-                        >
-                          {{ getWeight(distributerproduct.product_weight) }}
                         </td>
 
                         <td class="tdclass">
@@ -367,7 +299,8 @@
                             <span
                               >{{ salesreporder.salesrep.rep_name }} -
                               SalesRep({{
-                                salesreporder.salesrep.position
+                               'Vehicle No : ' + salesreporder.vehicle.vehicle_no
+
                               }})</span
                             >
                           </v-col>
@@ -390,9 +323,9 @@
                                 modeltype = 'SalesRep_Commision';
                                 selectedOrderNo =
                                   salesreporder.order_reference_id;
-                                (selectedOrderid = salesreporder.id),
+                                ((selectedOrderid = salesreporder.id),
                                   (selectedCommisionvalue =
-                                    salesreporder.salesrep_commision);
+                                    salesreporder.salesrep_commision));
                               "
                             >
                               <img
@@ -411,7 +344,7 @@
                               color="primary"
                               @click="
                                 $router.push(
-                                  `/salesreporderinvoice/${salesreporder.id}`
+                                  `/salesreporderinvoice/${salesreporder.id}`,
                                 )
                               "
                               ><span>View Invoice</span>
@@ -430,7 +363,6 @@
                             <tr>
                               <th class="thclass">Product Code</th>
                               <th class="thclass">Product Name</th>
-                              <th class="thclass">Unit Size</th>
                               <th class="thclass">Qty</th>
                               <th class="thclass">Remain Qty</th>
                               <th class="thclass">Unit Price(Rs)</th>
@@ -447,26 +379,6 @@
                               </td>
                               <td class="tdclass">
                                 {{ salesreporderitem.product_name }}
-                              </td>
-                              <td
-                                class="tdclass"
-                                v-if="
-                                  salesreporderitem.product_type === 'Liquid'
-                                "
-                              >
-                                {{
-                                  getVolume(salesreporderitem.product_volume)
-                                }}
-                              </td>
-                              <td
-                                class="tdclass"
-                                v-else-if="
-                                  salesreporderitem.product_type === 'Solid'
-                                "
-                              >
-                                {{
-                                  getWeight(salesreporderitem.product_weight)
-                                }}
                               </td>
                               <td class="tdclass">
                                 {{ salesreporderitem.pivot.quantity }}
@@ -499,7 +411,14 @@
                         >
                           <v-row>
                             <v-col class="heading" lg="3" cols="12">
-                              <span>{{ shoporder.shop.shop_name }} - Shop</span>
+                              <span
+                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >
+                              (Courier : {{
+                                shoporder.courier?.company_name ?? "N/A"
+                              }})</span
+                            ></span
+                          >
                             </v-col>
 
                             <v-col
@@ -511,6 +430,13 @@
                                 >Order Amount -
                                 {{ getPrice(shoporder.order_amount) }}</span
                               >
+                                <span
+                                  class="sub_heading"
+                                  v-if="getReturnAmount(shoporder) > 0"
+                                  style="display: block"
+                                  >Return Amount -
+                                  {{ getPrice(getReturnAmount(shoporder)) }}</span
+                                >
                             </v-col>
                             <v-col
                               lg="3"
@@ -521,7 +447,7 @@
                                 color="primary"
                                 @click="
                                   $router.push(
-                                    `/shoporderinvoice/${shoporder.id}`
+                                    `/shoporderinvoice/${shoporder.id}`,
                                   )
                                 "
                                 ><span>View Invoice</span>
@@ -538,7 +464,7 @@
                                 style="width: 100%"
                                 @click="
                                   $router.push(
-                                    `/shoporderdeliverynote/${shoporder.id}`
+                                    `/shoporderdeliverynote/${shoporder.id}`,
                                   )
                                 "
                                 ><span>View Delivery Note</span>
@@ -554,12 +480,13 @@
                               <tr>
                                 <th class="thclass">Product Code</th>
                                 <th class="thclass">Product Name</th>
-                                <th class="thclass">Unit Size</th>
                                 <th class="thclass">Qty</th>
+                                <th class="thclass">Returned Qty</th>
                                 <th class="thclass">Unit Price(Rs)</th>
                                 <th class="thclass">Discount Value</th>
                                 <th class="thclass">Discounted Value</th>
                                 <th class="thclass">Value(Rs)</th>
+                              <th class="thclass">Returned Amount</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -573,25 +500,14 @@
                                 <td class="tdclass">
                                   {{ shoporderitem.product_name }}
                                 </td>
-                                <td
-                                  class="tdclass"
-                                  v-if="shoporderitem.product_type === 'Liquid'"
-                                >
-                                  {{ getVolume(shoporderitem.product_volume) }}
-                                </td>
-                                <td
-                                  class="tdclass"
-                                  v-else-if="
-                                    shoporderitem.product_type === 'Solid'
-                                  "
-                                >
-                                  {{ getWeight(shoporderitem.product_weight) }}
-                                </td>
                                 <td class="tdclass">
                                   {{
                                     shoporderitem.pivot.quantity -
                                     shoporderitem.pivot.return_quantity
                                   }}
+                                </td>
+                                <td class="tdclass">
+                                  {{ shoporderitem.pivot.return_quantity || 0 }}
                                 </td>
 
                                 <td class="tdclass">
@@ -607,7 +523,7 @@
                                   >
                                     {{
                                       getPrice(
-                                        shoporderitem.pivot.discount_value
+                                        shoporderitem.pivot.discount_value,
                                       )
                                     }}
                                   </span>
@@ -623,7 +539,7 @@
                                   >
                                     {{
                                       getPrice(
-                                        shoporderitem.pivot.discounted_price
+                                        shoporderitem.pivot.discounted_price,
                                       )
                                     }}
                                   </span>
@@ -634,15 +550,190 @@
                                   {{
                                     getPrice(
                                       shoporderitem.pivot.price -
-                                        shoporderitem.pivot.return_value
+                                        shoporderitem.pivot.return_value,
                                     )
                                   }}
+                                </td>
+                                <td class="tdclass">
+                                  {{ getPrice(shoporderitem.pivot.return_value || 0) }}
                                 </td>
                               </tr>
                             </tbody>
                           </v-table>
                         </div>
                         <div class="pt-5"></div>
+                      </div>
+                    </v-card>
+                    <div class="pt-5"></div>
+                  </div>
+
+                  <!-- content card direct shop orders (sent straight from this showroom, no sales rep) -->
+                  <div v-if="distributerorder.direct_shop_orders.length !== 0">
+                    <v-card class="content_card" style="min-height: 250px">
+                      <div class="distributer_inner_view">
+                        <div class="sales_rep_view" style="min-height: 234px">
+                          <!-- shop view -->
+                          <div
+                            class="shop_view"
+                            style="min-height: 274px"
+                            v-for="shoporder in distributerorder.direct_shop_orders"
+                            :key="shoporder"
+                          >
+                            <v-row>
+                              <v-col class="heading" lg="3" cols="12">
+                                <span
+                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >
+                              (Courier : {{
+                                shoporder.courier?.company_name ?? "N/A"
+                              }})</span
+                            ></span
+                          >
+                              </v-col>
+
+                              <v-col
+                                lg="3"
+                                class="pt-5 right_align_class"
+                                cols="12"
+                              >
+                                <span class="sub_heading"
+                                  >Order Amount -
+                                  {{ getPrice(shoporder.order_amount) }}</span
+                                >
+                                  <span
+                                    class="sub_heading"
+                                    v-if="getReturnAmount(shoporder) > 0"
+                                    style="display: block"
+                                    >Return Amount -
+                                    {{ getPrice(getReturnAmount(shoporder)) }}</span
+                                  >
+                              </v-col>
+                              <v-col
+                                lg="3"
+                                class="pt-5 right_align_class"
+                                cols="12"
+                              >
+                                <v-btn
+                                  color="primary"
+                                  @click="
+                                    $router.push(
+                                      `/shoporderinvoice/${shoporder.id}`,
+                                    )
+                                  "
+                                  ><span>View Invoice</span>
+                                </v-btn>
+                              </v-col>
+
+                              <v-col
+                                lg="3"
+                                class="pt-5 right_align_class"
+                                cols="12"
+                              >
+                                <v-btn
+                                  color="primary"
+                                  style="width: 100%"
+                                  @click="
+                                    $router.push(
+                                      `/shoporderdeliverynote/${shoporder.id}`,
+                                    )
+                                  "
+                                  ><span>View Delivery Note</span>
+                                </v-btn>
+                              </v-col>
+                            </v-row>
+
+                            <div class="pt-3"></div>
+                            <div class="hrclass"></div>
+
+                            <v-table min-height="300px">
+                              <thead>
+                                <tr>
+                                  <th class="thclass">Product Code</th>
+                                  <th class="thclass">Product Name</th>
+                                  <th class="thclass">Qty</th>
+                                  <th class="thclass">Returned Qty</th>
+                                  <th class="thclass">Unit Price(Rs)</th>
+                                  <th class="thclass">Discount Value</th>
+                                  <th class="thclass">Discounted Value</th>
+                                  <th class="thclass">Value(Rs)</th>
+                                <th class="thclass">Returned Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr
+                                  v-for="shoporderitem in shoporder.distributer_salesrep_shop_order_items"
+                                  :key="shoporderitem"
+                                >
+                                  <td class="tdclass">
+                                    {{ shoporderitem.product_code }}
+                                  </td>
+                                  <td class="tdclass">
+                                    {{ shoporderitem.product_name }}
+                                  </td>
+                                  <td class="tdclass">
+                                    {{
+                                      shoporderitem.pivot.quantity -
+                                      shoporderitem.pivot.return_quantity
+                                    }}
+                                  </td>
+                                  <td class="tdclass">
+                                    {{ shoporderitem.pivot.return_quantity || 0 }}
+                                  </td>
+                                  <td class="tdclass">
+                                    {{
+                                      getPrice(shoporderitem.pivot.unit_price)
+                                    }}
+                                  </td>
+
+                                  <td class="tdclass">
+                                    <span
+                                      v-if="
+                                        shoporderitem.pivot.discount_value !==
+                                        null
+                                      "
+                                    >
+                                      {{
+                                        getPrice(
+                                          shoporderitem.pivot.discount_value,
+                                        )
+                                      }}
+                                    </span>
+                                    <span v-else> N/A</span>
+                                  </td>
+
+                                  <td class="tdclass">
+                                    <span
+                                      v-if="
+                                        shoporderitem.pivot
+                                          .discounted_price !== null
+                                      "
+                                    >
+                                      {{
+                                        getPrice(
+                                          shoporderitem.pivot
+                                            .discounted_price,
+                                        )
+                                      }}
+                                    </span>
+                                    <span v-else> N/A</span>
+                                  </td>
+
+                                  <td class="tdclass">
+                                    {{
+                                      getPrice(
+                                        shoporderitem.pivot.price -
+                                          shoporderitem.pivot.return_value,
+                                      )
+                                    }}
+                                  </td>
+                                  <td class="tdclass">
+                                    {{ getPrice(shoporderitem.pivot.return_value || 0) }}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </v-table>
+                          </div>
+                        </div>
                       </div>
                     </v-card>
                     <div class="pt-5"></div>
@@ -697,7 +788,7 @@
                                   color="primary"
                                   @click="
                                     $router.push(
-                                      `/subdistributerorderinvoice/${subdistributer.id}`
+                                      `/subdistributerorderinvoice/${subdistributer.id}`,
                                     )
                                   "
                                   ><span>View Invoice</span>
@@ -716,7 +807,6 @@
                                 <tr>
                                   <th class="thclass">Product Code</th>
                                   <th class="thclass">Product Name</th>
-                                  <th class="thclass">Unit Size</th>
                                   <th class="thclass">Qty</th>
                                   <th class="thclass">Unit Price(Rs)</th>
                                   <th class="thclass">Discount Value</th>
@@ -735,39 +825,14 @@
                                   <td class="tdclass">
                                     {{ subdistributerorderitem.product_name }}
                                   </td>
-                                  <td
-                                    class="tdclass"
-                                    v-if="
-                                      subdistributerorderitem.product_type ===
-                                      'Liquid'
-                                    "
-                                  >
-                                    {{
-                                      getVolume(
-                                        subdistributerorderitem.product_volume
-                                      )
-                                    }}
-                                  </td>
-                                  <td
-                                    class="tdclass"
-                                    v-else-if="
-                                      subdistributerorderitem.product_type ===
-                                      'Solid'
-                                    "
-                                  >
-                                    {{
-                                      getWeight(
-                                        subdistributerorderitem.product_weight
-                                      )
-                                    }}
-                                  </td>
                                   <td class="tdclass">
                                     {{ subdistributerorderitem.pivot.quantity }}
                                   </td>
                                   <td class="tdclass">
                                     {{
                                       getPrice(
-                                        subdistributerorderitem.pivot.unit_price
+                                        subdistributerorderitem.pivot
+                                          .unit_price,
                                       )
                                     }}
                                   </td>
@@ -782,7 +847,7 @@
                                       {{
                                         getPrice(
                                           subdistributerorderitem.pivot
-                                            .discount_value
+                                            .discount_value,
                                         )
                                       }}
                                     </span>
@@ -799,7 +864,7 @@
                                       {{
                                         getPrice(
                                           subdistributerorderitem.pivot
-                                            .discounted_price
+                                            .discounted_price,
                                         )
                                       }}
                                     </span>
@@ -809,7 +874,7 @@
                                   <td class="tdclass">
                                     {{
                                       getPrice(
-                                        subdistributerorderitem.pivot.price
+                                        subdistributerorderitem.pivot.price,
                                       )
                                     }}
                                   </td>
@@ -822,6 +887,170 @@
                         <div class="pt-5"></div>
                       </v-card>
                       <div class="pt-5"></div>
+                    </div>
+                  </div>
+                </div>
+              </v-card>
+              <div class="pt-5"></div>
+            </div>
+
+            <!-- content card direct shop orders (sent straight from the factory, no showroom or sales rep) -->
+            <div v-if="summary.direct_factory_shop_chain.length !== 0">
+              <v-card class="content_card" style="min-height: 250px">
+                <div class="distributer_inner_view">
+                  <div class="sales_rep_view" style="min-height: 234px">
+                    <!-- shop view -->
+                    <div
+                      class="shop_view"
+                      style="min-height: 274px"
+                      v-for="shoporder in summary.direct_factory_shop_chain"
+                      :key="shoporder"
+                    >
+                      <v-row>
+                        <v-col class="heading" lg="3" cols="12">
+                          <span
+                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >
+                              (Courier : {{
+                                shoporder.courier?.company_name ?? "N/A"
+                              }})</span
+                            ></span
+                          >
+                        </v-col>
+
+                        <v-col
+                          lg="3"
+                          class="pt-5 right_align_class"
+                          cols="12"
+                        >
+                          <span class="sub_heading"
+                            >Order Amount -
+                            {{ getPrice(shoporder.order_amount) }}</span
+                          >
+                            <span
+                              class="sub_heading"
+                              v-if="getReturnAmount(shoporder) > 0"
+                              style="display: block"
+                              >Return Amount -
+                              {{ getPrice(getReturnAmount(shoporder)) }}</span
+                            >
+                        </v-col>
+                        <v-col
+                          lg="3"
+                          class="pt-5 right_align_class"
+                          cols="12"
+                        >
+                          <v-btn
+                            color="primary"
+                            @click="
+                              $router.push(`/shoporderinvoice/${shoporder.id}`)
+                            "
+                            ><span>View Invoice</span>
+                          </v-btn>
+                        </v-col>
+
+                        <v-col
+                          lg="3"
+                          class="pt-5 right_align_class"
+                          cols="12"
+                        >
+                          <v-btn
+                            color="primary"
+                            style="width: 100%"
+                            @click="
+                              $router.push(
+                                `/shoporderdeliverynote/${shoporder.id}`,
+                              )
+                            "
+                            ><span>View Delivery Note</span>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+
+                      <div class="pt-3"></div>
+                      <div class="hrclass"></div>
+
+                      <v-table min-height="300px">
+                        <thead>
+                          <tr>
+                            <th class="thclass">Product Code</th>
+                            <th class="thclass">Product Name</th>
+                            <th class="thclass">Qty</th>
+                            <th class="thclass">Returned Qty</th>
+                            <th class="thclass">Unit Price(Rs)</th>
+                            <th class="thclass">Discount Value</th>
+                            <th class="thclass">Discounted Value</th>
+                            <th class="thclass">Value(Rs)</th>
+                          <th class="thclass">Returned Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="shoporderitem in shoporder.distributer_salesrep_shop_order_items"
+                            :key="shoporderitem"
+                          >
+                            <td class="tdclass">
+                              {{ shoporderitem.product_code }}
+                            </td>
+                            <td class="tdclass">
+                              {{ shoporderitem.product_name }}
+                            </td>
+                            <td class="tdclass">
+                              {{
+                                shoporderitem.pivot.quantity -
+                                shoporderitem.pivot.return_quantity
+                              }}
+                            </td>
+                            <td class="tdclass">
+                              {{ shoporderitem.pivot.return_quantity || 0 }}
+                            </td>
+                            <td class="tdclass">
+                              {{ getPrice(shoporderitem.pivot.unit_price) }}
+                            </td>
+
+                            <td class="tdclass">
+                              <span
+                                v-if="
+                                  shoporderitem.pivot.discount_value !== null
+                                "
+                              >
+                                {{
+                                  getPrice(shoporderitem.pivot.discount_value)
+                                }}
+                              </span>
+                              <span v-else> N/A</span>
+                            </td>
+
+                            <td class="tdclass">
+                              <span
+                                v-if="
+                                  shoporderitem.pivot.discounted_price !==
+                                  null
+                                "
+                              >
+                                {{
+                                  getPrice(
+                                    shoporderitem.pivot.discounted_price,
+                                  )
+                                }}
+                              </span>
+                              <span v-else> N/A</span>
+                            </td>
+
+                            <td class="tdclass">
+                              {{
+                                getPrice(
+                                  shoporderitem.pivot.price -
+                                    shoporderitem.pivot.return_value,
+                                )
+                              }}
+                            </td>
+                            <td class="tdclass">
+                              {{ getPrice(shoporderitem.pivot.return_value || 0) }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
                     </div>
                   </div>
                 </div>
@@ -897,24 +1126,6 @@
                   </v-row>
                 </v-col>
 
-                <v-col
-                  lg="6"
-                  cols="12"
-                  v-if="summary.main_order_details.subdistributer_count !== 0"
-                >
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number of Sub
-                      Distributers
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.subdistributer_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
@@ -944,36 +1155,6 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Total Distributor
-                      Commission
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(
-                          summary.main_order_details.distributer_commision
-                        )
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <!-- <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Sales Rep
-                      Commission
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(summary.salesrep_full_commsion)
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col> -->
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
                       <span class="item_header"></span>Total Shop Order Amount
                     </v-col>
                     <v-col lg="7">
@@ -982,28 +1163,6 @@
                       }}</span>
                     </v-col>
                   </v-row>
-                </v-col>
-
-                <v-col
-                  lg="6"
-                  cols="12"
-                  v-if="
-                    summary.main_order_details.distributer_commision !== null
-                  "
-                >
-                  <v-btn
-                    @click="
-                      show = true;
-                      modeltype = 'Distributer_Commision';
-                      selectedOrderNo =
-                        summary.main_order_details.order_reference_id;
-                      (selectedOrderid = summary.main_order_details.id),
-                        (selectedCommisionvalue =
-                          summary.main_order_details.distributer_commision);
-                    "
-                  >
-                    Edit Order Commision
-                  </v-btn>
                 </v-col>
               </v-row>
             </div>
@@ -1024,7 +1183,6 @@
                 <tr>
                   <th class="thclass">Product Code</th>
                   <th class="thclass">Product Name</th>
-                  <th class="thclass">Unit Size</th>
                   <th class="thclass">Qty</th>
                   <th class="thclass">Remaining Qty</th>
                   <th class="thclass">Unit Price(Rs)</th>
@@ -1039,15 +1197,6 @@
                 >
                   <td class="tdclass">{{ product.product_code }}</td>
                   <td class="tdclass">{{ product.product_name }}</td>
-                  <td class="tdclass" v-if="product.product_type === 'Liquid'">
-                    {{ getVolume(product.product_volume) }}
-                  </td>
-                  <td
-                    class="tdclass"
-                    v-else-if="product.product_type === 'Solid'"
-                  >
-                    {{ getWeight(product.product_weight) }}
-                  </td>
                   <td class="tdclass">{{ product.pivot.quantity }}</td>
                   <td class="tdclass">{{ product.pivot.uptodate_quantity }}</td>
                   <td class="tdclass">
@@ -1074,7 +1223,7 @@
                       <v-col class="heading" lg="5" cols="12">
                         <span
                           >{{ salesreporder.salesrep.rep_name }} - SalesRep({{
-                            salesreporder.salesrep.position
+                           'Vehicle No : ' + salesreporder.vehicle.vehicle_no
                           }})</span
                         >
                       </v-col>
@@ -1091,7 +1240,7 @@
                           color="primary"
                           @click="
                             $router.push(
-                              `/salesreporderinvoice/${salesreporder.id}`
+                              `/salesreporderinvoice/${salesreporder.id}`,
                             )
                           "
                           ><span>View Invoice</span>
@@ -1110,7 +1259,6 @@
                         <tr>
                           <th class="thclass">Product Code</th>
                           <th class="thclass">Product Name</th>
-                          <th class="thclass">Unit Size</th>
                           <th class="thclass">Qty</th>
                           <th class="thclass">Remaining Qty</th>
                           <th class="thclass">Unit Price(Rs)</th>
@@ -1127,20 +1275,6 @@
                           </td>
                           <td class="tdclass">
                             {{ salesreporderitem.product_name }}
-                          </td>
-                          <td
-                            class="tdclass"
-                            v-if="salesreporderitem.product_type === 'Liquid'"
-                          >
-                            {{ getVolume(salesreporderitem.product_volume) }}
-                          </td>
-                          <td
-                            class="tdclass"
-                            v-else-if="
-                              salesreporderitem.product_type === 'Solid'
-                            "
-                          >
-                            {{ getWeight(salesreporderitem.product_weight) }}
                           </td>
                           <td class="tdclass">
                             {{ salesreporderitem.pivot.quantity }}
@@ -1171,7 +1305,14 @@
                     >
                       <v-row>
                         <v-col class="heading" lg="3" cols="12">
-                          <span>{{ shoporder.shop.shop_name }} - Shop</span>
+                          <span
+                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >
+                              (Courier : {{
+                                shoporder.courier?.company_name ?? "N/A"
+                              }})</span
+                            ></span
+                          >
                         </v-col>
 
                         <v-col lg="3" class="pt-5 right_align_class" cols="12">
@@ -1179,6 +1320,13 @@
                             >Order Amount -
                             {{ getPrice(shoporder.order_amount) }}</span
                           >
+                            <span
+                              class="sub_heading"
+                              v-if="getReturnAmount(shoporder) > 0"
+                              style="display: block"
+                              >Return Amount -
+                              {{ getPrice(getReturnAmount(shoporder)) }}</span
+                            >
                         </v-col>
                         <v-col lg="3" class="pt-5 right_align_class" cols="12">
                           <v-btn
@@ -1196,7 +1344,7 @@
                             style="width: 100%"
                             @click="
                               $router.push(
-                                `/shoporderdeliverynote/${shoporder.id}`
+                                `/shoporderdeliverynote/${shoporder.id}`,
                               )
                             "
                             ><span>View Delivery Note</span>
@@ -1212,12 +1360,13 @@
                           <tr>
                             <th class="thclass">Product Code</th>
                             <th class="thclass">Product Name</th>
-                            <th class="thclass">Unit Size</th>
                             <th class="thclass">Qty</th>
+                            <th class="thclass">Returned Qty</th>
                             <th class="thclass">Unit Price(Rs)</th>
                             <th class="thclass">Discount Value</th>
                             <th class="thclass">Discounted Value</th>
                             <th class="thclass">Value(Rs)</th>
+                          <th class="thclass">Returned Amount</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1231,23 +1380,14 @@
                             <td class="tdclass">
                               {{ shoporderitem.product_name }}
                             </td>
-                            <td
-                              class="tdclass"
-                              v-if="shoporderitem.product_type === 'Liquid'"
-                            >
-                              {{ getVolume(shoporderitem.product_volume) }}
-                            </td>
-                            <td
-                              class="tdclass"
-                              v-else-if="shoporderitem.product_type === 'Solid'"
-                            >
-                              {{ getWeight(shoporderitem.product_weight) }}
-                            </td>
                             <td class="tdclass">
                               {{
                                 shoporderitem.pivot.quantity -
                                 shoporderitem.pivot.return_quantity
                               }}
+                            </td>
+                            <td class="tdclass">
+                              {{ shoporderitem.pivot.return_quantity || 0 }}
                             </td>
                             <td class="tdclass">
                               {{ getPrice(shoporderitem.pivot.unit_price) }}
@@ -1283,9 +1423,12 @@
                               {{
                                 getPrice(
                                   shoporderitem.pivot.price -
-                                    shoporderitem.pivot.return_value
+                                    shoporderitem.pivot.return_value,
                                 )
                               }}
+                            </td>
+                            <td class="tdclass">
+                              {{ getPrice(shoporderitem.pivot.return_value || 0) }}
                             </td>
                           </tr>
                         </tbody>
@@ -1295,6 +1438,170 @@
                   </div>
                 </div>
                 <div class="pt-5"></div>
+              </v-card>
+              <div class="pt-5"></div>
+            </div>
+
+            <!-- content card direct shop orders (sent straight from this showroom, no sales rep) -->
+            <div v-if="summary.direct_shop_chain.length !== 0">
+              <v-card class="content_card" style="min-height: 250px">
+                <div class="distributer_inner_view">
+                  <div class="sales_rep_view" style="min-height: 234px">
+                    <!-- shop view -->
+                    <div
+                      class="shop_view"
+                      style="min-height: 274px"
+                      v-for="shoporder in summary.direct_shop_chain"
+                      :key="shoporder"
+                    >
+                      <v-row>
+                        <v-col class="heading" lg="3" cols="12">
+                          <span
+                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >
+                              (Courier : {{
+                                shoporder.courier?.company_name ?? "N/A"
+                              }})</span
+                            ></span
+                          >
+                        </v-col>
+
+                        <v-col
+                          lg="3"
+                          class="pt-5 right_align_class"
+                          cols="12"
+                        >
+                          <span class="sub_heading"
+                            >Order Amount -
+                            {{ getPrice(shoporder.order_amount) }}</span
+                          >
+                            <span
+                              class="sub_heading"
+                              v-if="getReturnAmount(shoporder) > 0"
+                              style="display: block"
+                              >Return Amount -
+                              {{ getPrice(getReturnAmount(shoporder)) }}</span
+                            >
+                        </v-col>
+                        <v-col
+                          lg="3"
+                          class="pt-5 right_align_class"
+                          cols="12"
+                        >
+                          <v-btn
+                            color="primary"
+                            @click="
+                              $router.push(`/shoporderinvoice/${shoporder.id}`)
+                            "
+                            ><span>View Invoice</span>
+                          </v-btn>
+                        </v-col>
+
+                        <v-col
+                          lg="3"
+                          class="pt-5 right_align_class"
+                          cols="12"
+                        >
+                          <v-btn
+                            color="primary"
+                            style="width: 100%"
+                            @click="
+                              $router.push(
+                                `/shoporderdeliverynote/${shoporder.id}`,
+                              )
+                            "
+                            ><span>View Delivery Note</span>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+
+                      <div class="pt-3"></div>
+                      <div class="hrclass"></div>
+
+                      <v-table min-height="300px">
+                        <thead>
+                          <tr>
+                            <th class="thclass">Product Code</th>
+                            <th class="thclass">Product Name</th>
+                            <th class="thclass">Qty</th>
+                            <th class="thclass">Returned Qty</th>
+                            <th class="thclass">Unit Price(Rs)</th>
+                            <th class="thclass">Discount Value</th>
+                            <th class="thclass">Discounted Value</th>
+                            <th class="thclass">Value(Rs)</th>
+                          <th class="thclass">Returned Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="shoporderitem in shoporder.distributer_salesrep_shop_order_items"
+                            :key="shoporderitem"
+                          >
+                            <td class="tdclass">
+                              {{ shoporderitem.product_code }}
+                            </td>
+                            <td class="tdclass">
+                              {{ shoporderitem.product_name }}
+                            </td>
+                            <td class="tdclass">
+                              {{
+                                shoporderitem.pivot.quantity -
+                                shoporderitem.pivot.return_quantity
+                              }}
+                            </td>
+                            <td class="tdclass">
+                              {{ shoporderitem.pivot.return_quantity || 0 }}
+                            </td>
+                            <td class="tdclass">
+                              {{ getPrice(shoporderitem.pivot.unit_price) }}
+                            </td>
+
+                            <td class="tdclass">
+                              <span
+                                v-if="
+                                  shoporderitem.pivot.discount_value !== null
+                                "
+                              >
+                                {{
+                                  getPrice(shoporderitem.pivot.discount_value)
+                                }}
+                              </span>
+                              <span v-else> N/A</span>
+                            </td>
+
+                            <td class="tdclass">
+                              <span
+                                v-if="
+                                  shoporderitem.pivot.discounted_price !==
+                                  null
+                                "
+                              >
+                                {{
+                                  getPrice(
+                                    shoporderitem.pivot.discounted_price,
+                                  )
+                                }}
+                              </span>
+                              <span v-else> N/A</span>
+                            </td>
+
+                            <td class="tdclass">
+                              {{
+                                getPrice(
+                                  shoporderitem.pivot.price -
+                                    shoporderitem.pivot.return_value,
+                                )
+                              }}
+                            </td>
+                            <td class="tdclass">
+                              {{ getPrice(shoporderitem.pivot.return_value || 0) }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
+                  </div>
+                </div>
               </v-card>
               <div class="pt-5"></div>
             </div>
@@ -1332,7 +1639,7 @@
                             color="primary"
                             @click="
                               $router.push(
-                                `/subdistributerorderinvoice/${subdistributer.id}`
+                                `/subdistributerorderinvoice/${subdistributer.id}`,
                               )
                             "
                             ><span>View Invoice</span>
@@ -1351,7 +1658,6 @@
                           <tr>
                             <th class="thclass">Product Code</th>
                             <th class="thclass">Product Name</th>
-                            <th class="thclass">Unit Size</th>
                             <th class="thclass">Qty</th>
                             <th class="thclass">Unit Price(Rs)</th>
                             <th class="thclass">Discount Value</th>
@@ -1370,38 +1676,13 @@
                             <td class="tdclass">
                               {{ subdistributerorderitem.product_name }}
                             </td>
-                            <td
-                              class="tdclass"
-                              v-if="
-                                subdistributerorderitem.product_type ===
-                                'Liquid'
-                              "
-                            >
-                              {{
-                                getVolume(
-                                  subdistributerorderitem.product_volume
-                                )
-                              }}
-                            </td>
-                            <td
-                              class="tdclass"
-                              v-else-if="
-                                subdistributerorderitem.product_type === 'Solid'
-                              "
-                            >
-                              {{
-                                getWeight(
-                                  subdistributerorderitem.product_weight
-                                )
-                              }}
-                            </td>
                             <td class="tdclass">
                               {{ subdistributerorderitem.pivot.quantity }}
                             </td>
                             <td class="tdclass">
                               {{
                                 getPrice(
-                                  subdistributerorderitem.pivot.unit_price
+                                  subdistributerorderitem.pivot.unit_price,
                                 )
                               }}
                             </td>
@@ -1415,7 +1696,8 @@
                               >
                                 {{
                                   getPrice(
-                                    subdistributerorderitem.pivot.discount_value
+                                    subdistributerorderitem.pivot
+                                      .discount_value,
                                   )
                                 }}
                               </span>
@@ -1432,7 +1714,7 @@
                                 {{
                                   getPrice(
                                     subdistributerorderitem.pivot
-                                      .discounted_price
+                                      .discounted_price,
                                   )
                                 }}
                               </span>
@@ -1562,26 +1844,6 @@
                     </v-col>
                   </v-row>
                 </v-col>
-
-                <v-col
-                  lg="6"
-                  cols="12"
-                  v-if="summary.main_order_details.salesrep_commision !== null"
-                >
-                  <v-btn
-                    @click="
-                      show = true;
-                      modeltype = 'SalesRep_Commision';
-                      selectedOrderNo =
-                        summary.main_order_details.order_reference_id;
-                      (selectedOrderid = summary.main_order_details.id),
-                        (selectedCommisionvalue =
-                          summary.main_order_details.salesrep_commision);
-                    "
-                  >
-                    Edit Order Commision
-                  </v-btn>
-                </v-col>
               </v-row>
             </div>
 
@@ -1601,7 +1863,6 @@
                 <tr>
                   <th class="thclass">Product Code</th>
                   <th class="thclass">Product Name</th>
-                  <th class="thclass">Unit Size</th>
                   <th class="thclass">Qty</th>
                   <th class="thclass">Remaining Qty</th>
                   <th class="thclass">Unit Price(Rs)</th>
@@ -1616,17 +1877,7 @@
                 >
                   <td class="tdclass">{{ product.product_code }}</td>
                   <td class="tdclass">{{ product.product_name }}</td>
-                  <td class="tdclass" v-if="product.product_type === 'Liquid'">
-                    {{ getVolume(product.product_volume) }}
-                  </td>
-                  <td
-                    class="tdclass"
-                    v-else-if="product.product_type === 'Solid'"
-                  >
-                    {{ getWeight(product.product_weight) }}
-                  </td>
                   <td class="tdclass">{{ product.pivot.quantity }}</td>
-
                   <td class="tdclass">{{ product.pivot.uptodate_quantity }}</td>
                   <td class="tdclass">
                     {{ getPrice(product.pivot.unit_price) }}
@@ -1653,7 +1904,14 @@
                   >
                     <v-row>
                       <v-col class="heading" lg="3" cols="12">
-                        <span>{{ shoporder.shop.shop_name }} - Shop</span>
+                        <span
+                          >{{ shoporder.shop.shop_name }} - Shop<span
+                          >
+                            (Courier : {{
+                              shoporder.courier?.company_name ?? "N/A"
+                            }})</span
+                          ></span
+                        >
                       </v-col>
 
                       <v-col lg="3" class="pt-5 right_align_class" cols="12">
@@ -1661,6 +1919,13 @@
                           >Order Amount -
                           {{ getPrice(shoporder.order_amount) }}</span
                         >
+                          <span
+                            class="sub_heading"
+                            v-if="getReturnAmount(shoporder) > 0"
+                            style="display: block"
+                            >Return Amount -
+                            {{ getPrice(getReturnAmount(shoporder)) }}</span
+                          >
                       </v-col>
                       <v-col lg="3" class="pt-5 right_align_class" cols="12">
                         <v-btn
@@ -1678,7 +1943,7 @@
                           style="width: 100%"
                           @click="
                             $router.push(
-                              `/shoporderdeliverynote/${shoporder.id}`
+                              `/shoporderdeliverynote/${shoporder.id}`,
                             )
                           "
                           ><span>View Delivery Note</span>
@@ -1694,12 +1959,13 @@
                         <tr>
                           <th class="thclass">Product Code</th>
                           <th class="thclass">Product Name</th>
-                          <th class="thclass">Unit Size</th>
                           <th class="thclass">Qty</th>
+                          <th class="thclass">Returned Qty</th>
                           <th class="thclass">Unit Price(Rs)</th>
                           <th class="thclass">Discount Value</th>
                           <th class="thclass">Discounted Value</th>
                           <th class="thclass">Value(Rs)</th>
+                        <th class="thclass">Returned Amount</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1713,23 +1979,14 @@
                           <td class="tdclass">
                             {{ shoporderitem.product_name }}
                           </td>
-                          <td
-                            class="tdclass"
-                            v-if="shoporderitem.product_type === 'Liquid'"
-                          >
-                            {{ getVolume(shoporderitem.product_volume) }}
-                          </td>
-                          <td
-                            class="tdclass"
-                            v-else-if="shoporderitem.product_type === 'Solid'"
-                          >
-                            {{ getWeight(shoporderitem.product_weight) }}
-                          </td>
                           <td class="tdclass">
                             {{
                               shoporderitem.pivot.quantity -
                               shoporderitem.pivot.return_quantity
                             }}
+                          </td>
+                          <td class="tdclass">
+                            {{ shoporderitem.pivot.return_quantity || 0 }}
                           </td>
                           <td class="tdclass">
                             {{ getPrice(shoporderitem.pivot.unit_price) }}
@@ -1761,9 +2018,12 @@
                             {{
                               getPrice(
                                 shoporderitem.pivot.price -
-                                  shoporderitem.pivot.return_value
+                                  shoporderitem.pivot.return_value,
                               )
                             }}
+                          </td>
+                          <td class="tdclass">
+                            {{ getPrice(shoporderitem.pivot.return_value || 0) }}
                           </td>
                         </tr>
                       </tbody>
@@ -1864,6 +2124,8 @@ export default {
         salesrep_full_commsion: "",
         distributer_chain: [],
         sales_rep_chain: [],
+        direct_shop_chain: [],
+        direct_factory_shop_chain: [],
         subdistributer_chain: [],
       },
     };
@@ -1873,6 +2135,15 @@ export default {
     await this.orderSummary();
   },
   methods: {
+    // total returned amount for a shop order, summed across its product
+    // lines' pivot.return_value, so it can be shown alongside Order Amount
+    getReturnAmount(shoporder) {
+      return (shoporder.distributer_salesrep_shop_order_items || []).reduce(
+        (sum, item) => sum + Number(item.pivot?.return_value || 0),
+        0,
+      );
+    },
+
     // order summary
     async orderSummary() {
       this.loading = true;
@@ -1889,6 +2160,9 @@ export default {
         this.summary.shop_order_amount = res.data.data.shoporderamount;
 
         this.summary.distributer_chain = res.data.data.distributingchain;
+
+        this.summary.direct_factory_shop_chain =
+          res.data.data.directfactoryshoporderchain;
       }
       // if route comming from distributer order
       else if (this.$route.params.summary_type === "distributerorder") {
@@ -1905,6 +2179,8 @@ export default {
         this.summary.shop_order_amount = res.data.data.shoporderamount;
 
         this.summary.sales_rep_chain = res.data.data.salesreporderchain;
+
+        this.summary.direct_shop_chain = res.data.data.directshoporderchain;
 
         this.summary.subdistributer_chain = res.data.data.subdistributingchain;
       }

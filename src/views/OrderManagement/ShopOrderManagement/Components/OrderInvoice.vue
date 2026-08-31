@@ -33,268 +33,152 @@
           <!-- pdf content -->
           <div ref="pdfContent">
             <div class="order_management">
-              <div class="pt-15"></div>
-              <div class="pt-15"></div>
-
-              <div>
-                <!-- invoice content -->
-                <v-container class="shop_invoice">
-                  <div class="header">
-                    <v-row>
-                      <v-col lg="7" class="left_col">
-                        <!-- invoice from -->
-                        <div>
-                          <span class="company_name"
-                            >AIO-IT SOLUTIONS(PRIVATE) LIMITED</span
-                          >
-                          <br />
-                          <span class="company_text"
-                            >No.291/4 , Ranaviru Dharmasiri Mawatha , Sooriyapaluwa , Kadawatha ,Gampaha.</span
-                          >
-                          <br />
-                          <span class="company_text"
-                            >+94 71 345 3110
-                          </span>
-                          <br />
-                          <span class="company_text">aio99solutions@gmail.com</span>
-                          <br />
-                          <span class="company_text"
-                            >https://aio-tutor.lk
-                          </span>
-                        </div>
-
-                        <!-- invoice to -->
-                        <div class="pt-7"></div>
-                        <div class="invoice_to">
-                          <span class="company_name">
-                            {{ summary.shop.shop_name }}</span
-                          >
-                          <br />
-                          <span class="company_text">{{
-                            summary.shop.shop_address
-                          }}</span>
-                          <br />
-                          <span class="company_text"
-                            >{{ summary.shop.shop_mobile }}
-                          </span>
-                        </div>
-                      </v-col>
-                      <v-col lg="5" class="right_col">
-                        <v-row>
-                          <v-col lg="6">
-                            <div class="invoice_no text-center">
-                              <span class="text">INVOICE</span>
-                            </div>
-                          </v-col>
-
-                          <v-col lg="6" class="pt-4">
-                            <span class="text-1">{{
-                              summary.main_order_details.invoice_no
-                            }}</span>
-                          </v-col>
-                        </v-row>
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Invoice Date :
-                          {{ summary.main_order_details.order_date }}</span
-                        >
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Order No :
-                          {{
-                            summary.main_order_details.order_reference_id
-                          }}</span
-                        >
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Distributor Code :
-                          {{ summary.distributer.distributer_code }}
-                        </span>
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Area Code :
-                          {{ summary.shop.area_code }}
-                        </span>
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Rep Code :
-                          {{ summary.salesrep.rep_code }}
-                        </span>
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Dealer Code :
-                          {{ summary.shop.shop_code }}
-                        </span>
-                        <div class="pt-1"></div>
-                      </v-col>
-                    </v-row>
-                  </div>
-                </v-container>
-
-                <!-- factory order summary -->
-                <div class="order_summary">
-                  <!-- content -->
-                  <div>
-                    <!-- <span class="sub_title">Summary</span> -->
-
-                    <div class="pt-8"></div>
-
-                    <table
-                      class="table table-sm table_borders"
-                      sortable
-                      style="width: 100%"
-                    >
-                      <thead>
-                        <tr class="table_header table_borders">
-                          <th class="text table_borders">Product Code</th>
-                          <th class="text table_borders">Product Name</th>
-                          <th class="text table_borders">Unit Size</th>
-                          <th class="text table_borders">Unit Price</th>
-                          <th class="text table_borders">Quantity</th>
-                          <!-- <th class="text table_borders">Discount</th> -->
-                          <th class="text table_borders">Discount Value</th>
-                          <th class="text table_borders">Discounted Value</th>
-                          <th class="text table_borders">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr
-                          style="page-break-inside: avoid"
-                          class="table-data table_borders"
-                          v-for="product in summary.main_order_details
-                            .distributer_salesrep_shop_order_items"
-                          :key="product"
-                        >
-                          <td class="text table_borders">
-                            {{ product.product_code }}
-                          </td>
-                          <td class="text table_borders">
-                            {{ product.product_name }}
-                          </td>
-                          <td
-                            class="text table_borders"
-                            v-if="product.product_type === 'Liquid'"
-                          >
-                            {{ getVolume(product.product_volume) }}
-                          </td>
-                          <td
-                            class="text table_borders"
-                            v-else-if="product.product_type === 'Solid'"
-                          >
-                            {{ getWeight(product.product_weight) }}
-                          </td>
-                          <td class="text table_borders">
-                            {{ getPrice(product.pivot.unit_price) }}
-                          </td>
-                          <td class="text table_borders">
-                            {{
-                              product.pivot.quantity -
-                              product.pivot.return_quantity
-                            }}
-                          </td>
-
-                          <td class="text table_borders">
-                            <span v-if="product.pivot.discount_value !== null">
-                              {{ getPrice(product.pivot.discount_value) }}
-                            </span>
-                            <span v-else> N/A</span>
-                          </td>
-
-                          <td class="text table_borders">
-                            <span
-                              v-if="product.pivot.discounted_price !== null"
-                            >
-                              {{ getPrice(product.pivot.discounted_price) }}
-                            </span>
-                            <span v-else> N/A</span>
-                          </td>
-
-                          <td class="text table_borders">
-                            {{
-                              getPrice(
-                                product.pivot.price - product.pivot.return_value
-                              )
-                            }}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <div class="pt-2"></div>
-                    <div class="text-end pr-5">
-                      <span class="total"
-                        >TOTAL :
-                        {{
-                          getPrice(summary.main_order_details.order_amount)
-                        }}</span
-                      >
+              <div class="shop_invoice sample_invoice">
+                <!-- title + meta -->
+                <div class="inv_head">
+                  <div class="inv_title">INVOICE</div>
+                  <div class="inv_meta">
+                    <div>Date {{ summary.main_order_details.order_date }}</div>
+                    <div>Dealer Code : {{ summary.shop.shop_code }}</div>
+                    <div>
+                      Delivery No.
+                      {{ summary.main_order_details.delivery_note_no }}
                     </div>
-                    <div class="pt-5"></div>
 
-                    <!-- content card -->
+                    <div>
+                      Invoice No. {{ summary.main_order_details.invoice_no }}
+                    </div>
                   </div>
                 </div>
 
-                <div class="shop_invoice ml-7 mr-7">
-                  <span class="footer_note"
-                    >NOTE -
-                    <div class="pt-1"></div>
-                    Total invoice value:
-                    {{ getPrice(summary.main_order_details.order_amount) }}
-                    <div class="pt-1"></div>
-                    All cheques should be drawn in favour of "AIO-IT SOLUTIONS(PRIVATE) LIMITED"
-                  </span>
+                <hr class="inv_rule" />
 
-                  <br /><br />
-
-                  <span class="footer_note">
-                    Bank Details :
-                    <!-- <div class="pt-1"></div> -->
-                    <!-- Bank - Commercial Bank <br />
-                    Branch - Nugegoda Branch <br />
-                    Account No - 1000586877 -->
-                  </span>
+                <!-- invoice to : shop name + area name -->
+                <div class="inv_to_label">INVOICE TO:</div>
+                <div class="inv_to_name">
+                  {{ summary.shop.shop_name }}
+                  {{
+                    summary.shop && summary.shop.area
+                      ? summary.shop.area.area_name
+                      : summary.shop.area_code
+                  }}
                 </div>
 
-                <div class="pt-5"></div>
-                <center class="shop_invoice">
-                  <span class="footer_note"
-                    >Received above goods in good condition</span
+                <!-- items table -->
+                <div class="order_summary">
+                  <table
+                    class="table table-sm table_borders inv_table"
+                    style="width: 100%"
                   >
-                </center>
-                <div class="pt-5"></div>
-                <v-container class="pl-10 pr-10 shop_invoice">
-                  <v-row>
-                    <v-col lg="4" class="pt-16 mt-5">
-                      <span>
-                        ............................
-                        <br />
-                        <span class="footer_note">Received By</span>
-                      </span>
-                    </v-col>
-                    <v-col lg="4" class="pt-16 mt-5">
-                      <span>
-                        ............................
-                        <br />
-                        <span class="footer_note">Prepared By</span>
-                      </span></v-col
-                    >
-                    <v-col lg="4">
-                      <span>
-                       
-                        <br />
-                        <span class="footer_note">
-                          Authorized Signature
-                          <br />
-                          Yasindu Ramanayake
-                          <br />
-                          Managing Disrector
-                          <br />
-                          AIO-IT SOLUTIONS(PRIVATE) LIMITED</span
-                        >
-                      </span></v-col
-                    >
-                  </v-row>
-                </v-container>
+                    <thead>
+                      <tr class="table_header table_borders">
+                        <th class="text table_borders">No.</th>
+                        <th class="text table_borders">MODEL NO</th>
+                        <th class="text table_borders">DESCRIPTION</th>
+                        <th class="text table_borders">Qty</th>
+                        <th class="text table_borders">Price</th>
+                        <th class="text table_borders">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        style="page-break-inside: avoid"
+                        class="table-data table_borders"
+                        v-for="(product, i) in summary.main_order_details
+                          .distributer_salesrep_shop_order_items"
+                        :key="product"
+                      >
+                        <td class="text table_borders">{{ i + 1 }}</td>
+                        <td class="text table_borders">
+                          {{
+                            makeUpperCase(
+                              product.model_number || product.product_code,
+                            )
+                          }}
+                        </td>
+                        <td class="text table_borders">
+                          {{ makeUpperCase(product.product_name) }}
+                        </td>
+                        <td class="text table_borders">
+                          {{
+                            product.pivot.quantity -
+                            product.pivot.return_quantity
+                          }}
+                        </td>
+                        <td class="text table_borders">
+                          {{
+                            getPrice(
+                              product.pivot.discounted_price ||
+                                product.pivot.unit_price,
+                            )
+                          }}
+                        </td>
+                        <td class="text table_borders">
+                          {{
+                            getPrice(
+                              product.pivot.price - product.pivot.return_value,
+                            )
+                          }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <!-- totals -->
+                  <div class="inv_totals">
+                    <div class="inv_totals_row">
+                      <span class="inv_totals_label">SUB TOTAL</span>
+                      <span class="inv_totals_colon">:</span>
+                      <span class="inv_totals_val">{{
+                        getPrice(summary.main_order_details.order_amount)
+                      }}</span>
+                    </div>
+                    <div class="inv_totals_row">
+                      <span class="inv_totals_label">OUTSTANDING</span>
+                      <span class="inv_totals_colon">:</span>
+                      <span class="inv_totals_val">{{
+                        getPrice(previousOutstanding)
+                      }}</span>
+                    </div>
+                    <div class="inv_totals_row">
+                      <span class="inv_totals_label">PAID</span>
+                      <span class="inv_totals_colon">:</span>
+                      <span class="inv_totals_val">0</span>
+                    </div>
+                    <hr class="inv_totals_hr" />
+                    <div class="inv_totals_row inv_totals_grand">
+                      <span class="total inv_totals_label">Total</span>
+                      <span class="total inv_totals_val">{{
+                        getPrice(summary.shop.Uptodate_due_amounts)
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="inv_rule" />
+
+                <div class="inv_thanks footer_note">
+                  PLEASE CHECK THE RECEIVED GOODS<br />
+                  THANK YOU FOR YOUR BUSINESS
+                </div>
+
+                <!-- signatures -->
+                <div class="inv_signs">
+                  <div class="inv_sign">
+                    <span class="inv_sign_line">.........................</span>
+                    <span class="footer_note">Issued By</span>
+                  </div>
+                  <div class="inv_sign">
+                    <span class="inv_sign_line">.........................</span>
+                    <span class="footer_note">Approved By</span>
+                  </div>
+                  <div class="inv_sign">
+                    <span class="inv_sign_line">.........................</span>
+                    <span class="footer_note">Received By</span>
+                  </div>
+                </div>
+
+                <div class="inv_generated">Generated on {{ generatedOn }}</div>
               </div>
             </div>
           </div>
@@ -310,6 +194,7 @@ export default {
   data() {
     return {
       loading: false,
+      generatedOn: "",
       summary: {
         main_order_details: {},
         distributer: {},
@@ -319,7 +204,21 @@ export default {
     };
   },
 
+  computed: {
+    // the customer's outstanding balance BEFORE this shop order - the shop's
+    // current running due already includes this order (added at order
+    // creation), so subtract this order's amount back out. "Total" below is
+    // the full current outstanding (this order included).
+    previousOutstanding() {
+      return (
+        Number(this.summary.shop.Uptodate_due_amounts || 0) -
+        Number(this.summary.main_order_details.order_amount || 0)
+      );
+    },
+  },
+
   async created() {
+    this.generatedOn = new Date().toLocaleString();
     await this.orderSummary();
   },
   methods: {
@@ -335,11 +234,12 @@ export default {
 
       this.summary.main_order_details = res.data.data.shopordersummary;
 
-      this.summary.distributer = res.data.data.shopordersummary.distributer;
+      this.summary.distributer =
+        res.data.data.shopordersummary.distributer || {};
 
-      this.summary.salesrep = res.data.data.shopordersummary.salesrep;
+      this.summary.salesrep = res.data.data.shopordersummary.salesrep || {};
 
-      this.summary.shop = res.data.data.shopordersummary.shop;
+      this.summary.shop = res.data.data.shopordersummary.shop || {};
 
       this.loading = false;
     },
@@ -369,3 +269,142 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* sample commercial-invoice layout, using the project's standard
+   Urbanist font + black accents (same look as the other invoices) */
+.sample_invoice {
+  padding: 40px 50px 24px;
+  font-family: "Urbanist", sans-serif;
+  color: #000;
+}
+
+.sample_invoice .inv_head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.sample_invoice .inv_title {
+  background: #e0e0e0;
+  padding: 6px 28px;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 800;
+  font-size: 44px;
+  letter-spacing: 2px;
+}
+
+.sample_invoice .inv_meta {
+  margin-top: 12px;
+  text-align: right;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.sample_invoice .inv_rule {
+  border: none;
+  border-top: 3px solid #000;
+  margin: 16px 0;
+}
+
+.sample_invoice .inv_to_label {
+  font-family: "Urbanist", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.sample_invoice .inv_to_name {
+  margin-top: 6px;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.3;
+}
+
+.sample_invoice .inv_table {
+  margin-top: 24px;
+}
+
+.sample_invoice .inv_table th.text,
+.sample_invoice .inv_table td.text {
+  text-align: center;
+}
+
+.sample_invoice .inv_totals {
+  width: 340px;
+  margin-left: auto;
+  margin-top: 24px;
+}
+
+.sample_invoice .inv_totals_row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 9px;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sample_invoice .inv_totals_label {
+  min-width: 120px;
+  text-align: right;
+}
+
+.sample_invoice .inv_totals_colon {
+  width: 8px;
+  text-align: center;
+}
+
+.sample_invoice .inv_totals_val {
+  min-width: 100px;
+  text-align: right;
+}
+
+.sample_invoice .inv_totals_hr {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 8px 0 12px;
+}
+
+.sample_invoice .inv_totals_grand {
+  font-size: 18px;
+}
+
+.sample_invoice .inv_thanks {
+  text-align: center;
+  line-height: 1.7;
+  margin: 14px 0 44px;
+}
+
+.sample_invoice .inv_signs {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 56px;
+}
+
+.sample_invoice .inv_sign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.sample_invoice .inv_sign_line {
+  letter-spacing: 2px;
+}
+
+.sample_invoice .inv_generated {
+  text-align: center;
+  margin-top: 48px;
+  font-family: "Urbanist", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+}
+</style>

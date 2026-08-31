@@ -1,6 +1,39 @@
 .payment_management {
-  .search_input {
+  .shop_balance_amount {
     width: 100%;
+    min-height: 50px;
+    height: auto;
+    padding: 12px 17px 19px 25px;
+    border-radius: 8px;
+    background-color: #ffe2bb;
+    @media (max-width: 768px) {
+      width: 100%;
+      height: 100%;
+    }
+    .text {
+      font-family: Urbanist;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 26px;
+      text-align: left;
+      color: #3d3c3c;
+      overflow-wrap: anywhere;
+      .amount {
+        font-weight: 750;
+      }
+    }
+  }
+
+  .search_row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search_input {
+    width: 240px;
+    flex-shrink: 0;
     height: 39px;
     border-radius: 6px;
     font-family: Urbanist;
@@ -8,12 +41,22 @@
     font-weight: 400;
     line-height: 24px;
     text-align: left;
-    text-underline-position: from-font;
-    text-decoration-skip-ink: none;
     border: 1px solid #67b108;
   }
+
+  .search_status_group {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+
+    .label {
+      margin-bottom: 4px;
+    }
+  }
+
   .search_date {
-    width: 100%;
+    width: 160px;
+    flex-shrink: 0;
     height: 39px;
     border-radius: 6px;
     font-family: Urbanist;
@@ -21,9 +64,15 @@
     font-weight: 400;
     line-height: 24px;
     text-align: left;
-    text-underline-position: from-font;
-    text-decoration-skip-ink: none;
     border: 1px solid #67b108;
+  }
+
+  .search_btn_inline {
+    flex-shrink: 0;
+    height: 36px !important;
+    min-width: unset !important;
+    padding: 0 14px !important;
+    width: auto !important;
   }
   .payment_create_button {
     min-width: 158px;
@@ -53,7 +102,7 @@
       font-size: 16px;
       font-weight: 400;
       line-height: 15.96px;
-      text-align: right;
+      text-align: center;
       color: white;
     }
   }
@@ -69,10 +118,45 @@
       font-size: 16px;
       font-weight: 400;
       line-height: 15.96px;
-      text-align: right;
+      text-align: center;
       color: white;
     }
   }
+
+  // dues button — default off state
+  .dues_button {
+    width: 100%;
+    height: 36px;
+    border-radius: 8px;
+    background-color: #e07b00;
+    border: 0.2px solid #ffffff;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 15.96px;
+      text-align: center;
+      color: #ffffff;
+    }
+  }
+
+  // dues button — active on state (darker brown)
+  .dues_button_active {
+    width: 100%;
+    height: 36px;
+    border-radius: 8px;
+    background-color: #b85c00;
+    border: 0.2px solid #ffffff;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 15.96px;
+      text-align: center;
+      color: #ffffff;
+    }
+  }
+
    .exfort_button {
     width: 100%;
     border-radius: 55px;

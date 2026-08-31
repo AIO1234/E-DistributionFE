@@ -21,7 +21,7 @@
               >
             </v-col>
             <v-col lg="8" cols="12" class="pt-5">
-              <h2 class="title">Update Distributer Orders</h2>
+              <h2 class="title">Update ShowRoom Orders</h2>
             </v-col>
           </v-row>
           <v-form v-model="isFormValid">
@@ -41,7 +41,7 @@
                     <v-col lg="4" cols="12">
                       <v-autocomplete
                         :rules="[required]"
-                        placeholder="Select Distributor"
+                        placeholder="Select ShowRoom"
                         class="select_distributer"
                         v-model="selecteddistributer.distributer_id"
                         :items="distributers"
@@ -58,9 +58,10 @@
                     <v-col lg="4" cols="12">
                       <AppDateTimePicker
                            :rules="[required]"
-                        placeholder="Distributer Order Date"
+                        placeholder="Order Date"
                         class="send_date"
                         v-model="selecteddistributer.order_date"
+                        :config="{ minDate: minSelectableDate }"
                       >
                       </AppDateTimePicker>
                     </v-col>
@@ -101,7 +102,7 @@
                           <div>
                             <v-list-item
                               v-bind="props"
-                              :title="item.raw.product_name"
+                              :title="`${makeUpperCase(item.raw.product_name)} - ${makeUpperCase(item.raw.model_number || 'N/A')}`"
                               :subtitle="getPrice(item.raw.unit_price)"
                             >
                               <span
@@ -195,7 +196,7 @@
                           class="delete_disributer"
                           variant="none"
                           @click="removeDistribute(distributerindex)"
-                          ><span class="text">Delete Distributer</span></v-btn
+                          ><span class="text">Delete ShowRoom</span></v-btn
                         >
                       </div>
                     </v-col>
@@ -210,7 +211,7 @@
                 class="add_disributer"
                 variant="none"
                 @click="repeatDistributer()"
-                ><span class="text">Add Distributer</span></v-btn
+                ><span class="text">Add ShowRoom</span></v-btn
               >
             </div>
 
@@ -237,6 +238,7 @@ export default {
   data() {
     return {
       isFormValid: false,
+      authRole: "",
       form: {},
       pageLoad: false,
       loading: false,
@@ -247,12 +249,18 @@ export default {
   },
 
   async created() {
-    await this.Distributers();
-    await this.DeliveredistributerProducts();
-    await this.initializeData();
+    await this.init();
   },
 
   methods: {
+    async init() {
+      this.getAuthUser();
+
+      await this.Distributers();
+      await this.DeliveredistributerProducts();
+      await this.initializeData();
+    },
+
     // initializedata
 
     async initializeData() {
@@ -295,9 +303,9 @@ export default {
     // get distributers
     async Distributers() {
       this.pageLoad = true;
-      const res = await DistributerApi.allDistributers();
+      const res = await DistributerApi.allDistributers({ page: 1, per_page: 1000 });
 
-      this.distributers = res.data.data;
+      this.distributers = res.data.data.data;
 
       this.pageLoad = false;
     },
@@ -392,10 +400,10 @@ export default {
     repeatDistributer() {
       // repeat form
       this.orderdistributers.push({
-        distributer_id: "Select Distributer",
+        distributer_id: "",
         orderproducts: [
           {
-            product: "Select Product",
+            product: "",
             quantity: "",
             unitprice: "",
             amount: "",

@@ -42,11 +42,12 @@
                       this.$router.push({
                         name: 'sendshop',
                         params: {
-                          main_order_id: props.item.main_order_id,
+                          main_order_id: props.item.main_order_id ?? 'null',
                           distributer_id: props.item.distributer_id,
                           distributer_order_id: props.item.disorder_id,
                           sales_rep_id: props.item.salesrep_id,
                           reporder_id: props.item.id,
+                          position: 'no',
                         },
                       })
                       // $router.push(

@@ -13,6 +13,8 @@
         <v-row>
           <!-- payment reference id -->
           <v-col lg="6" class="pt-5" cols="12">
+            <label class="label">Payment Reference Id</label>
+            <div class="mt-2" />
             <v-text-field
               placeholder="Payment Reference Id"
               v-model="form.payment_code"
@@ -24,6 +26,8 @@
 
           <!-- payment method -->
           <v-col lg="6" class="pt-5" cols="12">
+            <label class="label">Payment Method</label>
+            <div class="mt-2" />
             <v-autocomplete
               :rules="[required]"
               placeholder="Select Payment Method"
@@ -40,6 +44,8 @@
             cols="12"
             v-if="form.payment_method === 'Check'"
           >
+            <label class="label">Payment Check No</label>
+            <div class="mt-2" />
             <v-text-field
               placeholder="Payment Check No"
               v-model="form.check_no"
@@ -55,6 +61,8 @@
             cols="12"
             v-if="form.payment_method === 'Cash'"
           >
+            <label class="label">Payment Date</label>
+            <div class="mt-2" />
             <AppDateTimePicker
               placeholder="Payment Date"
               class="create_date"
@@ -70,12 +78,27 @@
             cols="12"
             v-if="form.payment_method === 'Check'"
           >
+            <label class="label">Check Date</label>
+            <div class="mt-2" />
             <AppDateTimePicker
               placeholder="Check Date"
               class="create_date"
               v-model="form.check_date"
             >
             </AppDateTimePicker>
+          </v-col>
+
+          <!-- payment status -->
+          <v-col lg="6" class="pt-5" cols="12">
+            <label class="label">Payment Status</label>
+            <div class="mt-2" />
+            <v-autocomplete
+              :rules="[required]"
+              placeholder="Select Status"
+              class="create_date"
+              v-model="form.payment_status"
+              :items="payment_statuses"
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <div class="pt-2"></div>
@@ -87,22 +110,24 @@
         <v-row v-for="(order, index) in orders" :key="order">
           <!-- select order -->
           <v-col lg="5" cols="12">
+            <label class="label">Select Order</label>
+            <div class="mt-2" />
             <v-autocomplete
-              :rules="[required]"
               placeholder="Select Order"
               v-model="order.shoporder"
               class="select_order"
               :items="dueOrders"
-              item-title="order_reference_id"
+              item-title="invoice_no"
               item-value="id"
               return-object
+              clearable
               @update:model-value="checkuniqueOrders(index, order.shoporder)"
             >
               <template v-slot:item="{ props, item }">
                 <div>
                   <v-list-item
                     v-bind="props"
-                    :title="item.raw.order_reference_id"
+                    :title="item.raw.invoice_no"
                     :subtitle="getPrice(item.raw.order_amount)"
                   >
                     <span
@@ -114,10 +139,16 @@
                 </div>
               </template>
             </v-autocomplete>
+            <span class="pt-1" style="font-size: 12px; display: block">
+              Leave empty to pay against the shop's general balance
+              (Due: {{ getPrice(shopDuePayments) }})
+            </span>
           </v-col>
 
           <!-- amount -->
           <v-col lg="4" cols="12">
+            <label class="label">Amount</label>
+            <div class="mt-2" />
             <v-text-field
               :rules="[required]"
               placeholder="Amount"
@@ -169,6 +200,7 @@
 </template>
 <script>
 import PaymentApi from "@/Api/Modules/payments";
+import ShopApi from "@/Api/Modules/shop";
 import { toast } from "@/ApiConstance/toast";
 export default {
   data() {
@@ -184,20 +216,47 @@ export default {
       ],
       dueOrders: [],
       payment_methods: ["Check", "Cash"],
+      payment_statuses: ["Pending", "Recieved"],
       nextTodoId: 1,
       loading: false,
+      // the shop prop is a snapshot from the parent page's shop list,
+      // never refreshed - kept as the fallback default, but refreshed
+      // from a live lookup in refreshShopDue() below so the general
+      // account cap uses the shop's actual current due amount
+      shopDuePayments: this.shop.Uptodate_due_amounts,
     };
   },
   async created() {
     this.form.payment_code =
       "PAY-SHOP-" + Math.floor(Math.random() * 100000000);
     await this.getDueOrders();
+    await this.refreshShopDue();
     // autogenarate ids
   },
   props: {
     shop: Object,
   },
   methods: {
+    // re-fetch this shop's current due amount rather than trusting the
+    // prop snapshot - searches by the shop's own (unique) code, which
+    // reliably resolves back to this exact shop, without needing a
+    // dedicated single-shop lookup endpoint
+    async refreshShopDue() {
+      const res = await ShopApi.allShops({
+        seacrh_data: this.shop.shop_code,
+        page: 1,
+        per_page: 10,
+      });
+
+      const liveShop = (res.data.data.data || []).find(
+        (val) => val.id === this.shop.id,
+      );
+
+      if (liveShop) {
+        this.shopDuePayments = liveShop.Uptodate_due_amounts;
+      }
+    },
+
     // get due orders for the shop
     async getDueOrders() {
       const payload = {
@@ -211,11 +270,36 @@ export default {
 
     // check order due amount is exceeded
     checkExceedamount(index, order) {
+      // no order selected - this line pays down the shop's general
+      // account balance directly, cap against that instead
+      if (!order || typeof order !== "object") {
+        let generalCount = 0;
+
+        this.orders.forEach((val) => {
+          if (!val.shoporder || typeof val.shoporder !== "object") {
+            generalCount += Number(val.amount || 0);
+          }
+        });
+
+        if (generalCount > Number(this.shopDuePayments || 0)) {
+          toast(
+            "You Have Entered Larger Amount Than The Shop's Due Balance Of Rs." +
+              this.shopDuePayments,
+            "error",
+            30000
+          );
+
+          this.orders[index].amount = "";
+        }
+
+        return;
+      }
+
       let count = 0;
       // get full count of privious added produt quantities where this product equal
       this.orders.forEach((val) => {
         // console.log(val.client_order.id)
-        if (val.shoporder.id === order.id) {
+        if (val.shoporder?.id === order.id) {
           count = count + Number(val.amount);
         }
       });
@@ -237,9 +321,11 @@ export default {
     // check entered order already entred
 
     checkuniqueOrders(index, value) {
+      if (!value || typeof value !== "object") return;
+
       // get previously added product exactly same like this
       const result = this.orders.filter((val) => {
-        return val.shoporder.id === value.id;
+        return val.shoporder?.id === value.id;
       });
 
       // check previously have orders
@@ -271,10 +357,20 @@ export default {
 
     async submitOrder() {
       this.loading = true;
-      this.form.shop_invoices = this.orders;
+
+      // a line's shoporder is either a real order object (return-object)
+      // or unset/cleared/still the unfilled-row placeholder - normalize
+      // anything that isn't a real order object to null, so the backend
+      // treats it as a general account line rather than misreading it
+      this.form.shop_invoices = this.orders.map((order) => ({
+        ...order,
+        shoporder:
+          order.shoporder && typeof order.shoporder === "object"
+            ? order.shoporder
+            : null,
+      }));
       this.form.shops_id = this.shop.id;
 
-      console.log(this.form);
       await PaymentApi.storeShopPayment(this.form)
         .then(() => {
           this.loading = false;

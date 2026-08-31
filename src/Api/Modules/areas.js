@@ -3,7 +3,7 @@ import { api } from "../index";
 export default {
   // all areas
   async allAreas(payload) {
-    return await api.get("/areas/index", payload);
+    return await api.get("/areas/index", { params: payload });
   },
 
   // store area

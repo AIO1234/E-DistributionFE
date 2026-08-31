@@ -8,12 +8,12 @@
       {{ new Date().getFullYear() }}
 
       <a
-        href="https://pixinvent.com"
+        :href="company_website"
         target="_blank"
         rel="noopener noreferrer"
         class="text-primary ms-1"
       >
-        AIO-IT SOLUTIONS PVT(LTD)
+        {{ company_name }}
       </a>
       &nbsp; All rights Reserved
     </span>

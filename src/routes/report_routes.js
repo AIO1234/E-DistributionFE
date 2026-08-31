@@ -5,14 +5,7 @@ export default [
     component: () => import("@/views/ReportManagement/SalesSummaryReport.vue"),
     meta: {
       authReuire: true,
-      role: [
-        "Super Admin",
-        "Admin",
-        "Staff",
-        "Distributer",
-        "SalesRep",
-        "Area Manager",
-      ],
+      role: ["Super Admin"],
       pageTitle: "Report",
       breadcrumb: [
         {
@@ -29,18 +22,28 @@ export default [
     component: () => import("@/views/ReportManagement/SalesDetailedReport.vue"),
     meta: {
       authReuire: true,
-      role: [
-        "Super Admin",
-        "Admin",
-        "Staff",
-        "Distributer",
-        "SalesRep",
-        "Area Manager",
-      ],
+      role: ["Super Admin", "Admin"],
       pageTitle: "Report",
       breadcrumb: [
         {
           text: "Sales Detailed Report",
+          active: true,
+        },
+      ],
+    },
+  },
+
+  {
+    path: "/profitandloss",
+    name: "profitandloss",
+    component: () => import("@/views/ReportManagement/ProfitAndLossReport.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin"],
+      pageTitle: "Report",
+      breadcrumb: [
+        {
+          text: "Profit And Loss Report",
           active: true,
         },
       ],

@@ -66,7 +66,16 @@
                     <img src="@/assets/images/edit.png" style="width: 70%" />
                   </v-btn>
                 </v-col>
-                <v-col lg="2"> </v-col>
+                <!-- delete - Super Admin only -->
+                <v-col lg="2" v-if="isSuperAdmin">
+                  <v-btn
+                    color="transparent"
+                    variant="none"
+                    @click="confirmDelete(props.item)"
+                  >
+                    <v-icon icon="tabler-trash" color="error" />
+                  </v-btn>
+                </v-col>
               </v-row>
             </div>
           </template>
@@ -105,15 +114,43 @@
           <Update @close="closeModal" :formData="selectedItem" /> </v-card-text
       ></v-card>
     </v-dialog>
+
+    <!-- delete confirmation -->
+    <v-dialog v-model="deleteDialog" max-width="420px" persistent>
+      <v-card>
+        <v-card-title class="text-h6">Delete User</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete
+          <strong>{{ userToDelete.name }}</strong>
+          ({{ userToDelete.email }})? This cannot be undone.
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn variant="text" @click="deleteDialog = false">Cancel</v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            :loading="deleteLoading"
+            @click="deleteUser()"
+          >
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
 import Update from "./Update.vue";
+import UserApi from "@/Api/Modules/users";
 export default {
   data() {
     return {
       selectedItem: {},
       show: false,
+      authRole: "",
+      deleteDialog: false,
+      deleteLoading: false,
+      userToDelete: {},
       headers: [
         { title: "Name", align: "start", key: "name" },
         { title: "Email", align: "start", key: "email" },
@@ -135,12 +172,43 @@ export default {
     loading: Boolean,
   },
 
+  created() {
+    this.getAuthUser();
+  },
+
+  computed: {
+    // the delete action is Super Admin only
+    isSuperAdmin() {
+      return this.authRole === "Super Admin";
+    },
+  },
+
   methods: {
     // close
     async closeModal() {
       this.show = false;
       // call close emit
       this.$emit("close");
+    },
+
+    // open the confirmation dialog for a user row
+    confirmDelete(user) {
+      this.userToDelete = user;
+      this.deleteDialog = true;
+    },
+
+    // delete the confirmed user, then refresh the list
+    async deleteUser() {
+      this.deleteLoading = true;
+
+      try {
+        await UserApi.deleteUser({ id: this.userToDelete.id });
+        this.deleteDialog = false;
+        this.userToDelete = {};
+        this.$emit("close");
+      } finally {
+        this.deleteLoading = false;
+      }
     },
   },
 };

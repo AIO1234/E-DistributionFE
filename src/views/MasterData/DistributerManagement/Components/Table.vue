@@ -6,16 +6,20 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table
+        <v-data-table-server
           :headers="headers"
           :items="Distributers"
-          items-per-page="100"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
         >
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title
                 ><center>
-                  <span class="table_topic">All Distributors</span>
+                  <span class="table_topic">All ShowRooms</span>
                 </center></v-toolbar-title
               >
             </v-toolbar>
@@ -101,7 +105,7 @@
               </v-row>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
     <!-- open select dialog -->
@@ -151,7 +155,6 @@ export default {
         { title: "Address", align: "start", key: "distributer_address" },
         { title: "Area Code", align: "start", key: "area_code" },
         { title: "Area Name", align: "start", key: "area_name" },
-        { title: "Position", align: "start", key: "position" },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
         { title: "Action", align: "start", key: "action" },
       ],
@@ -166,9 +169,34 @@ export default {
   props: {
     Distributers: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
 
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
     // close
     async closeModal() {
       this.show = false;

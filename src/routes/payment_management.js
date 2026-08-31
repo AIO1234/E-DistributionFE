@@ -7,9 +7,6 @@ export default [
       authReuire: true,
       role: [
         "Super Admin",
-        "Admin",
-        "Staff",
-        "SalesRep",
         "Area Manager",
         "Distributer",
         "Accountan",
@@ -23,4 +20,24 @@ export default [
       ],
     },
   },
-];
+
+  // supplier payment routes 
+  {
+    path: "/supplierpayments",
+    name: "supplierpayments",
+    component: () => import("@/views/PaymentManagement/SupplierPayments/index.vue"),
+    meta: {
+      authReuire: true,
+      role: [
+        "Super Admin",
+      ],
+      pageTitle: " Supplier Payments",
+      breadcrumb: [
+        {
+          text: "Supplier Payment History & purches order details",
+          active: true,
+        },
+      ],
+    },
+  },
+]

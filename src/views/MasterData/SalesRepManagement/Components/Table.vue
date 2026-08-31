@@ -6,10 +6,14 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table
+        <v-data-table-server
           :headers="headers"
           :items="SalesReps"
-          items-per-page="100"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -68,10 +72,10 @@
               </span>
             </div>
 
-            <!-- posiition -->
-            <div v-if="header.key === 'position'">
+            <!-- total commission -->
+            <div v-if="header.key === 'total_commision'">
               <span>
-                {{ props.item.position }}
+                {{ getPrice(props.item.total_commision) }}
               </span>
             </div>
 
@@ -101,7 +105,7 @@
               </v-row>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
     <!-- open select dialog -->
@@ -151,11 +155,14 @@ export default {
         { title: "Address", align: "start", key: "rep_address" },
         { title: "Area Code", align: "start", key: "area_code" },
         { title: "Area Name", align: "start", key: "area_name" },
-        { title: "Position", align: "start", key: "position" },
+        {
+          title: "Total Commission",
+          align: "start",
+          key: "total_commision",
+        },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
         { title: "Action", align: "start", key: "action" },
       ],
-      SalesReps: [],
     };
   },
 
@@ -166,9 +173,34 @@ export default {
   props: {
     SalesReps: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
 
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
     // close
     async closeModal() {
       this.show = false;

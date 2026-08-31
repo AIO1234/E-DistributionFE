@@ -59,6 +59,7 @@
                         placeholder="SalesRep Order Date"
                         class="send_date"
                         v-model="selectedsalesrep.order_date"
+                        :config="{ minDate: minSelectableDate }"
                       >
                       </AppDateTimePicker>
                     </v-col>
@@ -97,7 +98,7 @@
                           <div>
                             <v-list-item
                               v-bind="props"
-                              :title="item.raw.product_name"
+                              :title="`${makeUpperCase(item.raw.product_name)} - ${makeUpperCase(item.raw.model_number || 'N/A')}`"
                               :subtitle="getPrice(item.raw.unit_price)"
                             >
                               <span
@@ -227,22 +228,35 @@ export default {
   data() {
     return {
       isFormValid: false,
+      authRole: "",
       form: {},
       loading: false,
       pageLoad: false,
       salesreps: [],
       products: [],
       salesreporders: [],
+      // total quantity per product this pending order already holds,
+      // captured once from the server before any edits - the backend
+      // restores all of this back onto uptodate_quantity before reapplying
+      // on submit, so it must be added back to the live stock ceiling
+      // used while editing (see updateQuantity)
+      originalReservedByProduct: {},
     };
   },
 
   async created() {
-    await this.SalesReps();
-    await this.DelivereSalesRepProducts();
-    await this.initializeData();
+    await this.init();
   },
 
   methods: {
+    async init() {
+      this.getAuthUser();
+
+      await this.SalesReps();
+      await this.DelivereSalesRepProducts();
+      await this.initializeData();
+    },
+
     // initializedata
 
     async initializeData() {
@@ -278,6 +292,16 @@ export default {
           order_date: element.order_date,
           orderproducts: items,
         });
+
+        // accumulate this order's original per-product quantities, summed
+        // across every salesrep row, for the stock-ceiling restore below
+        items.forEach((item) => {
+          if (!item.product) return;
+          const productId = item.product.product_id;
+          this.originalReservedByProduct[productId] =
+            (this.originalReservedByProduct[productId] || 0) +
+            Number(item.quantity);
+        });
       });
 
       this.pageLoad = false;
@@ -286,8 +310,8 @@ export default {
     async SalesReps() {
       this.pageLoad = true;
 
-      const res = await SalesRepApi.allSalesReps();
-      this.salesreps = res.data.data;
+      const res = await SalesRepApi.allSalesReps({ page: 1, per_page: 1000 });
+      this.salesreps = res.data.data.data;
 
       this.pageLoad = false;
     },
@@ -331,7 +355,14 @@ export default {
         });
       });
 
-      if (count > product.uptodate_quantity) {
+      // the backend restores this order's original quantities back onto
+      // uptodate_quantity before reapplying on submit, so add back what
+      // this order originally held for this product before comparing
+      const availableStock =
+        product.uptodate_quantity +
+        (this.originalReservedByProduct[product.product_id] || 0);
+
+      if (count > availableStock) {
         // if full count of privious added produt exceded the product stock
 
         toast("Entered Quantity Exceeded The Product Stock", "error", 20000);

@@ -11,12 +11,25 @@
             placeholder="Select Shop"
             v-model="shop"
             :items="shops"
+            :loading="shopsLoading"
+            no-filter
             item-title="shop_name"
             item-value="id"
             return-object
             class="selection"
-            @update:model-value="getProductWiseReport()"
-          ></v-autocomplete>
+            @update:model-value="onShopSelected"
+            @update:search="onShopSearch"
+          >
+            <template v-slot:item="{ props, item }">
+              <v-list-item
+                v-bind="props"
+                :title="item.raw.shop_name"
+                :subtitle="
+                  item.raw.area?.area_name ?? item.raw.area_name ?? ''
+                "
+              ></v-list-item>
+            </template>
+          </v-autocomplete>
         </v-col>
         <!-- select distributer -->
         <v-col
@@ -30,17 +43,17 @@
             authRole === 'Distributer'
           "
         >
-          <label class="label">Select Distributor</label>
+          <label class="label">Select ShowRoom</label>
           <div class="pt-2"></div>
           <v-autocomplete
-            placeholder="Select Distributor"
+            placeholder="Select ShowRoom"
             v-model="distributor"
             :items="distributors"
             item-title="distributer_name"
             item-value="id"
             return-object
             class="selection"
-            @update:model-value="getProductWiseReport()"
+            @update:model-value="search()"
           ></v-autocomplete>
         </v-col>
 
@@ -55,10 +68,11 @@
             item-title="rep_name"
             item-value="id"
             return-object
-            @update:model-value="getProductWiseReport()"
+            @update:model-value="search()"
             class="selection"
           ></v-autocomplete>
         </v-col>
+
       </v-row>
 
       <!-- searches -->
@@ -101,7 +115,7 @@
           <v-btn
             class="search_button"
             variant="none"
-            @click="getProductWiseReport()"
+            @click="search()"
             ><span class="text">Search</span></v-btn
           >
         </v-col>
@@ -118,10 +132,11 @@
           <div class="pt-1"></div>
           <v-btn class="exfort_button" variant="none">
             <download-excel
-              :data="salesreport"
+              :data="exportSalesReport"
               :fields="collumns"
               worksheet="Sales Detailed Report"
               :name="`as of ${todaydate} salessummary.xls`"
+              :before-generate="loadExportSalesReport"
             >
               <span class="text">Export</span>
             </download-excel>
@@ -137,10 +152,14 @@
           type="image, list-item-two-line"
         >
           <v-responsive>
-            <v-data-table
+            <v-data-table-server
               :headers="headers"
               :items="salesreport"
-              items-per-page="100"
+              :items-length="totalItems"
+              :page="page"
+              :items-per-page="itemsPerPage"
+              @update:page="onPage"
+              @update:items-per-page="onPerPage"
             >
               <template v-slot:top>
                 <v-toolbar flat>
@@ -167,14 +186,16 @@
                   <span> {{ props.item.product_name }}</span>
                 </div>
 
-                <!-- product type -->
+                <!-- product type: not returned by the report query, see -->
+                <!-- ReportImplementation::productWiseSales on the backend -->
                 <div v-if="header.key === 'product_type'">
                   <span v-if="props.item.product_type === 'Liquid'">
                     {{ getVolume(props.item.product_volume) }}</span
                   >
-                  <span v-else>
+                  <span v-else-if="props.item.product_type === 'Solid'">
                     {{ getWeight(props.item.product_weight) }}
                   </span>
+                  <span v-else> N/A </span>
                 </div>
 
                 <!-- detailed view -->
@@ -257,7 +278,7 @@
                   >
                 </div>
               </template>
-            </v-data-table>
+            </v-data-table-server>
           </v-responsive>
         </v-skeleton-loader>
       </v-card>
@@ -337,6 +358,7 @@ export default {
         rep_name: "",
       },
       shops: [],
+      shopsLoading: false,
       salesreps: [],
       distributors: [],
       show: false,
@@ -379,12 +401,23 @@ export default {
         "Final Amount(Rs)": "final_value",
       },
       salesreport: [],
+      // full result set matching the current filters (not just the current
+      // page), lazily loaded right before Export fires
+      exportSalesReport: [],
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
       loading: false,
       authRole: null,
     };
   },
 
   async created() {
+    this.debouncedShopSearch = this.debounce(
+      (searchdata) => this.getShops(searchdata),
+      400,
+    );
+
     this.getAuthUser();
     await this.getProductWiseReport();
     await this.getShops();
@@ -424,39 +457,116 @@ export default {
 
     // get salesreps
     async SalesReps() {
-      const res = await SalesRepApi.allSalesReps();
-      this.salesreps = res.data.data;
+      const res = await SalesRepApi.allSalesReps({ page: 1, per_page: 1000 });
+      this.salesreps = res.data.data.data;
     },
 
     // get distributers
     async Distributers() {
-      const res = await DistributerApi.allDistributers();
-      this.distributors = res.data.data;
+      const res = await DistributerApi.allDistributers({ page: 1, per_page: 1000 });
+      this.distributors = res.data.data.data;
     },
 
-    // get all shops
-    async getShops() {
-      const res = await shopApi.allShops();
-      this.shops = res.data.data;
+    // get shops matching the search text, capped so the whole 187+ shop
+    // list is never loaded up front - typing narrows the results
+    // server-side instead
+    async getShops(searchdata = "") {
+      this.shopsLoading = true;
+      const res = await shopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
+
+      this.shops = res.data.data.data;
+      this.shopsLoading = false;
     },
 
-    // get summary  Reports
+    // debounced so we don't fire a request on every keystroke. Vuetify
+    // echoes the currently selected shop's own name back through this
+    // event when the dropdown is simply reopened (not a real search the
+    // user typed) - treat that as no search, otherwise it silently
+    // narrows the list down to just the one shop already selected
+    onShopSearch(searchdata) {
+      const isEchoOfSelection = this.shop && searchdata === this.shop.shop_name;
+      this.debouncedShopSearch(isEchoOfSelection ? "" : searchdata);
+    },
+
+    // picking a different shop starts a fresh view of it - a leftover
+    // search term/date range picked while looking at the PREVIOUS shop
+    // would otherwise silently carry over and filter out everything for
+    // the newly selected shop
+    async onShopSelected() {
+      this.searchdata = "";
+      this.startdate = "";
+      this.enddate = "";
+      this.page = 1;
+
+      // refresh the dropdown back to the default (unsearched) batch, so
+      // reopening it right after picking a shop doesn't leave you stuck
+      // looking at only the narrow search results that shop matched -
+      // other shops are immediately browsable/searchable again
+      await this.getShops();
+
+      await this.getProductWiseReport();
+    },
+
+    // get summary report for the current page/filters
     async getProductWiseReport() {
       this.loading = true;
-      // get seached data
+
       const res = await ReportApi.SalesWiseReport(
         this.searchdata,
         this.shop.id,
         this.distributor.id,
         this.salesrep.id,
         this.startdate,
-        this.enddate
+        this.enddate,
+        this.page,
+        this.itemsPerPage,
       );
-      this.salesreport = res.data.data;
+      const pagination = res.data.data;
+
+      this.salesreport = pagination.data;
+      this.totalItems = pagination.total;
+      this.page = pagination.current_page;
+      this.itemsPerPage = pagination.per_page;
+
       this.loading = false;
     },
 
-    // // clear searches
+    // load the complete filtered report (not just the current page) right
+    // before the export fires, so the exported file matches the active filters
+    async loadExportSalesReport() {
+      const res = await ReportApi.SalesWiseReport(
+        this.searchdata,
+        this.shop.id,
+        this.distributor.id,
+        this.salesrep.id,
+        this.startdate,
+        this.enddate,
+        1,
+        100000,
+      );
+
+      this.exportSalesReport = res.data.data.data;
+    },
+
+    // search - reset to page 1 since the previous page may not exist
+    // anymore under the new search text/dates
+    async search() {
+      this.page = 1;
+      await this.getProductWiseReport();
+    },
+
+    // page change
+    async onPage(page) {
+      this.page = page;
+      await this.getProductWiseReport();
+    },
+
+    // items-per-page change
+    async onPerPage(perPage) {
+      this.page = 1;
+      this.itemsPerPage = perPage == -1 ? 10000 : perPage;
+      await this.getProductWiseReport();
+    },
 
     // clear button
     async clear() {
@@ -473,6 +583,7 @@ export default {
         }),
         (this.startdate = ""),
         (this.enddate = "");
+      this.page = 1;
       // get authenticated users if worker(area manager , distruibuter , salerep) is logged in
       this.getAuthUser();
       await this.getProductWiseReport();
