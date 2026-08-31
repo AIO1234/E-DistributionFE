@@ -24,11 +24,11 @@
               <!-- select distributer -->
               <v-row>
                 <v-col lg="4" cols="12">
-                  <label class="label">Distributor *</label>
+                  <label class="label">ShowRoom *</label>
                   <div class="pt-2"></div>
                   <v-autocomplete
                     :rules="[required]"
-                    placeholder="Select Distributor"
+                    placeholder="Select ShowRoom"
                     class="select_distributer"
                     v-model="selecteddistributer.distributer_id"
                     :items="distributers"
@@ -37,7 +37,7 @@
                     @update:model-value="
                       ExistsDistributer(
                         distributerindex,
-                        selecteddistributer.distributer_id
+                        selecteddistributer.distributer_id,
                       )
                     "
                   ></v-autocomplete>
@@ -47,13 +47,13 @@
                   <div class="pt-2"></div>
                   <AppDateTimePicker
                     :rules="[required]"
-                    placeholder="Distributer Order Date"
+                    placeholder="Order Date"
                     class="send_date"
                     v-model="selecteddistributer.order_date"
+                    :config="{ minDate: minSelectableDate }"
                   >
                   </AppDateTimePicker>
                 </v-col>
-                <v-col lg="4" cols="12" class="text-right"> </v-col>
               </v-row>
 
               <!-- order details -->
@@ -75,6 +75,8 @@
                     v-model="orderproduct.product"
                     class="select_product"
                     :items="products"
+                    :loading="productsLoading"
+                    no-filter
                     item-title="product_name"
                     item-value="product_id"
                     return-object
@@ -82,15 +84,50 @@
                       ExistsProduct(
                         distributerindex,
                         productindex,
-                        orderproduct.product
+                        orderproduct.product,
                       )
                     "
+                    @update:search="onProductSearch"
                   >
                     <template v-slot:item="{ props, item }">
-                      <div>
+                      <!-- if distributed from stock -->
+                      <div v-if="$route.params.main_order_id == 'no'">
                         <v-list-item
                           v-bind="props"
-                          :title="item.raw.product_name"
+                          :title="`${makeUpperCase(item.raw.product_name)} - ${makeUpperCase(item.raw.model_number || 'N/A')}`"
+                        >
+                          <!-- stock -->
+                          <div
+                            style="font-size: 13px"
+                            v-if="item.raw.stock_count !== null"
+                          >
+                            Balance Stock: {{ item.raw.stock_count }}
+                          </div>
+
+                          <!-- min_selling_price -->
+                          <div
+                            class="pt-1"
+                            style="font-size: 13px"
+                            v-if="item.raw.min_selling_price !== null"
+                          >
+                            Min Selling Price {{ item.raw.min_selling_price }}
+                          </div>
+
+                          <!-- max selling price -->
+                          <div
+                            class="pt-1"
+                            style="font-size: 13px"
+                            v-if="item.raw.min_selling_price !== null"
+                          >
+                            Max Selling Price {{ item.raw.max_selling_price }}
+                          </div>
+                        </v-list-item>
+                      </div>
+                      <!-- if distributed the order -->
+                      <div v-else>
+                        <v-list-item
+                          v-bind="props"
+                          :title="`${makeUpperCase(item.raw.product_name)} - ${makeUpperCase(item.raw.model_number || 'N/A')}`"
                           :subtitle="getPrice(item.raw.unit_price)"
                         >
                           <span
@@ -119,7 +156,7 @@
                         distributerindex,
                         productindex,
                         orderproduct.product,
-                        orderproduct.quantity
+                        orderproduct.quantity,
                       )
                     "
                   >
@@ -138,13 +175,22 @@
                       changeUnitPrice(
                         distributerindex,
                         productindex,
+                        orderproduct.product,
                         orderproduct.unitprice,
-                        orderproduct.quantity
+                        orderproduct.quantity,
                       )
                     "
                     class="product_input"
                   >
                   </v-text-field>
+                  <span
+                    v-if="sellingPriceRange(orderproduct.product)"
+                    class="pt-1"
+                    style="font-size: 12px; display: block"
+                  >
+                    Suggested Range:
+                    {{ sellingPriceRange(orderproduct.product) }}
+                  </span>
                 </v-col>
 
                 <!-- amount -->
@@ -190,7 +236,7 @@
                       class="delete_disributer"
                       variant="none"
                       @click="removeDistribute(distributerindex)"
-                      ><span class="text">Delete Distributer</span></v-btn
+                      ><span class="text">Delete ShowRoom</span></v-btn
                     >
                   </div>
                 </v-col>
@@ -205,7 +251,7 @@
             class="add_disributer"
             variant="none"
             @click="repeatDistributer()"
-            ><span class="text">Add Distributer</span></v-btn
+            ><span class="text">Add ShowRoom</span></v-btn
           >
         </div>
 
@@ -213,33 +259,54 @@
           <v-btn
             class="submit_button"
             variant="none"
-            @click="submitOrder()"
+            @click="openSubmitSummary()"
             :loading="loading"
             :disabled="!isFormValid"
             ><span class="text">Submit</span></v-btn
           >
         </div>
       </v-form>
+
+      <!-- summary of the entered showroom(s) and their product details, -->
+      <!-- shown before the order is actually submitted -->
+      <OrderSummaryConfirmDialog
+        v-model="showSubmitSummary"
+        entity-label="ShowRoom"
+        :shop-summaries="submitSummaries"
+        :show-discount-column="false"
+        :loading="loading"
+        @confirm="onSubmitConfirm"
+      />
     </div>
   </div>
 </template>
 <script>
+import ProductApi from "@/Api/Modules/products";
 import DistributerApi from "@/Api/Modules/distributer";
 import { toast } from "@/ApiConstance/toast";
+import OrderSummaryConfirmDialog from "@/components/OrderSummaryConfirmDialog.vue";
 export default {
+  components: {
+    OrderSummaryConfirmDialog,
+  },
+
   data() {
     return {
       isFormValid: false,
+      authRole: "",
       form: {},
       loading: false,
       distributers: [],
       products: [],
+      productsLoading: false,
+      showSubmitSummary: false,
       orderdistributers: [
         {
-          distributer_id: "Select Distributer",
+          distributer_id: "",
+          order_reference_id: "ORD-" + Math.floor(Math.random() * 100000000),
           orderproducts: [
             {
-              product: "Select Product",
+              product: "",
               quantity: "",
               unitprice: "",
               amount: "",
@@ -250,17 +317,70 @@ export default {
     };
   },
 
+  computed: {
+    // showroom details shown in the pre-submit summary popup, one entry per
+    // distributer (showroom) order being submitted
+    submitSummaries() {
+      return this.orderdistributers.map((orderdistributer) => {
+        const distributer = this.distributers.find(
+          (val) => val.id === orderdistributer.distributer_id,
+        );
+
+        return {
+          shopName: distributer ? distributer.distributer_name : "",
+          showCourierDetails: false,
+          products: orderdistributer.orderproducts
+            .filter((orderproduct) => orderproduct.product)
+            .map((orderproduct) => ({
+              productCode: orderproduct.product.product_code || "",
+              productName:
+                orderproduct.product.product_name ||
+                orderproduct.product.product_code ||
+                "",
+              quantity: orderproduct.quantity,
+              unitPrice: orderproduct.unitprice,
+              amount: orderproduct.amount,
+            })),
+        };
+      });
+    },
+  },
+
   async created() {
-    await this.Distributers();
-    await this.DeliveredistributerProducts();
+    await this.init();
   },
 
   methods: {
+    async init() {
+      this.getAuthUser();
+
+      this.debouncedProductSearch = this.debounce(
+        (searchdata) => this.DeliveredistributerProducts(searchdata),
+        400,
+      );
+
+      await this.Distributers();
+      await this.DeliveredistributerProducts();
+    },
+
     // get distributers
     async Distributers() {
-      const res = await DistributerApi.allDistributers();
+      const res = await DistributerApi.allDistributers({
+        page: 1,
+        per_page: 1000,
+      });
 
-      this.distributers = res.data.data;
+      this.distributers = res.data.data.data;
+    },
+
+    // open the pre-submit summary popup
+    openSubmitSummary() {
+      this.showSubmitSummary = true;
+    },
+
+    // proceed with the actual submission once the summary is confirmed
+    onSubmitConfirm() {
+      this.submitOrder();
     },
 
     // check weather the distributer is already added
@@ -277,14 +397,58 @@ export default {
     },
 
     // get sent products fro the factory for the dustributer
-    async DeliveredistributerProducts() {
-      const payload = {
-        order_id: this.$route.params.main_order_id,
-      };
+    async DeliveredistributerProducts(searchdata = "") {
+      if (this.$route.params.main_order_id == "no") {
+        // distributing directly from stock - search the whole catalog
+        // instead of loading every product up front
+        this.productsLoading = true;
 
-      const res = await DistributerApi.SendProductsForDistributers(payload);
+        const payload = {
+          searchdata,
+          page: 1,
+          per_page: 40,
+        };
+        const res = await ProductApi.allProducts(payload);
+        this.products = res.data.data.data;
 
-      this.products = res.data.data;
+        this.productsLoading = false;
+      } else {
+        const payload = {
+          order_id: this.$route.params.main_order_id,
+        };
+
+        const res = await DistributerApi.SendProductsForDistributers(payload);
+        this.products = res.data.data;
+      }
+    },
+
+    // debounced so we don't fire a request on every keystroke - only
+    // relevant when distributing directly from stock, where the list is
+    // search-driven rather than the small order-scoped list. Vuetify
+    // echoes an already-selected product's code back through this event
+    // when its dropdown is simply reopened (not a real search the user
+    // typed) - treat that as no search, otherwise it silently narrows the
+    // list down to just the one product already selected
+    onProductSearch(searchdata) {
+      if (this.$route.params.main_order_id == "no") {
+        const isEchoOfSelection = this.orderdistributers.some((distributer) =>
+          distributer.orderproducts.some(
+            (orderproduct) =>
+              orderproduct.product &&
+              searchdata === orderproduct.product.product_code,
+          ),
+        );
+
+        this.debouncedProductSearch(isEchoOfSelection ? "" : searchdata);
+      }
+    },
+
+    // product id: flat "id" when distributing from stock, "product_id" when
+    // distributing an existing order (same shape split as sellingPriceRange)
+    getProductId(product) {
+      return this.$route.params.main_order_id == "no"
+        ? product.id
+        : product.product_id;
     },
 
     // check quantity is available
@@ -294,51 +458,106 @@ export default {
       // get full count of privious added produt quantities where this product equal
       this.orderdistributers.forEach((val) => {
         val.orderproducts.forEach((val1) => {
-          if (val1.product.product_id === product.product_id) {
+          if (this.getProductId(val1.product) === this.getProductId(product)) {
             count = count + Number(val1.quantity);
           }
         });
       });
 
-      if (count > product.uptodate_quantity) {
-        // if full count of privious added produt exceded the product stock
+      // if distributing from stock
+      if (this.$route.params.main_order_id == "no") {
+        if (count > product.stock_count) {
+          // if full count of privious added produt exceded the product stock
 
-        toast("Entered Quantity Exceeded The Product Stock", "error", 20000);
-        this.orderdistributers[distributerindex].orderproducts[
-          productindex
-        ].quantity = "";
+          toast("Entered Quantity Exceeded The Product Stock", "error", 20000);
+          this.orderdistributers[distributerindex].orderproducts[
+            productindex
+          ].quantity = "";
+        }
       }
-      // if entered value dont exceded the product stock
+      // if distributing an order
       else {
-        this.orderdistributers[distributerindex].orderproducts[
-          productindex
-        ].unitprice = product.unit_price;
+        if (count > product.uptodate_quantity) {
+          // if full count of privious added produt exceded the product stock
 
-        this.orderdistributers[distributerindex].orderproducts[
-          productindex
-        ].amount = product.unit_price * entervalue;
+          toast("Entered Quantity Exceeded The Product Stock", "error", 20000);
+          this.orderdistributers[distributerindex].orderproducts[
+            productindex
+          ].quantity = "";
+        }
       }
+    },
+
+    // formatted "min - max" selling price range shown under the unit price
+    // field, sourced from the same product shape changeUnitPrice validates
+    // against (flat when distributing from stock, nested under .product
+    // when distributing an order)
+    sellingPriceRange(product) {
+      if (!product) return "";
+
+      const rangeProduct =
+        this.$route.params.main_order_id == "no" ? product : product.product;
+
+      if (
+        !rangeProduct ||
+        rangeProduct.min_selling_price == null ||
+        rangeProduct.max_selling_price == null
+      ) {
+        return "";
+      }
+
+      return `${this.getPrice(rangeProduct.min_selling_price)} - ${this.getPrice(rangeProduct.max_selling_price)}`;
     },
 
     //change unit price when changing
     changeUnitPrice(
       distributerindex,
       productindex,
+      product,
       enteredunitprice,
-      enteredquantity
+      enteredquantity,
     ) {
-      this.orderdistributers[distributerindex].orderproducts[
-        productindex
-      ].amount = enteredunitprice * enteredquantity;
+      // if distributing from stock
+      if (this.$route.params.main_order_id == "no") {
+        // if unit price  in suggested range
+        if (enteredunitprice >= product.min_selling_price) {
+          this.orderdistributers[distributerindex].orderproducts[
+            productindex
+          ].amount = enteredunitprice * enteredquantity;
+        }
+        // if unit price not in suggested range
+        else {
+          this.orderdistributers[distributerindex].orderproducts[
+            productindex
+          ].amount = "";
+        }
+      }
+      // if distributing from order
+      else {
+        // if unit price  in suggested range
+        if (enteredunitprice >= product.product.min_selling_price) {
+          this.orderdistributers[distributerindex].orderproducts[
+            productindex
+          ].amount = enteredunitprice * enteredquantity;
+        }
+        // if unit price not in suggested range
+        else {
+          this.orderdistributers[distributerindex].orderproducts[
+            productindex
+          ].amount = "";
+        }
+      }
     },
 
     // check weather the product is already ad by same distributer before
-    ExistsProduct(distributerindex, productindex, sendproduct) {
+    async ExistsProduct(distributerindex, productindex, sendproduct) {
       // get previouslyadded product exactly same like this
       const result = this.orderdistributers[
         distributerindex
       ].orderproducts.filter((val) => {
-        return val.product.product_id === sendproduct.product_id;
+        return (
+          this.getProductId(val.product) === this.getProductId(sendproduct)
+        );
       });
 
       if (
@@ -350,18 +569,24 @@ export default {
         toast(
           "Product Already Selected Before By This Distributer",
           "error",
-          20000
+          20000,
         );
         this.orderdistributers[distributerindex].orderproducts[
           productindex
         ].product = "";
       }
+
+      // refresh the dropdown back to the default (unsearched) batch, so
+      // reopening any row right after picking a product doesn't leave it
+      // stuck showing only the narrow search results that product matched
+      await this.DeliveredistributerProducts();
     },
     // repeat distributer
     repeatDistributer() {
       // repeat form
       this.orderdistributers.push({
-        distributer_id: "Select Distributer",
+        distributer_id: "Select ShowRoom",
+        order_reference_id: "ORD-" + Math.floor(Math.random() * 100000000),
         orderproducts: [
           {
             product: "Select Product",
@@ -385,7 +610,7 @@ export default {
     repeatProduct(index) {
       // repeat form
       this.orderdistributers[index].orderproducts.push({
-        product: "Select Product",
+        product: "",
         quantity: "",
         unitprice: "",
         amount: "",
@@ -396,7 +621,7 @@ export default {
     removeProduct(distributerindex, productindex) {
       this.orderdistributers[distributerindex].orderproducts.splice(
         productindex,
-        1
+        1,
       );
     },
 
@@ -408,11 +633,17 @@ export default {
       this.form.order_id = this.$route.params.main_order_id;
       this.form.distributer_orders = this.orderdistributers;
 
-      console.log(this.form);
       await DistributerApi.storeDistributerOrder(this.form)
         .then(() => {
           this.loading = false;
-          this.$router.push("/factoryorder");
+          // if distributing from stock
+          if (this.$route.params.main_order_id == "no") {
+            this.$router.push("/distributororder");
+          }
+          // if distributing from order
+          else {
+            this.$router.push("/factoryorder");
+          }
         })
         .catch(() => {
           this.loading = false;

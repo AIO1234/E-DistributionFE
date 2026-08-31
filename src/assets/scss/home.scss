@@ -1,2 +1,82 @@
-.home {
+.dashboard {
+  .card_view {
+    min-width: 231px;
+    min-height: 86px;
+    border-radius: 16px;
+    opacity: 1;
+    gap: 24px;
+    padding-top: 12px;
+    padding-right: 20px;
+    padding-bottom: 12px;
+    padding-left: 20px;
+    background-color: #ffffff;
+    cursor: default;
+
+    .icon_wrap {
+      width: 62px;
+      height: 62px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #eef2ff;
+    }
+
+    .heading_text {
+      font-family: "Lato", sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      color: #4b5563;
+    }
+    .sub_text {
+      font-family: "Lato", sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      color: #030213;
+    }
+  }
+
+  .charts {
+    .heading {
+      font-family: "Lato", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 100%;
+      letter-spacing: 0%;
+      vertical-align: middle;
+      color: #161a41c7;
+    }
+    .selection {
+      width: 175px;
+      height: 39px;
+      justify-content: space-between;
+      opacity: 1;
+      border-radius: 4px;
+      border-width: 1px;
+      border: 1px solid #d1d5db;
+      background-color: #ffffff;
+    }
+    .chart1_background {
+      width: 100%;
+      min-height: 390px;
+      padding-top: 20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      border-radius: 16px;
+      opacity: 1;
+      background-color: #ffffff;
+      @media screen and (max-width: 768px) {
+        width: 300px;
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+      .apex_chart {
+        width: 100%;
+      }
+    }
+  }
 }

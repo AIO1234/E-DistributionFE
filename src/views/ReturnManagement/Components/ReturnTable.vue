@@ -6,8 +6,16 @@
       type="image, list-item-two-line"
       style="background-color: transparent"
     >
-      <v-responsive v-if="Returns !== null && Returns.length !== 0">
-        <v-data-table :headers="headers" :items="Returns" items-per-page="100">
+      <v-responsive>
+        <v-data-table-server
+          :headers="headers"
+          :items="Returns"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
+        >
           <!-- contents -->
           <template
             v-for="header in headers"
@@ -36,8 +44,8 @@
               </span>
             </div>
 
-              <!-- order amount -->
-              <div v-if="header.key === 'return_amount'">
+            <!-- return amount -->
+            <div v-if="header.key === 'return_amount'">
               <span>
                 {{ getPrice(props.item.return_amount) }}
               </span>
@@ -68,7 +76,7 @@
               {{ firstLetterUpperCase(props.item.last_updated_by) }}
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
   </div>
@@ -86,7 +94,6 @@ export default {
         { title: "Action", align: "start", key: "action" },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
       ],
-      Returns: [],
     };
   },
 
@@ -94,6 +101,33 @@ export default {
     Returns: Array,
     shop: Object,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
+  },
+
+  methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
   },
 };
 </script>

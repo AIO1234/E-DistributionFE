@@ -6,10 +6,14 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table
+        <v-data-table-server
           :headers="headers"
           :items="SalesRepOrders"
-          items-per-page="100"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -56,6 +60,25 @@
                 {{ props.item.order_amount }}
               </span>
             </div>
+
+            <!-- remaining quantity per product -->
+            <div v-if="header.key === 'remaining_quantity'">
+              <v-list density="compact" class="remaining_quantity_list">
+                <v-list-item
+                  v-for="product in props.item.distributer_salesrep_order_items"
+                  :key="product"
+                  class="px-0"
+                  min-height="auto"
+                >
+                  {{ makeUpperCase(product.product_code) }} -
+                  {{ makeUpperCase(product.product_name) }}:
+                  <span class="remaining_quantity_value">{{
+                    product.pivot.uptodate_quantity
+                  }}</span>
+                  / {{ product.pivot.quantity }}
+                </v-list-item>
+              </v-list>
+            </div>
             <!-- distribution -->
             <div v-if="header.key === 'distribution'">
               <v-row>
@@ -67,11 +90,12 @@
                       this.$router.push({
                         name: 'sendshop',
                         params: {
-                          main_order_id: props.item.main_order_id,
+                          main_order_id: props.item.main_order_id ?? 'null',
                           distributer_id: props.item.distributer_id,
                           distributer_order_id: props.item.disorder_id,
                           sales_rep_id: props.item.salesrep_id,
                           reporder_id: props.item.id,
+                          position: 'no',
                         },
                       })
                       // $router.push(
@@ -102,7 +126,7 @@
                     variant="none"
                     @click="
                       $router.push(
-                        `/ordersummary/salesreporder/${props.item.id}`
+                        `/ordersummary/salesreporder/${props.item.id}`,
                       )
                     "
                   >
@@ -127,7 +151,7 @@
               {{ firstLetterUpperCase(props.item.last_updated_by) }}
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
   </div>
@@ -138,10 +162,19 @@ export default {
     return {
       headers: [
         { title: "Rep Name", align: "start", key: "rep_name" },
-        { title: "Order ID", align: "start", key: "order_reference_id" },
-        { title: "Invoice No", align: "start", key: "invoice_no" },
+        {
+          title: "Distributed Order ID",
+          align: "start",
+          key: "order_reference_id",
+        },
+        { title: "Distributed Invoice No", align: "start", key: "invoice_no" },
         { title: "Date", align: "start", key: "order_date" },
         { title: "Amount(Rs)", align: "start", key: "order_amount" },
+        {
+          title: "Remaining Qty",
+          align: "start",
+          key: "remaining_quantity",
+        },
         { title: "Distribute", align: "start", key: "distribution" },
         { title: "Status", align: "start", key: "status" },
         { title: "Action", align: "start", key: "action" },
@@ -154,13 +187,39 @@ export default {
 
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
       ],
-      SalesRepOrders: [],
     };
   },
 
   props: {
     SalesRepOrders: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
+  },
+
+  methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
   },
 };
 </script>

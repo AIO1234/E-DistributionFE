@@ -9,7 +9,7 @@
         <VRow>
           <!-- Code -->
           <VCol lg="6" cols="12">
-            <label class="label">Code</label>
+            <label class="label">Code*</label>
             <div class="mt-2" />
             <VTextField
               placeholder="Code"
@@ -21,7 +21,7 @@
 
           <!-- Name -->
           <VCol lg="6" cols="12">
-            <label class="label">Name</label>
+            <label class="label">Name*</label>
             <div class="mt-2" />
             <VTextField
               placeholder="Name"
@@ -45,7 +45,7 @@
 
           <!--email -->
           <VCol lg="6" cols="12">
-            <label class="label">E-mail</label>
+            <label class="label">E-mail*</label>
             <div class="mt-2" />
             <VTextField
               :rules="[email]"
@@ -57,28 +57,54 @@
 
           <!-- password -->
           <VCol lg="6" cols="12">
-            <label class="label">Password</label>
+            <label class="label">Password*</label>
             <div class="mt-2" />
             <AppTextField
               class="input"
               v-model="form.password"
               :rules="[required, password]"
               placeholder="············"
-              type="password"
-            />
+              :type="showPassword ? 'password' : 'text'"
+            >
+              <template #append-inner>
+                <img
+                  @click="showPassword = !showPassword"
+                  src="@/assets/images/eye.png"
+                  style="
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                    cursor: pointer;
+                  "
+                />
+              </template>
+            </AppTextField>
           </VCol>
 
           <!-- confirm password -->
           <VCol lg="6" cols="12">
-            <label class="label">Confirm Password</label>
+            <label class="label">Confirm Password*</label>
             <div class="mt-2" />
             <AppTextField
               class="input"
               v-model="form.password_confirmation"
               :rules="[required, confirm_password]"
               placeholder="············"
-              type="password"
-            />
+              :type="showConfirmPassword ? 'password' : 'text'"
+            >
+              <template #append-inner>
+                <img
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  src="@/assets/images/eye.png"
+                  style="
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                    cursor: pointer;
+                  "
+                />
+              </template>
+            </AppTextField>
           </VCol>
 
           <!-- address -->
@@ -118,18 +144,6 @@
               </template>
             </v-autocomplete>
           </VCol>
-
-          <!-- Position -->
-          <VCol lg="6" cols="12">
-            <label class="label">Position</label>
-            <div class="mt-2" />
-            <v-autocomplete
-              placeholder="Select Position"
-              class="input"
-              v-model="form.position"
-              :items="['SalesRep']"
-            ></v-autocomplete>
-          </VCol>
         </VRow>
         <div class="pt-15" />
 
@@ -152,6 +166,7 @@
 
 <script>
 import SalesRepApi from "@/Api/Modules/salesrep";
+import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 
 export default {
@@ -159,18 +174,22 @@ export default {
   data() {
     return {
       isFormValid: false,
-      form: { rep_address: "" },
+      form: { rep_address: "", rep_mobile: "" },
       loading: false,
       areas: [],
+      showPassword: true,
+      showConfirmPassword: true,
     };
   },
   async created() {
     await this.getAreas();
   },
   methods: {
-    // get areas from the globals
+    // get areas - /areas/index is paginated, request a large per_page to
+    // effectively get everything in one page for the dropdown
     async getAreas() {
-      this.areas = await commonmixins.methods.getAreas();
+      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
+      this.areas = res.data.data.data;
     },
 
     // add sales rep

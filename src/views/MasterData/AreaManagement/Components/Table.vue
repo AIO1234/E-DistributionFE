@@ -6,7 +6,15 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table :headers="headers" :items="Areas" items-per-page="100">
+        <v-data-table-server
+          :headers="headers"
+          :items="Areas"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
+        >
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title
@@ -62,7 +70,7 @@
               </v-row>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
     <!-- open select dialog -->
@@ -121,9 +129,34 @@ export default {
   props: {
     Areas: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
 
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
     // close
     async closeModal() {
       this.show = false;

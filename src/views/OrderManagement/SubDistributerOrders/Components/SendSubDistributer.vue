@@ -30,12 +30,25 @@
                   class="select_shop"
                   v-model="selectedshop.shop_id"
                   :items="shops"
+                  :loading="shopsLoading"
+                  no-filter
                   item-title="shop_name"
                   item-value="id"
                   @update:model-value="
                     Existsshop(shopindex, selectedshop.shop_id)
                   "
-                ></v-autocomplete>
+                  @update:search="onShopSearch"
+                >
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item
+                      v-bind="props"
+                      :title="item.raw.shop_name"
+                      :subtitle="
+                        item.raw.area?.area_name ?? item.raw.area_name ?? ''
+                      "
+                    ></v-list-item>
+                  </template>
+                </v-autocomplete>
               </v-col>
               <v-col lg="4" cols="12">
                 <AppDateTimePicker
@@ -87,7 +100,7 @@
                     <div>
                       <v-list-item
                         v-bind="props"
-                        :title="item.raw.product_name"
+                        :title="`${item.raw.product_name} - ${item.raw.model_number || 'N/A'}`"
                         :subtitle="getPrice(item.raw.product_amount)"
                       >
                         <span
@@ -145,6 +158,9 @@
                   class="product_input"
                 >
                 </v-text-field>
+                <span class="pt-1" style="font-size: 12px; display: block">
+                  Type discount per unit price
+                </span>
               </v-col>
 
               <!-- repeater button -->
@@ -213,6 +229,7 @@ export default {
       form: {},
       loading: false,
       shops: [],
+      shopsLoading: false,
       products: [],
       shoporders: [
         {
@@ -234,15 +251,32 @@ export default {
   },
 
   async created() {
+    this.debouncedShopSearch = this.debounce(
+      (searchdata) => this.AllShops(searchdata),
+      400,
+    );
+
     await this.AllShops();
     await this.DeliveredShopProducts();
   },
 
   methods: {
-    // get shops
-    async AllShops() {
-      const res = await shopApi.allShops();
-      this.shops = res.data.data;
+    // get shops matching the search text, capped so the whole 187+ shop
+    // list is never loaded up front - typing narrows the results
+    // server-side instead
+    async AllShops(searchdata = "") {
+      this.shopsLoading = true;
+
+      const res = await shopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
+
+      this.shops = res.data.data.data;
+
+      this.shopsLoading = false;
+    },
+
+    // debounced so we don't fire a request on every keystroke
+    onShopSearch(searchdata) {
+      this.debouncedShopSearch(searchdata);
     },
 
     // check weather the shop is already added

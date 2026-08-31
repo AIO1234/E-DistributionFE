@@ -6,7 +6,15 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table :headers="headers" :items="Shops" items-per-page="100">
+        <v-data-table-server
+          :headers="headers"
+          :items="Shops"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
+        >
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title
@@ -63,6 +71,20 @@
               </span>
             </div>
 
+            <!-- due amount from company -->
+            <div v-if="header.key === 'Uptodate_due_amounts'">
+              <span>
+                {{ getPrice(props.item.Uptodate_due_amounts) }}
+              </span>
+            </div>
+
+            <!-- paid amount from company -->
+            <div v-if="header.key === 'uptodate_paid_amounts'">
+              <span>
+                {{ getPrice(props.item.uptodate_paid_amounts) }}
+              </span>
+            </div>
+
             <!--last_updated_by -->
             <div v-if="header.key === 'last_updated_by'">
               <span>
@@ -89,7 +111,7 @@
               </v-row>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
     <!-- open select dialog -->
@@ -139,6 +161,16 @@ export default {
         { title: "Address", align: "start", key: "shop_address" },
         { title: "Area Code", align: "start", key: "area_code" },
         { title: "Area Name", align: "start", key: "area_name" },
+        {
+          title: "Due Amount",
+          align: "start",
+          key: "Uptodate_due_amounts",
+        },
+        {
+          title: "Paid Amount",
+          align: "start",
+          key: "uptodate_paid_amounts",
+        },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
         { title: "Action", align: "start", key: "action" },
       ],
@@ -153,9 +185,34 @@ export default {
   props: {
     Shops: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
 
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
     // close
     async closeModal() {
       this.show = false;

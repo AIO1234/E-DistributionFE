@@ -9,18 +9,32 @@
           placeholder="Select Shop"
           v-model="shop"
           :items="shops"
+          :loading="shopsLoading"
+          no-filter
           item-title="shop_name"
           item-value="id"
           return-object
-          @update:model-value="shopPayment('search')"
+          @update:model-value="onShopSelected"
+          @update:search="onShopSearch"
           class="shop_select_button"
-        ></v-autocomplete>
+        >
+          <template v-slot:item="{ props, item }">
+            <v-list-item
+              v-bind="props"
+              :title="item.raw.shop_name"
+              :subtitle="
+                item.raw.area?.area_name ?? item.raw.area_name ?? ''
+              "
+            ></v-list-item>
+          </template>
+        </v-autocomplete>
       </v-col>
       <!-- create payment -->
       <v-col lg="6" cols="12" class="text-right">
         <v-btn
           class="payment_create_button"
           variant="none"
+          :disabled="!shop || !shop.id"
           @click="show = true"
         >
           <template v-slot:prepend>
@@ -30,6 +44,39 @@
         </v-btn>
       </v-col>
     </v-row>
+
+    <div class="pt-7"></div>
+    <!-- shop due and paid balances -->
+    <div v-if="shop && shop.id">
+      <div class="shop_balance_amount">
+        <span class="text"
+          >Due Balance
+          <span
+            >For <b>{{ shop.shop_name }}</b></span
+          >
+          :
+          <b class="amount">{{
+            getPrice(shop.Uptodate_due_amounts || 0)
+          }}</b>
+        </span>
+      </div>
+
+      <div class="pt-3"></div>
+
+      <div class="shop_balance_amount">
+        <span class="text"
+          >Paid Balance
+          <span
+            >From <b>{{ shop.shop_name }}</b></span
+          >
+          :
+          <b class="amount">{{
+            getPrice(shop.uptodate_paid_amounts || 0)
+          }}</b>
+        </span>
+      </div>
+    </div>
+
     <!-- header searches -->
     <div class="pt-15" v-if="shop !== 'Select Shop'">
       <v-row>
@@ -56,7 +103,7 @@
           </AppDateTimePicker>
         </v-col>
 
-        <!--  end order date-->
+        <!-- end order date -->
         <v-col lg="2" cols="12">
           <AppDateTimePicker
             v-model="enddate"
@@ -78,7 +125,7 @@
 
         <!-- clear button -->
         <v-col lg="2" cols="12">
-          <v-btn class="clear_button" variant="none" @click="shopPayment()"
+          <v-btn class="clear_button" variant="none" @click="clearFilters"
             ><span class="text">Clear</span></v-btn
           >
         </v-col>
@@ -101,7 +148,7 @@
           <div class="pt-8"></div>
           <v-btn class="exfort_button" variant="none">
             <download-excel
-              :data="shoppayments"
+              :data="exportPayments"
               :fields="headers"
               worksheet="All payments"
               :name="
@@ -109,6 +156,7 @@
                   ? `as of ${todaydate} ${shop.shop_name} payments.xls`
                   : `as of ${todaydate} allpayments.xls`
               "
+              :before-generate="loadExportPayments"
             >
               <span class="text">Export</span>
             </download-excel>
@@ -123,8 +171,14 @@
         <Table
           :shoppayments="shoppayments"
           :shop="shop"
+          :shops="shops"
           :loading="loading"
+          :totalItems="totalItems"
+          :currentPage="page"
+          :itemsPerPage="itemsPerPage"
           @close="closeModal"
+          @pagechange="pageChange"
+          @pagesizechange="pageSizeChange"
         />
       </v-card>
     </div>
@@ -168,7 +222,6 @@ import Table from "./Components/PaymentTable.vue";
 import ShopApi from "@/Api/Modules/shop";
 import PaymentApi from "@/Api/Modules/payments";
 import CreateForm from "./Components/CreatePayment.vue";
-import { store } from "@/store";
 import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
 
@@ -184,10 +237,15 @@ export default {
       enddate: "",
       show: false,
       shops: [],
+      shopsLoading: false,
       shop: "",
       shoppayments: [],
+      exportPayments: [],
       loading: false,
       payment_status: "",
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
       headers: {
         "Order Id": "payment_invoices[0].order_reference_id",
         "Payment Code": "payment_code",
@@ -207,79 +265,141 @@ export default {
   },
 
   async created() {
+    this.debouncedShopSearch = this.debounce(
+      (searchdata) => this.getAllShops(searchdata),
+      400,
+    );
+
     await this.getAllShops();
     await this.shopPayment();
-    await this.initializeData();
   },
   methods: {
-    // initialize data
-    async initializeData() {
-      const { getSelectedShopId } = store.getters;
+    // get shops matching the search text, capped so the whole 187+ shop
+    // list is never loaded up front - typing narrows the results
+    // server-side instead
+    async getAllShops(searchdata = "") {
+      this.shopsLoading = true;
+      const res = await ShopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
 
-      // check weather store shop id is null
-      if (getSelectedShopId !== null) {
-        // set shop id from the store(if available)
-        this.shop.id = getSelectedShopId;
-      }
-
-      await this.shopPayment();
-    },
-    // get all shops
-    async getAllShops() {
-      this.loading = true;
-      const res = await ShopApi.allShops();
-      this.shops = res.data.data;
-      this.loading = false;
+      this.shops = res.data.data.data;
+      this.shopsLoading = false;
     },
 
-    // get payments  for selected shop
+    // debounced so we don't fire a request on every keystroke. Vuetify
+    // echoes the currently selected shop's own name back through this
+    // event when the dropdown is simply reopened (not a real search the
+    // user typed) - treat that as no search, otherwise it silently
+    // narrows the list down to just the one shop already selected
+    onShopSearch(searchdata) {
+      const isEchoOfSelection = this.shop && searchdata === this.shop.shop_name;
+      this.debouncedShopSearch(isEchoOfSelection ? "" : searchdata);
+    },
 
+    // picking a different shop starts a fresh view of it - a leftover
+    // search term/date range/status picked while looking at the PREVIOUS
+    // shop would otherwise silently carry over and filter out everything
+    // for the newly selected shop
+    async onShopSelected() {
+      this.searchdata = "";
+      this.startdate = "";
+      this.enddate = "";
+      this.payment_status = "";
+
+      // refresh the dropdown back to the default (unsearched) batch, so
+      // reopening it right after picking a shop doesn't leave you stuck
+      // looking at only the narrow search results that shop matched -
+      // other shops are immediately browsable/searchable again
+      await this.getAllShops();
+
+      await this.shopPayment("search");
+    },
+
+    // get payments for selected shop - "normal" only clears the search
+    // filters, it does NOT clear the selected shop (mirrors
+    // SupplierPayments' supplierPayment(), where Clear keeps the
+    // selected supplier)
     async shopPayment(incomming = "normal") {
-      //set shop id and  to store if administrative logged in
-
-      store.commit("SET_SELECTED_SHOP_ID", this.shop.id);
-
-      this.loading = true;
-      // initiaize payoad
-      let payload = {};
-      // if function execute as normal(without searches)
       if (incomming === "normal") {
-        // reset searches
         this.searchdata = "";
         this.startdate = "";
         this.enddate = "";
-        this.shop = "";
         this.payment_status = "";
-        // process payload
-        payload = {
-          shop_id: this.shop.id,
-          searchdata: this.searchdata,
-          startdate: this.startdate,
-          enddate: this.enddate,
-          payment_status: this.payment_status,
-        };
-      }
-      // if function execute as a search
-      else {
-        // process payload
-        payload = {
-          shop_id: this.shop.id,
-          searchdata: this.searchdata,
-          startdate: this.startdate,
-          enddate: this.enddate,
-          payment_status: this.payment_status,
-        };
       }
 
+      // any filter change invalidates the previous page
+      this.page = 1;
+
+      await this.getShopPayments();
+    },
+
+    // clear search filters but keep the selected shop
+    async clearFilters() {
+      await this.shopPayment("normal");
+    },
+
+    // fetch payments for the current page/filters
+    async getShopPayments() {
+      this.loading = true;
+
+      const payload = {
+        shop_id: this.shop.id,
+        searchdata: this.searchdata,
+        startdate: this.startdate,
+        enddate: this.enddate,
+        payment_status: this.payment_status,
+        page: this.page,
+        per_page: this.itemsPerPage,
+      };
+
       const res = await PaymentApi.allShopPayments(payload);
-      this.shoppayments = res.data.data;
+      const pagination = res.data.data;
+
+      // the backend returns nothing for a role that isn't allowed to see
+      // every shop's payments and hasn't picked a shop yet
+      this.shoppayments = pagination?.data || [];
+      this.totalItems = pagination?.total || 0;
+      this.page = pagination?.current_page || 1;
+      this.itemsPerPage = pagination?.per_page || this.itemsPerPage;
 
       this.loading = false;
     },
 
+    // load the complete filtered payment list (not just the current page)
+    // right before the export fires, so the exported file matches the
+    // active filters
+    async loadExportPayments() {
+      const payload = {
+        shop_id: this.shop.id,
+        searchdata: this.searchdata,
+        startdate: this.startdate,
+        enddate: this.enddate,
+        payment_status: this.payment_status,
+        page: 1,
+        per_page: 100000,
+      };
+
+      const res = await PaymentApi.allShopPayments(payload);
+
+      this.exportPayments = res.data.data?.data || [];
+    },
+
+    // page change
+    async pageChange(data) {
+      this.page = data.page;
+      await this.getShopPayments();
+    },
+
+    // items-per-page change
+    async pageSizeChange(data) {
+      this.page = data.page;
+      this.itemsPerPage = data.per_page;
+      await this.getShopPayments();
+    },
+
+    // close modal
     async closeModal() {
       this.show = false;
-      await this.shopPayment();
+      await this.getShopPayments();
     },
   },
 };

@@ -62,12 +62,46 @@ if (compAttrs.config && compAttrs.config.inline) {
   isInlinePicker.value = compAttrs.config.inline;
   Object.assign(compAttrs, { altInputClass: "inlinePicker" });
 }
+// Default flatpickr positioning computes top/left as document-relative offsets
+// (window.pageYOffset + input.getBoundingClientRect()), which assumes the
+// calendar's containing block is the page. That breaks when the input sits
+// inside a container with its own scroll (e.g. a scrollable VDialog), since the
+// calendar (appended to document.body) ends up positioned as if the dialog were
+// scrolled to the top. Using `position: fixed` anchored purely to the input's
+// live viewport rect sidesteps that entirely — it needs no scroll bookkeeping.
+const positionCalendarFixedToInput = (instance, customPositionElement) => {
+  const calendar = instance.calendarContainer;
+  const el = customPositionElement || instance._positionElement || instance.input;
+
+  if (!calendar || !el) return;
+
+  const inputRect = el.getBoundingClientRect();
+  const calendarHeight = calendar.offsetHeight || 320;
+  const calendarWidth = calendar.offsetWidth || 270;
+  const spaceBelow = window.innerHeight - inputRect.bottom;
+  const showOnTop = spaceBelow < calendarHeight && inputRect.top > calendarHeight;
+
+  calendar.classList.toggle("arrowTop", !showOnTop);
+  calendar.classList.toggle("arrowBottom", showOnTop);
+
+  calendar.style.position = "fixed";
+  calendar.style.top = `${
+    showOnTop ? inputRect.top - calendarHeight - 2 : inputRect.bottom + 2
+  }px`;
+  calendar.style.left = `${Math.min(
+    inputRect.left,
+    Math.max(8, window.innerWidth - calendarWidth - 8)
+  )}px`;
+  calendar.style.right = "auto";
+};
+
 compAttrs.config = {
   ...compAttrs.config,
   prevArrow:
     '<i class="tabler-chevron-left v-icon" style="font-size: 20px; height: 20px; width: 20px;"></i>',
   nextArrow:
     '<i class="tabler-chevron-right v-icon" style="font-size: 20px; height: 20px; width: 20px;"></i>',
+  position: positionCalendarFixedToInput,
 };
 
 const onClear = (el) => {
@@ -96,6 +130,23 @@ const updateThemeClassInCalendar = () => {
 watch(() => configStore.theme, updateThemeClassInCalendar);
 onMounted(() => {
   updateThemeClassInCalendar();
+});
+
+// Flatpickr only repositions the calendar on window scroll/resize, so when the
+// input sits inside a scrollable container (e.g. a scrollable VDialog), scrolling
+// that container leaves the calendar stuck at its old position. Listening in the
+// capture phase catches scroll events from any nested scrollable ancestor too.
+const repositionCalendar = () => {
+  if (isCalendarOpen.value && refFlatPicker.value?.fp) {
+    refFlatPicker.value.fp._positionCalendar();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("scroll", repositionCalendar, true);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener("scroll", repositionCalendar, true);
 });
 
 const emitModelValue = (val) => {

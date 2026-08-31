@@ -15,6 +15,11 @@ export default {
     return await api.post("/users/update", payload);
   },
 
+  // delete a user (Super Admin only) - payload: { id }
+  async deleteUser(payload) {
+    return await api.post("/users/delete", payload);
+  },
+
   async userRoles(payload) {
     return await api.post("/users/userroles", payload);
   },

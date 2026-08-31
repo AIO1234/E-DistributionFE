@@ -23,10 +23,10 @@
         >
           <v-card-text>
             <div>
-              <!-- select sales rep -->
+              <!-- select supplier -->
               <v-row>
                 <v-col lg="4" cols="12">
-                  <label class="label">Subdistributer *</label>
+                  <label class="label">Supplier *</label>
                   <div class="pt-2"></div>
                   <v-autocomplete
                     :rules="[required]"
@@ -92,7 +92,7 @@
                       <div>
                         <v-list-item
                           v-bind="props"
-                          :title="item.raw.product_name"
+                          :title="`${item.raw.product_name} - ${item.raw.model_number || 'N/A'}`"
                           :subtitle="getPrice(item.raw.unit_price)"
                         >
                           <span
@@ -151,6 +151,9 @@
                     class="product_input"
                   >
                   </v-text-field>
+                  <span class="pt-1" style="font-size: 12px; display: block">
+                    Type discount per unit price
+                  </span>
                 </v-col>
 
                 <!-- repeater button -->

@@ -10,12 +10,25 @@
           placeholder="Select Shop"
           v-model="shop"
           :items="shops"
+          :loading="shopsLoading"
+          no-filter
           item-title="shop_name"
           item-value="id"
           return-object
-          @update:model-value="DetailedReport()"
+          @update:model-value="onShopSelected"
+          @update:search="onShopSearch"
           class="selection"
-        ></v-autocomplete>
+        >
+          <template v-slot:item="{ props, item }">
+            <v-list-item
+              v-bind="props"
+              :title="item.raw.shop_name"
+              :subtitle="
+                item.raw.area?.area_name ?? item.raw.area_name ?? ''
+              "
+            ></v-list-item>
+          </template>
+        </v-autocomplete>
       </v-col>
       <!-- select distributer -->
 
@@ -30,16 +43,16 @@
           authRole === 'Distributer'
         "
       >
-        <label class="label">Select Distributor</label>
+        <label class="label">Select ShowRoom</label>
         <div class="pt-2"></div>
         <v-autocomplete
-          placeholder="Select Distributor"
+          placeholder="Select ShowRoom"
           v-model="distributor"
           :items="distributors"
           item-title="distributer_name"
           item-value="id"
           return-object
-          @update:model-value="DetailedReport()"
+          @update:model-value="search()"
           class="selection"
         ></v-autocomplete>
       </v-col>
@@ -54,7 +67,7 @@
           :items="salesreps"
           item-title="rep_name"
           item-value="id"
-          @update:model-value="DetailedReport()"
+          @update:model-value="search()"
           return-object
           class="selection"
         ></v-autocomplete>
@@ -71,7 +84,7 @@
           item-title="area_name"
           item-value="id"
           return-object
-          @update:model-value="DetailedReport()"
+          @update:model-value="search()"
           class="selection"
         ></v-autocomplete>
       </v-col>
@@ -113,7 +126,7 @@
 
       <!-- search button -->
       <v-col lg="3" cols="12">
-        <v-btn class="search_button" variant="none" @click="DetailedReport()"
+        <v-btn class="search_button" variant="none" @click="search()"
           ><span class="text">Search</span></v-btn
         >
       </v-col>
@@ -130,10 +143,11 @@
         <div class="pt-1"></div>
         <v-btn class="exfort_button" variant="none">
           <download-excel
-            :data="salesreport"
+            :data="exportSalesReport"
             :fields="collumns"
             worksheet="Sales Detailed Report"
             :name="`as of ${todaydate} salesdetails.xls`"
+            :before-generate="loadExportSalesReport"
           >
             <span class="text">Export</span>
           </download-excel>
@@ -150,10 +164,14 @@
         type="image, list-item-two-line"
       >
         <v-responsive>
-          <v-data-table
+          <v-data-table-server
             :headers="headers"
             :items="salesreport"
-            items-per-page="100"
+            :items-length="totalItems"
+            :page="page"
+            :items-per-page="itemsPerPage"
+            @update:page="onPage"
+            @update:items-per-page="onPerPage"
           >
             <template v-slot:top>
               <v-toolbar flat>
@@ -178,7 +196,7 @@
 
               <!-- shop-->
               <div v-if="header.key === 'shop'">
-                <span> {{ props.item.shop.shop_name }}</span>
+                <span> {{ props.item.shop?.shop_name ?? "N/A" }}</span>
               </div>
 
               <!-- invoice date -->
@@ -199,19 +217,26 @@
                 </v-btn>
               </div>
 
-              <!-- distributer -->
+              <!-- distributer: null for orders sent directly without a showroom -->
               <div v-if="header.key === 'distributer'">
-                <span> {{ props.item.distributer.distributer_name }}</span>
+                <span>
+                  {{ props.item.distributer?.distributer_name ?? "N/A" }}</span
+                >
               </div>
 
-              <!-- salesrep-->
+              <!-- salesrep: null for orders sent directly without a sales rep -->
               <div v-if="header.key === 'salesrep'">
-                <span> {{ props.item.salesrep.rep_name }}</span>
+                <span> {{ props.item.salesrep?.rep_name ?? "N/A" }}</span>
+              </div>
+
+              <!-- courier: null when the shop order wasn't sent by courier -->
+              <div v-if="header.key === 'courier'">
+                <span> {{ props.item.courier?.company_name ?? "N/A" }}</span>
               </div>
 
               <!-- area -->
               <div v-if="header.key === 'area'">
-                <span> {{ props.item.shop.area.area_name }}</span>
+                <span> {{ props.item.shop?.area?.area_name ?? "N/A" }}</span>
               </div>
 
               <!-- invoice amount -->
@@ -237,7 +262,7 @@
                 <span> {{ getPrice(props.item.return_amount_summation) }}</span>
               </div>
             </template>
-          </v-data-table>
+          </v-data-table-server>
         </v-responsive>
       </v-skeleton-loader>
     </v-card>
@@ -331,6 +356,7 @@ import ReportApi from "@/Api/Modules/reports";
 import shopApi from "@/Api/Modules/shop";
 import SalesRepApi from "@/Api/Modules/salesrep";
 import DistributerApi from "@/Api/Modules/distributer";
+import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 import { store } from "@/store";
 import JsonExcel from "vue-json-excel3";
@@ -350,6 +376,8 @@ export default {
       productDialog: false,
       selectedItem: {},
       searchdata: "",
+      startdate: "",
+      enddate: "",
       area: {
         id: "",
         area_name: "",
@@ -367,6 +395,7 @@ export default {
         rep_name: "",
       },
       shops: [],
+      shopsLoading: false,
       salesreps: [],
       distributors: [],
       areas: [],
@@ -378,6 +407,7 @@ export default {
         { title: "Product Summary", align: "start", key: "product_summary" },
         { title: "Distributer Name", align: "start", key: "distributer" },
         { title: "Rep Name", align: "start", key: "salesrep" },
+        { title: "Courier", align: "start", key: "courier" },
         { title: "Area Name", align: "start", key: "area" },
         { title: "Invoice Amount(Rs)", align: "start", key: "order_amount" },
         { title: "Paid Amount(Rs)", align: "start", key: "total_paid_amount" },
@@ -399,17 +429,29 @@ export default {
         "Invoice Date": "order_date",
         "Distributer Name": "distributer.distributer_name",
         "Rep Name": "salesrep.rep_name",
-        "Area Name": "area.name",
+        "Courier": "courier.company_name",
+        "Area Name": "shop.area.area_name",
         "Invoice Amount(Rs)": "order_amount",
         "Paid Amount(Rs)": "total_paid_amount",
         "Due Amount(Rs)": "total_due_amount",
       },
       salesreport: [],
+      // full result set matching the current filters (not just the current
+      // page), lazily loaded right before Export fires
+      exportSalesReport: [],
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
       authRole: null,
     };
   },
 
   async created() {
+    this.debouncedShopSearch = this.debounce(
+      (searchdata) => this.getShops(searchdata),
+      400,
+    );
+
     this.getAuthUser();
     await this.DetailedReport();
     await this.getAreas();
@@ -447,33 +489,68 @@ export default {
         this.salesrep.rep_name = getUserName;
       }
     },
-    // get areas from the globals
+    // get areas - /areas/index is paginated, request a large per_page to
+    // effectively get everything in one page for the dropdown
     async getAreas() {
-      this.areas = await commonmixins.methods.getAreas();
+      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
+      this.areas = res.data.data.data;
     },
 
     // get salesreps
     async SalesReps() {
-      const res = await SalesRepApi.allSalesReps();
-      this.salesreps = res.data.data;
+      const res = await SalesRepApi.allSalesReps({ page: 1, per_page: 1000 });
+      this.salesreps = res.data.data.data;
     },
 
     // get distributers
     async Distributers() {
-      const res = await DistributerApi.allDistributers();
-      this.distributors = res.data.data;
+      const res = await DistributerApi.allDistributers({ page: 1, per_page: 1000 });
+      this.distributors = res.data.data.data;
     },
 
-    // get all shops
-    async getShops() {
-      const res = await shopApi.allShops();
-      this.shops = res.data.data;
+    // get shops matching the search text, capped so the whole 187+ shop
+    // list is never loaded up front - typing narrows the results
+    // server-side instead
+    async getShops(searchdata = "") {
+      this.shopsLoading = true;
+      const res = await shopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
+
+      this.shops = res.data.data.data;
+      this.shopsLoading = false;
     },
 
-    // get sales detailed report
+    // debounced so we don't fire a request on every keystroke. Vuetify
+    // echoes the currently selected shop's own name back through this
+    // event when the dropdown is simply reopened (not a real search the
+    // user typed) - treat that as no search, otherwise it silently
+    // narrows the list down to just the one shop already selected
+    onShopSearch(searchdata) {
+      const isEchoOfSelection = this.shop && searchdata === this.shop.shop_name;
+      this.debouncedShopSearch(isEchoOfSelection ? "" : searchdata);
+    },
+
+    // picking a different shop starts a fresh view of it - a leftover
+    // search term/date range picked while looking at the PREVIOUS shop
+    // would otherwise silently carry over and filter out everything for
+    // the newly selected shop
+    async onShopSelected() {
+      this.searchdata = "";
+      this.startdate = "";
+      this.enddate = "";
+      this.page = 1;
+
+      // refresh the dropdown back to the default (unsearched) batch, so
+      // reopening it right after picking a shop doesn't leave you stuck
+      // looking at only the narrow search results that shop matched -
+      // other shops are immediately browsable/searchable again
+      await this.getShops();
+
+      await this.DetailedReport();
+    },
+
+    // get sales detailed report for the current page/filters
     async DetailedReport() {
       this.loading = true;
-      // get seached data
 
       const res = await ReportApi.SalesWiseDetailedReport(
         this.searchdata,
@@ -482,19 +559,66 @@ export default {
         this.salesrep.id,
         this.area.id,
         this.startdate,
-        this.enddate
+        this.enddate,
+        this.page,
+        this.itemsPerPage,
       );
+      const pagination = res.data.data;
 
-      this.salesreport = res.data.data;
+      this.salesreport = pagination.data;
+      this.totalItems = pagination.total;
+      this.page = pagination.current_page;
+      this.itemsPerPage = pagination.per_page;
 
       this.loading = false;
+    },
+
+    // load the complete filtered report (not just the current page) right
+    // before the export fires, so the exported file matches the active filters
+    async loadExportSalesReport() {
+      const res = await ReportApi.SalesWiseDetailedReport(
+        this.searchdata,
+        this.shop.id,
+        this.distributor.id,
+        this.salesrep.id,
+        this.area.id,
+        this.startdate,
+        this.enddate,
+        1,
+        100000,
+      );
+
+      this.exportSalesReport = res.data.data.data;
+    },
+
+    // search - reset to page 1 since the previous page may not exist
+    // anymore under the new search text/dates
+    async search() {
+      this.page = 1;
+      await this.DetailedReport();
+    },
+
+    // page change
+    async onPage(page) {
+      this.page = page;
+      await this.DetailedReport();
+    },
+
+    // items-per-page change
+    async onPerPage(perPage) {
+      this.page = 1;
+      this.itemsPerPage = perPage == -1 ? 10000 : perPage;
+      await this.DetailedReport();
     },
 
     // clear button
     async clear() {
       // reset searches
       (this.searchdata = ""),
-        (this.shop = ""),
+        (this.shop = {
+          id: "",
+          shop_name: "",
+        }),
         (this.distributor = {
           id: "",
           distributer_name: "",
@@ -503,9 +627,13 @@ export default {
           id: "",
           rep_name: "",
         }),
-        (this.area = ""),
+        (this.area = {
+          id: "",
+          area_name: "",
+        }),
         (this.startdate = ""),
         (this.enddate = "");
+      this.page = 1;
       // get authenticated users if worker(area manager , distruibuter , salerep) is logged in
       this.getAuthUser();
       await this.DetailedReport();

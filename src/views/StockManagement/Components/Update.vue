@@ -7,6 +7,43 @@
       <!-- add form -->
       <VForm v-model="isFormValid">
         <VRow>
+          <!-- Select Categories -->
+          <VCol lg="6" cols="12">
+            <label class="label">Select Category</label>
+            <div class="mt-2" />
+            <VAutocomplete
+              v-model="selectedCategory"
+              :items="categories"
+              class="input"
+              item-text="category_name"
+              item-title="category_name"
+              item-value="id"
+              return-object
+              @update:model-value="openCategorymodel(selectedCategory)"
+            >
+              <template #item="{ props, item }">
+                <div v-if="item.raw.category_code === 'Add New'">
+                  <VListItem
+                    style="
+                      background-color: rgb(255, 255, 255);
+                      color: red;
+                      font-weight: bold;
+                    "
+                    v-bind="props"
+                    :title="item.raw.category_name"
+                  />
+                </div>
+                <div v-else>
+                  <VListItem
+                    v-bind="props"
+                    :title="item.raw.category_name"
+                    :subtitle="item.raw.category_code"
+                  />
+                </div>
+              </template>
+            </VAutocomplete>
+          </VCol>
+
           <!-- Product Code -->
           <VCol lg="6" cols="12">
             <label class="label">Product Code *</label>
@@ -31,49 +68,49 @@
             />
           </VCol>
 
-          <!--Product Type -->
+          <!-- Model Number-->
           <VCol lg="6" cols="12">
-            <label class="label">Product Type *</label>
-            <div class="mt-2" />
-            <v-autocomplete
-              :items="product_types"
-              placeholder="Select Product Type"
-              v-model="form.product_type"
-              class="input"
-            >
-            </v-autocomplete>
-          </VCol>
-
-          <!-- Product Weight -->
-          <VCol lg="6" cols="12" v-if="form.product_type === 'Solid'">
-            <label class="label">Product Weight(Kg)</label>
+            <label class="label">Model Number</label>
             <div class="mt-2" />
             <VTextField
-              placeholder="Product Weight"
+              placeholder="Model Number"
               class="input"
-              v-model="form.product_weight"
+              v-model="form.model_number"
             />
           </VCol>
 
-          <!-- Product Volume -->
-          <VCol lg="6" cols="12" v-if="form.product_type === 'Liquid'">
-            <label class="label">Product Volume(L)</label>
+          <!-- Product Cost -->
+          <VCol lg="6" cols="12">
+            <label class="label">Product Cost(Rs) *</label>
             <div class="mt-2" />
             <VTextField
-              placeholder="Product Volume"
+              placeholder="Product Cost"
               class="input"
-              v-model="form.product_volume"
+              v-model="form.product_cost"
+              :rules="[required]"
             />
           </VCol>
 
-          <!-- Product Amount -->
+          <!-- Minimum Selling Price -->
           <VCol lg="6" cols="12">
-            <label class="label">Product Amount(Rs) *</label>
+            <label class="label">Minimum Selling Price(Rs) *</label>
             <div class="mt-2" />
             <VTextField
-              placeholder="Product Amount"
+              placeholder="Minimum Selling Price"
               class="input"
-              v-model="form.product_amount"
+              v-model="form.min_selling_price"
+              :rules="[required]"
+            />
+          </VCol>
+
+          <!-- Maximum Selling Price -->
+          <VCol lg="6" cols="12">
+            <label class="label">Maximum Selling Price(Rs) *</label>
+            <div class="mt-2" />
+            <VTextField
+              placeholder="Maximum Selling Price"
+              class="input"
+              v-model="form.max_selling_price"
               :rules="[required]"
             />
           </VCol>
@@ -96,33 +133,11 @@
             <div class="mt-2" />
 
             <AppDateTimePicker
-              placeholder="Expire Date"
+              placeholder="Manufacture Date"
               class="input"
               v-model="form.manufacture_date"
             >
             </AppDateTimePicker>
-          </VCol>
-
-          <!-- Distributor Commision -->
-          <VCol lg="6" cols="12">
-            <label class="label">Distributor Commision(Rs)</label>
-            <div class="mt-2" />
-            <VTextField
-              placeholder="Distributor Commision"
-              class="input"
-              v-model="form.distributer_commision"
-            />
-          </VCol>
-
-          <!-- Salesrep Commision -->
-          <VCol lg="6" cols="12">
-            <label class="label">Salesrep Commision(Rs)</label>
-            <div class="mt-2" />
-            <VTextField
-              placeholder="Salesrep Commision"
-              class="input"
-              v-model="form.salesrep_commision"
-            />
           </VCol>
 
           <!-- Stock Count -->
@@ -141,7 +156,7 @@
             <label class="label">Product Image</label>
             <div class="mt-2" />
             <v-file-input
-              v-model="product_image"
+              v-model="form.product_image"
               label="Drag Product Image..."
               @change="handleFileChange"
               variant="outlined"
@@ -166,14 +181,41 @@
       </VForm>
     </div>
   </div>
+
+  <!-- category create dialog -->
+  <VDialog
+    v-model="showCategoryModal"
+    width="900px"
+    class="category_management"
+    scrollable
+  >
+    <VCard>
+      <VCardText class="add_category">
+        <div>
+          <AddCategory @close-modal="closeCategoryModal" />
+        </div>
+      </VCardText>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
 import ProductsApi from "@/Api/Modules/products";
+import CategoryApi from "@/Api/Modules/product_categories";
+import AddCategory from "@/views/MasterData/ProductCategoryManagement/Components/AddCategory.vue";
+import commonmixins from "@/mixins/commonmixins";
+
 export default {
+  mixins: [commonmixins],
+  components: {
+    AddCategory,
+  },
   data() {
     return {
       isFormValid: false,
+      showCategoryModal: false,
+      selectedCategory: null,
+      categories: [],
       form: {},
       product_types: ["Solid", "Liquid"],
       loading: false,
@@ -191,9 +233,50 @@ export default {
 
   methods: {
     // initialize data
-    initiaizeData() {
-      this.form = this.formData;
+    async initiaizeData() {
+      this.form = { ...this.formData };
+      await this.getCategories();
+      if (this.form.category_id) {
+        this.selectedCategory = this.categories.find(c => c.id === this.form.category_id) || this.form.category;
+      } else if (this.form.category) {
+        this.selectedCategory = this.form.category;
+        this.form.category_id = this.form.category.id;
+      }
     },
+
+    // get categories
+    async getCategories() {
+      try {
+        const res = await CategoryApi.AllCategory({ page: 1, per_page: 1000 });
+        const rawList = Array.isArray(res?.data?.data?.data) ? [...res.data.data.data] : [];
+        rawList.push({
+          id: "",
+          category_code: "Add New",
+          category_name: "Add New",
+        });
+        this.categories = rawList.reverse();
+      } catch (error) {
+        console.error("Fetch Categories Error:", error);
+      }
+    },
+
+    // open category modal if 'Add New' selected
+    async openCategorymodel(value) {
+      if (value && value.category_code === "Add New") {
+        this.showCategoryModal = true;
+        this.selectedCategory = null;
+        this.form.category_id = "";
+      } else if (value) {
+        this.form.category_id = value.id;
+      }
+    },
+
+    // close category modal
+    async closeCategoryModal() {
+      this.showCategoryModal = false;
+      await this.getCategories();
+    },
+
     // hande image change
     handleFileChange(event) {
       const file = event.target.files[0];
@@ -214,8 +297,6 @@ export default {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        // Set desired width and height
-
         canvas.width = 1280;
         canvas.height = 794;
         ctx.drawImage(img, 0, 0, 1280, 794);
@@ -234,22 +315,24 @@ export default {
     async updateProduct() {
       const formData = new FormData();
 
-      // append all for data to fordata object
+      // append form data
       formData.append("id", this.form.id);
       formData.append("product_code", this.form.product_code);
       formData.append("product_name", this.form.product_name);
-      formData.append("product_type", this.form.product_type);
+      formData.append("product_cost", this.form.product_cost);
+      formData.append("min_selling_price", this.form.min_selling_price);
+      formData.append("max_selling_price", this.form.max_selling_price);
 
-      formData.append("product_amount", this.form.product_amount);
-
-      // check availability
-      if (this.form.product_weight) {
-        formData.append("product_weight", this.form.product_weight);
+      // check category
+      if (this.form.category_id) {
+        formData.append("category_id", this.form.category_id);
+      } else if (this.selectedCategory && this.selectedCategory.id) {
+        formData.append("category_id", this.selectedCategory.id);
       }
 
       // check availability
-      if (this.form.product_volume) {
-        formData.append("product_volume", this.form.product_volume);
+      if (this.form.model_number) {
+        formData.append("model_number", this.form.model_number);
       }
 
       // check availability
@@ -260,19 +343,6 @@ export default {
       // check availability
       if (this.form.manufacture_date) {
         formData.append("manufacture_date", this.form.manufacture_date);
-      }
-
-      // check availability
-      if (this.form.distributer_commision) {
-        formData.append(
-          "distributer_commision",
-          this.form.distributer_commision
-        );
-      }
-
-      // check availability
-      if (this.form.salesrep_commision) {
-        formData.append("salesrep_commision", this.form.salesrep_commision);
       }
 
       // check availability

@@ -103,6 +103,7 @@
 
 <script>
 import ShopsApi from "@/Api/Modules/shop";
+import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 
 export default {
@@ -115,12 +116,33 @@ export default {
     };
   },
   async created() {
-    await this.getAreas();
+    await this.init();
   },
   methods: {
-    // get areas from the globals
+    // initialize component data
+    async init() {
+      await this.getAreas();
+      await this.getNextShopCode();
+    },
+
+    // get areas - /areas/index is paginated, request a large per_page to
+    // effectively get everything in one page for the dropdown
     async getAreas() {
-      this.areas = await commonmixins.methods.getAreas();
+      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
+      this.areas = res.data.data.data;
+    },
+
+    // prefill the shop code with the next auto-generated value that
+    // continues the existing "Shop<n>" numbering; the field stays editable
+    // so the user can still override it
+    async getNextShopCode() {
+      try {
+        const res = await ShopsApi.nextShopCode();
+
+        this.form.shop_code = res.data.data;
+      } catch (error) {
+        console.error("Fetch Next Shop Code Error:", error);
+      }
     },
     // add Shop
     async addShop() {

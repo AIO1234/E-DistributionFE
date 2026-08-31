@@ -92,18 +92,6 @@
               </template>
             </v-autocomplete>
           </VCol>
-
-          <!-- Position -->
-          <VCol lg="6" cols="12">
-            <label class="label">Position</label>
-            <div class="mt-2" />
-            <v-autocomplete
-              placeholder="Select Position"
-              class="input"
-              v-model="form.position"
-              :items="['SalesRep']"
-            ></v-autocomplete>
-          </VCol>
         </VRow>
         <div class="pt-15" />
 
@@ -126,6 +114,7 @@
 
 <script>
 import SalesRepApi from "@/Api/Modules/salesrep";
+import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 
 export default {
@@ -154,9 +143,11 @@ export default {
       await this.getAreas();
     },
 
-    // get areas from the globals
+    // get areas - /areas/index is paginated, request a large per_page to
+    // effectively get everything in one page for the dropdown
     async getAreas() {
-      this.areas = await commonmixins.methods.getAreas();
+      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
+      this.areas = res.data.data.data;
     },
 
     // close sales rep add modal

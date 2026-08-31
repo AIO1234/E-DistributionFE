@@ -6,16 +6,20 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table
+        <v-data-table-server
           :headers="headers"
-          :items="SubDistributers"
-          items-per-page="100"
+          :items="Couriers"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
         >
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title
                 ><center>
-                  <span class="table_topic">All Sub Distributors</span>
+                  <span class="table_topic">All Transport Agents</span>
                 </center></v-toolbar-title
               >
             </v-toolbar>
@@ -26,44 +30,38 @@
             :key="header.value"
             v-slot:[`item.${header.key}`]="props"
           >
-            <!-- sub dis code -->
-            <div v-if="header.key === 'subdistributer_code'">
-              {{ props.item.subdistributer_code }}
-            </div>
-
-            <!-- sub dis name -->
-            <div v-if="header.key === 'subdistributer_name'">
-              <span> {{ props.item.subdistributer_name }}</span>
-            </div>
-
-            <!-- sub dis mobile -->
-            <div v-if="header.key === 'subdistributer_mobile'">
-              <span> {{ props.item.subdistributer_mobile }}</span>
-            </div>
-
-            <!-- sub dis address -->
-            <div v-if="header.key === 'subdistributer_address'">
-              <span>
-                {{ props.item.subdistributer_address }}
+            <!-- Courier Name -->
+            <div v-if="header.key === 'company_name'">
+              <span v-if="props.item.company_name !== null">
+                {{ props.item.company_name }}
               </span>
             </div>
 
-            <div v-if="header.key === 'area_code'">
-              <span v-if="props.item.area === null">
-                {{ props.item.area_code }}
-              </span>
-              <span v-else>
-                {{ props.item.area.area_code }}
+            <!-- Contact No -->
+            <div v-if="header.key === 'contact_no'">
+              <span v-if="props.item.contact_no !== null">
+                {{ props.item.contact_no }}
               </span>
             </div>
 
-            <!-- area name -->
-            <div v-if="header.key === 'area_name'">
-              <span v-if="props.item.area === null">
-                {{ props.item.area_name }}
+            <!-- Courier Address -->
+            <div v-if="header.key === 'address'">
+              <span v-if="props.item.address !== null">
+                {{ props.item.address }}
               </span>
-              <span v-else>
-                {{ props.item.area.area_name }}
+            </div>
+
+            <!-- Pending From Company -->
+            <div v-if="header.key === 'pending_from'">
+              <span v-if="props.item.pending_from !== null">
+                {{ getPrice(props.item.pending_from) }}
+              </span>
+            </div>
+
+            <!-- Paid From Company -->
+            <div v-if="header.key === 'paid_from'">
+              <span v-if="props.item.paid_from !== null">
+                {{ getPrice(props.item.paid_from) }}
               </span>
             </div>
 
@@ -93,7 +91,7 @@
               </v-row>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
     <!-- open select dialog -->
@@ -137,16 +135,14 @@ export default {
       selectedItem: {},
       show: false,
       headers: [
-        { title: "Code", align: "start", key: "subdistributer_code" },
-        { title: "Name", align: "start", key: "subdistributer_name" },
-        { title: "Mobile", align: "start", key: "subdistributer_mobile" },
-        { title: "Address", align: "start", key: "subdistributer_address" },
-        { title: "Area Code", align: "start", key: "area_code" },
-        { title: "Area Name", align: "start", key: "area_name" },
+        { title: "Courier Name", align: "start", key: "company_name" },
+        { title: "Contact No", align: "start", key: "contact_no" },
+        { title: "Courier Address", align: "start", key: "address" },
+        { title: "Pending From Company", align: "start", key: "pending_from" },
+        { title: "Paid From Company", align: "start", key: "paid_from" },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
         { title: "Action", align: "start", key: "action" },
       ],
-      SubDistributers: [],
     };
   },
 
@@ -155,11 +151,36 @@ export default {
   },
 
   props: {
-    SubDistributers: Array,
+    Couriers: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
 
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
     // close
     async closeModal() {
       this.show = false;

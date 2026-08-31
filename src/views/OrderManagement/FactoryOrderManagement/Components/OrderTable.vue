@@ -6,10 +6,14 @@
       type="image, list-item-two-line"
     >
       <v-responsive>
-        <v-data-table
+        <v-data-table-server
           :headers="headers"
           :items="FactryOrders"
-          items-per-page="100"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -48,6 +52,24 @@
               </span>
             </div>
 
+            <!-- remaining quantity per product -->
+            <div v-if="header.key === 'remaining_quantity'">
+              <v-list density="compact" class="remaining_quantity_list">
+                <v-list-item
+                  v-for="product in props.item.order_products"
+                  :key="product"
+                  class="px-0"
+                  min-height="auto"
+                >
+                  {{ makeUpperCase(product.product_code) }} - {{ makeUpperCase(product.product_name) }}:
+                  <span class="remaining_quantity_value">{{
+                    product.pivot.uptodate_quantity
+                  }}</span>
+                  / {{ product.pivot.quantity }}
+                </v-list-item>
+              </v-list>
+            </div>
+
             <!-- distribution -->
             <div v-if="header.key === 'distribution'">
               <v-row>
@@ -74,6 +96,21 @@
               </v-row>
             </div>
 
+            <!-- distribution to shop-->
+            <div v-if="header.key === 'shop_distribution'">
+              <v-btn
+                color="transparent"
+                variant="none"
+                @click="
+                  $router.push(
+                    `/sendshop/${props.item.id}/no/no/no/no/directfromfactory`,
+                  )
+                "
+              >
+                <img src="@/assets/images/plus.png" style="width: 70%" />
+              </v-btn>
+            </div>
+
             <!-- status -->
             <div v-if="header.key === 'status'">
               <span>
@@ -84,20 +121,20 @@
             <!-- action -->
             <div v-if="header.key === 'action'">
               <v-row>
-                <v-col lg="3">
+                <v-col lg="6">
                   <v-btn
                     color="transparent"
                     variant="none"
                     @click="
                       $router.push(
-                        `/ordersummary/factoryorder/${props.item.id}`
+                        `/ordersummary/factoryorder/${props.item.id}`,
                       )
                     "
                   >
                     <img src="@/assets/images/eye.png" style="width: 70%" />
                   </v-btn>
                 </v-col>
-                <v-col lg="4" v-if="props.item.status === 'Pending'">
+                <v-col lg="6" v-if="props.item.status === 'Pending'">
                   <v-btn
                     color="transparent"
                     variant="none"
@@ -126,7 +163,7 @@
               {{ firstLetterUpperCase(props.item.last_updated_by) }}
             </div>
           </template>
-        </v-data-table></v-responsive
+        </v-data-table-server></v-responsive
       >
     </v-skeleton-loader>
 
@@ -179,13 +216,18 @@ export default {
         { title: "Invoice No", align: "start", key: "invoice_no" },
         { title: "Date", align: "start", key: "date" },
         { title: "Amount(Rs)", align: "start", key: "amount" },
-        { title: "Distribute", align: "start", key: "distribution" },
+        {
+          title: "Remaining Qty",
+          align: "start",
+          key: "remaining_quantity",
+        },
+        { title: "Send ShowRoom", align: "start", key: "distribution" },
+        { title: "Send Shop", align: "start", key: "shop_distribution" },
         { title: "Status", align: "start", key: "status" },
         { title: "Action", align: "start", key: "action" },
         { title: "Invoice", align: "start", key: "download_invoice" },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
       ],
-      FactryOrders: [],
     };
   },
   components: {
@@ -194,9 +236,35 @@ export default {
   props: {
     FactryOrders: Array,
     loading: Boolean,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
 
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
+    // close the update-order dialog
     closeModal() {
       this.show = false;
       this.$emit("close");

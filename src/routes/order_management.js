@@ -6,7 +6,7 @@ export default [
       import("@/views/OrderManagement/FactoryOrderManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       pageTitle: "Factory Orders",
       breadcrumb: [
         {
@@ -24,7 +24,7 @@ export default [
       import("@/views/OrderManagement/DistributerOrderManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Distributer", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
       pageTitle: "Distributors",
       breadcrumb: [
         {
@@ -42,7 +42,7 @@ export default [
       import("@/views/OrderManagement/SalesRepOrderManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "SalesRep", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "SalesRep", "Area Manager"],
       pageTitle: "Sales Reps",
       breadcrumb: [
         {
@@ -75,14 +75,7 @@ export default [
       import("@/views/OrderManagement/ShopOrderManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: [
-        "Super Admin",
-        "Admin",
-        "Staff",
-        "Distributer",
-        "SalesRep",
-        "Area Manager",
-      ],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
       pageTitle: "Shops",
       breadcrumb: [
         {
@@ -97,12 +90,10 @@ export default [
     path: "/senddistributer/:main_order_id",
     name: "senddistributer",
     component: () =>
-      import(
-        "@/views/OrderManagement/FactoryOrderManagement/Components/SendDistributer.vue"
-      ),
+      import("@/views/OrderManagement/FactoryOrderManagement/Components/SendDistributer.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       pageTitle: "Distributor Management",
       breadcrumb: [
         {
@@ -117,12 +108,10 @@ export default [
     path: "/updatedistributerorders/:main_order_id",
     name: "updatedistributers",
     component: () =>
-      import(
-        "@/views/OrderManagement/FactoryOrderManagement/Components/UpdateDistributers.vue"
-      ),
+      import("@/views/OrderManagement/FactoryOrderManagement/Components/UpdateDistributers.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       pageTitle: "Distributor Management",
       breadcrumb: [
         {
@@ -137,12 +126,10 @@ export default [
     path: "/sendsalesrep/:main_order_id/:distributer_id/:distributer_order_id",
     name: "sendsalesrep",
     component: () =>
-      import(
-        "@/views/OrderManagement/DistributerOrderManagement/Components/SendSalesRep.vue"
-      ),
+      import("@/views/OrderManagement/DistributerOrderManagement/Components/SendSalesRep.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Distributer", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
       pageTitle: "Sales Rep Management",
       breadcrumb: [
         {
@@ -157,12 +144,10 @@ export default [
     path: "/updatesalesreps/:main_order_id/:distributer_id/:distributer_order_id",
     name: "updatesalesrep",
     component: () =>
-      import(
-        "@/views/OrderManagement/DistributerOrderManagement/Components/UpdateSalesRep.vue"
-      ),
+      import("@/views/OrderManagement/DistributerOrderManagement/Components/UpdateSalesRep.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Distributer", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
       pageTitle: "Sales Rep Management",
       breadcrumb: [
         {
@@ -174,16 +159,32 @@ export default [
   },
 
   {
-    path: "/sendshop/:main_order_id/:distributer_id/:distributer_order_id/:sales_rep_id/:reporder_id",
+    path: "/sendshop/:main_order_id/:distributer_id/:distributer_order_id/:sales_rep_id/:reporder_id/:position",
     name: "sendshop",
     component: () =>
-      import(
-        "@/views/OrderManagement/SalesRepOrderManagement/Components/SendShop.vue"
-      ),
+      import("@/views/OrderManagement/SalesRepOrderManagement/Components/SendShop.vue"),
     props: true,
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "SalesRep", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "SalesRep", "Area Manager"],
+      pageTitle: "Shop Management",
+      breadcrumb: [
+        {
+          text: "Order Management",
+          active: true,
+        },
+      ],
+    },
+  },
+
+  {
+    path: "/updateshop/:shop_order_id",
+    name: "updateshop",
+    component: () =>
+      import("@/views/OrderManagement/ShopOrderManagement/Components/UpdateShop.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin"],
       pageTitle: "Shop Management",
       breadcrumb: [
         {
@@ -198,13 +199,11 @@ export default [
     path: "/sendsubdistributer/:main_order_id/:distributer_id/:distributer_order_id",
     name: "sendsubdistributer",
     component: () =>
-      import(
-        "@/views/OrderManagement/DistributerOrderManagement/Components/SendSubDistributer.vue"
-      ),
+      import("@/views/OrderManagement/DistributerOrderManagement/Components/SendSubDistributer.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Distributer", "Area Manager"],
-      pageTitle: "Sub Distributor Management",
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
+      pageTitle: "Supplier Management",
       breadcrumb: [
         {
           text: "Order Management",
@@ -224,7 +223,7 @@ export default [
       role: [
         "Super Admin",
         "Admin",
-        "Staff",
+        "Staff", "Data Operator",
         "SalesRep",
         "Distributer",
         "Area Manager",
@@ -243,12 +242,10 @@ export default [
     path: "/factoryorderinvoice/:order_id",
     name: "factoryorderinvoice",
     component: () =>
-      import(
-        "@/views/OrderManagement/FactoryOrderManagement/Components/OrderInvoice.vue"
-      ),
+      import("@/views/OrderManagement/FactoryOrderManagement/Components/OrderInvoice.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       pageTitle: "factoryorderinvoice",
       breadcrumb: [
         {
@@ -263,12 +260,10 @@ export default [
     path: "/distributeorderinvoice/:order_id",
     name: "distributeorderinvoice",
     component: () =>
-      import(
-        "@/views/OrderManagement/DistributerOrderManagement/Components/OrderInvoice.vue"
-      ),
+      import("@/views/OrderManagement/DistributerOrderManagement/Components/OrderInvoice.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Distributer", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
       pageTitle: "Distributer Order Invoice",
       breadcrumb: [
         {
@@ -283,15 +278,13 @@ export default [
     path: "/salesreporderinvoice/:order_id",
     name: "salesreporderinvoice",
     component: () =>
-      import(
-        "@/views/OrderManagement/SalesRepOrderManagement/Components/OrderInvoice.vue"
-      ),
+      import("@/views/OrderManagement/SalesRepOrderManagement/Components/OrderInvoice.vue"),
     meta: {
       authReuire: true,
       role: [
         "Super Admin",
         "Admin",
-        "Staff",
+        "Staff", "Data Operator",
         "Distributer",
         "SalesRep",
         "Area Manager",
@@ -310,15 +303,13 @@ export default [
     path: "/shoporderinvoice/:order_id",
     name: "shoporderinvoice",
     component: () =>
-      import(
-        "@/views/OrderManagement/ShopOrderManagement/Components/OrderInvoice.vue"
-      ),
+      import("@/views/OrderManagement/ShopOrderManagement/Components/OrderInvoice.vue"),
     meta: {
       authReuire: true,
       role: [
         "Super Admin",
         "Admin",
-        "Staff",
+        "Staff", "Data Operator",
         "Distributer",
         "SalesRep",
         "Area Manager",
@@ -337,15 +328,13 @@ export default [
     path: "/shoporderdeliverynote/:order_id",
     name: "shoporderdeliverynote",
     component: () =>
-      import(
-        "@/views/OrderManagement/ShopOrderManagement/Components/DeliveryNote.vue"
-      ),
+      import("@/views/OrderManagement/ShopOrderManagement/Components/DeliveryNote.vue"),
     meta: {
       authReuire: true,
       role: [
         "Super Admin",
         "Admin",
-        "Staff",
+        "Staff", "Data Operator",
         "Distributer",
         "SalesRep",
         "Area Manager",
@@ -364,12 +353,10 @@ export default [
     path: "/subdistributerorderinvoice/:order_id",
     name: "subdistributerorderinvoice",
     component: () =>
-      import(
-        "@/views/OrderManagement/SubDistributerOrders/Components/OrderInvoice.vue"
-      ),
+      import("@/views/OrderManagement/SubDistributerOrders/Components/OrderInvoice.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Distributer", "Area Manager"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
       pageTitle: "Sub Distributer Order Invoice",
       breadcrumb: [
         {

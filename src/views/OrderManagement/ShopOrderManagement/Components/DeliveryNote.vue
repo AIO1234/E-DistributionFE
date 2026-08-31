@@ -34,7 +34,6 @@
           <div ref="pdfContent">
             <div class="order_management">
               <div class="pt-15"></div>
-              <div class="pt-15"></div>
 
               <div>
                 <!-- invoice content -->
@@ -44,23 +43,7 @@
                       <v-col lg="7" class="left_col">
                         <!-- invoice from -->
                         <div>
-                          <span class="company_name"
-                            >AIO-IT SOLUTIONS(PRIVATE) LIMITED</span
-                          >
-                          <br />
-                          <span class="company_text"
-                            >No.291/4 , Ranaviru Dharmasiri Mawatha , Sooriyapaluwa , Kadawatha ,Gampaha.</span
-                          >
-                          <br />
-                          <span class="company_text"
-                            >+94 71 345 3110
-                          </span>
-                          <br />
-                          <span class="company_text">aio99solutions@gmail.com</span>
-                          <br />
-                          <span class="company_text"
-                            >https://aio-tutor.lk
-                          </span>
+                          <span class="company_name">{{ company_name }}</span>
                         </div>
 
                         <div class="pt-8"></div>
@@ -82,7 +65,12 @@
                         <div class="pt-7"></div>
                         <div class="invoice_to">
                           <span class="company_name">
-                            {{ summary.shop.shop_name }}</span
+                            {{ summary.shop.shop_name }} -
+                            {{
+                              summary.shop?.area?.area_name ||
+                              summary.shop?.area_code ||
+                              "N/A"
+                            }}</span
                           >
                           <br />
                           <span class="company_text">{{
@@ -110,14 +98,19 @@
                         <div class="pt-1"></div>
 
                         <span class="client_text"
-                          >Area Code :
-                          {{ summary.shop.area_code }}
+                          >Area Name :
+                          {{
+                            summary.shop?.area?.area_name ||
+                            summary.shop?.area_code ||
+                            "N/A"
+                          }}
                         </span>
-                        <div class="pt-1"></div>
-                        <span class="client_text"
-                          >Rep Code :
-                          {{ summary.salesrep.rep_code }}
-                        </span>
+                        <template v-if="summary.salesrep?.rep_name">
+                          <div class="pt-1"></div>
+                          <span class="client_text"
+                            >Rep Name : {{ summary.salesrep.rep_name }}</span
+                          >
+                        </template>
                         <div class="pt-1"></div>
                         <span class="client_text"
                           >Dealer Code :
@@ -125,8 +118,8 @@
                         </span>
                         <div class="pt-1"></div>
                         <span class="client_text"
-                          >Distributor Code :
-                          {{ summary.distributer.distributer_code }}
+                          >ShowRoom Name :
+                          {{ summary.distributer?.distributer_name || "N/A" }}
                         </span>
                         <div class="pt-1"></div>
                       </v-col>
@@ -151,7 +144,6 @@
                         <tr class="table_header table_borders">
                           <th class="text table_borders">Product Code</th>
                           <th class="text table_borders">Product Name</th>
-                          <th class="text table_borders">Unit Size</th>
                           <th class="text table_borders">Unit Price</th>
                           <th class="text table_borders">Quantity</th>
                           <!-- <th class="text table_borders">Discount</th> -->
@@ -169,22 +161,10 @@
                           :key="product"
                         >
                           <td class="text table_borders">
-                            {{ product.product_code }}
+                            {{ makeUpperCase(product.product_code) }}
                           </td>
                           <td class="text table_borders">
-                            {{ product.product_name }}
-                          </td>
-                          <td
-                            class="text table_borders"
-                            v-if="product.product_type === 'Liquid'"
-                          >
-                            {{ getVolume(product.product_volume) }}
-                          </td>
-                          <td
-                            class="text table_borders"
-                            v-else-if="product.product_type === 'Solid'"
-                          >
-                            {{ getWeight(product.product_weight) }}
+                            {{ makeUpperCase(product.product_name) }}
                           </td>
                           <td class="text table_borders">
                             {{ getPrice(product.pivot.unit_price) }}
@@ -215,7 +195,8 @@
                           <td class="text table_borders">
                             {{
                               getPrice(
-                                product.pivot.price - product.pivot.return_value
+                                product.pivot.price -
+                                  product.pivot.return_value,
                               )
                             }}
                           </td>
@@ -244,7 +225,9 @@
                     Total invoice value:
                     {{ getPrice(summary.main_order_details.order_amount) }}
                     <div class="pt-1"></div>
-                    All cheques should be drawn in favour of "AIO-IT SOLUTIONS(PRIVATE) LIMITED"
+                    All cheques should be drawn in favour of "{{
+                      company_name
+                    }}"
                   </span>
 
                   <br /><br />
@@ -283,16 +266,15 @@
                     >
                     <v-col lg="4">
                       <span>
-                      
                         <br />
                         <span class="footer_note">
                           Authorize Signature
                           <br />
-                          Yasindu Ramanayake
+                          Rifdha Sajan
                           <br />
                           Managing Disrector
                           <br />
-                          AIO-IT SOLUTIONS(PRIVATE) LIMITED</span
+                          {{ company_name }}</span
                         >
                       </span></v-col
                     >
@@ -338,11 +320,12 @@ export default {
 
       this.summary.main_order_details = res.data.data.shopordersummary;
 
-      this.summary.distributer = res.data.data.shopordersummary.distributer;
+      this.summary.distributer =
+        res.data.data.shopordersummary.distributer || {};
 
-      this.summary.salesrep = res.data.data.shopordersummary.salesrep;
+      this.summary.salesrep = res.data.data.shopordersummary.salesrep || {};
 
-      this.summary.shop = res.data.data.shopordersummary.shop;
+      this.summary.shop = res.data.data.shopordersummary.shop || {};
 
       this.loading = false;
     },

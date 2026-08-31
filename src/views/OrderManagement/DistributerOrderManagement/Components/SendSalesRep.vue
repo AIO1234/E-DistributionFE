@@ -23,6 +23,7 @@
             <div>
               <!-- select sales rep -->
               <v-row>
+                <!-- sales rep -->
                 <v-col lg="4" cols="12">
                   <label class="label">Salesrep *</label>
                   <div class="pt-2"></div>
@@ -37,11 +38,12 @@
                     @update:model-value="
                       ExistsSalesRep(
                         salesrepindex,
-                        selectedsalesrep.salesrep_id
+                        selectedsalesrep.salesrep_id,
                       )
                     "
                   ></v-autocomplete>
                 </v-col>
+                <!-- order date -->
                 <v-col lg="4" cols="12">
                   <label class="label">Order Date *</label>
                   <div class="pt-2"></div>
@@ -50,8 +52,23 @@
                     placeholder="SalesRep Order Date"
                     class="send_date"
                     v-model="selectedsalesrep.order_date"
+                    :config="{ minDate: minSelectableDate }"
                   >
                   </AppDateTimePicker>
+                </v-col>
+                <!-- select vehicle -->
+                <v-col lg="4" cols="12">
+                  <label class="label">Vehicle *</label>
+                  <div class="pt-2"></div>
+                  <v-autocomplete
+                    :rules="[required]"
+                    placeholder="Select Vehicle"
+                    class="select_salesrep"
+                    v-model="selectedsalesrep.vehicle_id"
+                    :items="vehicles"
+                    item-title="vehicle_no"
+                    item-value="id"
+                  ></v-autocomplete>
                 </v-col>
                 <v-col lg="4" cols="12" class="text-right"> </v-col>
               </v-row>
@@ -82,7 +99,7 @@
                       ExistsProduct(
                         salesrepindex,
                         productindex,
-                        orderproduct.product
+                        orderproduct.product,
                       )
                     "
                   >
@@ -90,7 +107,7 @@
                       <div>
                         <v-list-item
                           v-bind="props"
-                          :title="item.raw.product_name"
+                          :title="`${makeUpperCase(item.raw.product_name)} - ${makeUpperCase(item.raw.model_number || 'N/A')}`"
                           :subtitle="getPrice(item.raw.unit_price)"
                         >
                           <span
@@ -119,7 +136,7 @@
                         salesrepindex,
                         productindex,
                         orderproduct.product,
-                        orderproduct.quantity
+                        orderproduct.quantity,
                       )
                     "
                   >
@@ -137,14 +154,23 @@
                     class="product_input"
                     @update:model-value="
                       changeUnitPrice(
+                        orderproduct.product,
                         salesrepindex,
                         productindex,
                         orderproduct.unitprice,
-                        orderproduct.quantity
+                        orderproduct.quantity,
                       )
                     "
                   >
                   </v-text-field>
+                  <span
+                    v-if="sellingPriceRange(orderproduct.product)"
+                    class="pt-1"
+                    style="font-size: 12px; display: block"
+                  >
+                    Suggested Range:
+                    {{ sellingPriceRange(orderproduct.product) }}
+                  </span>
                 </v-col>
 
                 <!-- amount -->
@@ -212,7 +238,7 @@
             variant="none"
             @click="submitOrder()"
             :loading="loading"
-            :disabled="!isFormValid"
+            :disabled="!isFormValid || loading"
             ><span class="text">Submit</span></v-btn
           >
         </div>
@@ -223,20 +249,24 @@
 <script>
 import SalesRepApi from "@/Api/Modules/salesrep";
 import { toast } from "@/ApiConstance/toast";
+import commonmixins from "@/mixins/commonmixins";
 export default {
+  mixins: [commonmixins],
   data() {
     return {
       isFormValid: false,
+      authRole: "",
       form: {},
       loading: false,
       salesreps: [],
+      vehicles: [],
       products: [],
       salesreporders: [
         {
-          salesrep_id: "Select SalesRep",
+          salesrep_id: "",
           orderproducts: [
             {
-              product: "Select Product",
+              product: "",
               quantity: "",
               unitprice: "",
               amount: "",
@@ -248,15 +278,29 @@ export default {
   },
 
   async created() {
-    await this.SalesReps();
-    await this.DelivereSalesRepProducts();
+    await this.init();
   },
 
   methods: {
+    async init() {
+      this.getAuthUser();
+
+      await this.SalesReps();
+      await this.getVehicles();
+      await this.DelivereSalesRepProducts();
+    },
+
     // get salesreps
     async SalesReps() {
-      const res = await SalesRepApi.allSalesReps();
-      this.salesreps = res.data.data;
+      const res = await SalesRepApi.allSalesReps({ page: 1, per_page: 1000 });
+      this.salesreps = res.data.data.data;
+    },
+
+    // get vehicles from the globals
+    async getVehicles() {
+      this.loading = true;
+      this.vehicles = await commonmixins.methods.getVehicles();
+      this.loading = false;
     },
 
     // check weather the salesrep is already added
@@ -315,15 +359,41 @@ export default {
       }
     },
 
+    // formatted "min - max" selling price range shown under the unit price
+    // field, sourced from the same product relation changeUnitPrice
+    // validates against
+    sellingPriceRange(product) {
+      const rangeProduct = product && product.product;
+
+      if (
+        !rangeProduct ||
+        rangeProduct.min_selling_price == null ||
+        rangeProduct.max_selling_price == null
+      ) {
+        return "";
+      }
+
+      return `${this.getPrice(rangeProduct.min_selling_price)} - ${this.getPrice(rangeProduct.max_selling_price)}`;
+    },
+
     //change unit price when changing
     changeUnitPrice(
+      product,
       salesrepindex,
       productindex,
       enteredunitprice,
-      enteredquantity
+      enteredquantity,
     ) {
-      this.salesreporders[salesrepindex].orderproducts[productindex].amount =
-        enteredunitprice * enteredquantity;
+      // if unit price  in suggested range
+      if (enteredunitprice >= product.product.min_selling_price) {
+        this.salesreporders[salesrepindex].orderproducts[productindex].amount =
+          enteredunitprice * enteredquantity;
+      }
+      // if unit price not in suggested range
+      else {
+        this.salesreporders[salesrepindex].orderproducts[productindex].amount =
+          "";
+      }
     },
 
     // check weather the product is already ad by same distributer before
@@ -332,7 +402,7 @@ export default {
       const result = this.salesreporders[salesrepindex].orderproducts.filter(
         (val) => {
           return val.product.product_id === sendproduct.product_id;
-        }
+        },
       );
 
       if (
@@ -342,7 +412,7 @@ export default {
         toast(
           "Product Already Selected Before By This SalesRep",
           "error",
-          20000
+          20000,
         );
         this.salesreporders[salesrepindex].orderproducts[productindex].product =
           "";

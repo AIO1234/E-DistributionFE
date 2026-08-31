@@ -33,7 +33,7 @@
 
           <!-- Mobile -->
           <v-col lg="12" cols="12">
-            <label class="label">Mobile*</label>
+            <label class="label">Mobile</label>
             <div class="mt-2"></div>
             <v-text-field
               placeholder="Mobile"
@@ -44,7 +44,7 @@
 
           <!-- Address -->
           <v-col lg="12" cols="12">
-            <label class="label">Address*</label>
+            <label class="label">Address</label>
             <div class="mt-2"></div>
             <v-text-field
               placeholder="Address"
@@ -96,6 +96,10 @@ export default {
       isFormValid: false,
       form: {},
       loading: false,
+      // role options for the "Select Role" dropdown - must be fetched here
+      // too (same as the create form) or the dropdown is empty and the
+      // user's role can't be changed
+      roles: [],
     };
   },
 
@@ -103,14 +107,21 @@ export default {
     formData: Object,
   },
 
-  created() {
+  async created() {
     this.initiaizeData();
+    await this.getRoles();
   },
   methods: {
     // initialize data
     initiaizeData() {
       this.form = this.formData;
       this.form.user_type = this.formData.user_with_roles[0].name;
+    },
+
+    // get user roles for the dropdown
+    async getRoles() {
+      const res = await usersApi.userRoles();
+      this.roles = res.data.data;
     },
 
     // update user

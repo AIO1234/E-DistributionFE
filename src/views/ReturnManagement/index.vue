@@ -10,19 +10,37 @@
           placeholder="Select Shop"
           v-model="shop"
           :items="shops"
+          :loading="shopsLoading"
+          no-filter
           item-title="shop_name"
           item-value="id"
           return-object
-          @update:model-value="shopReturns('search')"
+          @update:model-value="onShopSelected"
+          @update:search="onShopSearch"
           class="shop_select_button"
-        ></v-autocomplete>
+        >
+          <template v-slot:item="{ props, item }">
+            <v-list-item
+              v-bind="props"
+              :title="item.raw.shop_name"
+              :subtitle="
+                item.raw.area?.area_name ?? item.raw.area_name ?? ''
+              "
+            ></v-list-item>
+          </template>
+        </v-autocomplete>
       </v-col>
 
       <!-- create return -->
 
       <v-col lg="6" cols="12" class="text-right">
         <div class="pt-5"></div>
-        <v-btn class="return_create_button" variant="none" @click="show = true">
+        <v-btn
+          class="return_create_button"
+          variant="none"
+          :disabled="!shop || !shop.id"
+          @click="show = true"
+        >
           <template v-slot:prepend>
             <img src="@/assets/images/IconsSolid.png" />
           </template>
@@ -72,14 +90,14 @@
           <v-btn
             class="search_button"
             variant="none"
-            @click="shopReturns('search')"
+            @click="search()"
             ><span class="text">Search</span></v-btn
           >
         </v-col>
 
         <!-- clear button -->
         <v-col lg="2" cols="12">
-          <v-btn class="clear_button" variant="none" @click="shopReturns()"
+          <v-btn class="clear_button" variant="none" @click="clear()"
             ><span class="text">Clear</span></v-btn
           >
         </v-col>
@@ -92,7 +110,7 @@
             placeholder="Select Return Reason.."
             v-model="return_reason"
             :items="['Damage or Expire', 'Other']"
-            @update:model-value="shopReturns('search')"
+            @update:model-value="search()"
             class="search_input"
           ></v-autocomplete>
         </v-col>
@@ -102,7 +120,7 @@
           <div class="pt-8"></div>
           <v-btn class="exfort_button" variant="none">
             <download-excel
-              :data="returns"
+              :data="exportReturns"
               :fields="headers"
               worksheet="Shop Returns"
               :name="
@@ -110,6 +128,7 @@
                   ? `as of ${todaydate} ${shop.shop_name} returns.xls`
                   : `as of ${todaydate} shopreturns.xls`
               "
+              :before-generate="loadExportReturns"
             >
               <span class="text">Export</span>
             </download-excel>
@@ -125,7 +144,12 @@
           :Returns="returns"
           :shop="shop"
           :loading="loading"
+          :totalItems="totalItems"
+          :currentPage="page"
+          :itemsPerPage="itemsPerPage"
           @close="closeModal"
+          @pagechange="pageChange"
+          @pagesizechange="pageSizeChange"
         />
       </v-card>
     </div>
@@ -170,7 +194,6 @@ import ReturnApi from "@/Api/Modules/returns";
 import ShopApi from "@/Api/Modules/shop";
 import Table from "./Components/ReturnTable.vue";
 import CreateForm from "./Components/CreateReturn.vue";
-import { store } from "@/store";
 import mixin from "@/mixins/commonmixins";
 
 export default {
@@ -200,7 +223,12 @@ export default {
         "Last Updated By": "last_updated_by",
       },
       returns: [],
+      exportReturns: [],
       loading: false,
+      shopsLoading: false,
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
     };
   },
   components: {
@@ -209,86 +237,130 @@ export default {
     downloadExcel: JsonExcel,
   },
   async created() {
+    this.debouncedShopSearch = this.debounce(
+      (searchdata) => this.getAllShops(searchdata),
+      400,
+    );
+
     await this.getAllShops();
-    await this.initializeData();
+    await this.getShopReturns();
   },
   methods: {
-    // initialize data
-    async initializeData() {
-      const { getSelectedReturnShopId } = store.getters;
-      const { getSelectedReturnShopName } = store.getters;
+    // get shops matching the search text, capped so the whole 187+ shop
+    // list is never loaded up front - typing narrows the results
+    // server-side instead
+    async getAllShops(searchdata = "") {
+      this.shopsLoading = true;
+      const res = await ShopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
 
-      // check weather store shop id and name is null
-      if (
-        getSelectedReturnShopId !== null &&
-        getSelectedReturnShopName !== null
-      ) {
-        // set shop id from the store(if available)
-        this.shop.id = getSelectedReturnShopId;
-        this.shop.shop_name = getSelectedReturnShopName;
-      }
-
-      await this.shopReturns();
+      this.shops = res.data.data.data;
+      this.shopsLoading = false;
     },
 
-    // get all shops
-    async getAllShops() {
-      this.loading = true;
-      const res = await ShopApi.allShops();
-      this.shops = res.data.data;
-      this.loading = false;
+    // debounced so we don't fire a request on every keystroke. Vuetify
+    // echoes the currently selected shop's own name back through this
+    // event when the dropdown is simply reopened (not a real search the
+    // user typed) - treat that as no search, otherwise it silently
+    // narrows the list down to just the one shop already selected
+    onShopSearch(searchdata) {
+      const isEchoOfSelection = this.shop && searchdata === this.shop.shop_name;
+      this.debouncedShopSearch(isEchoOfSelection ? "" : searchdata);
     },
 
-    // get returns  for selected shop
-    async shopReturns(incomming = "normal") {
-      //set return shop id and name to store if administrative logged in
+    // picking a different shop starts a fresh view of it - a leftover
+    // search term/date range picked while looking at the PREVIOUS shop
+    // would otherwise silently carry over and filter out everything for
+    // the newly selected shop
+    async onShopSelected() {
+      this.searchdata = "";
+      this.startdate = "";
+      this.enddate = "";
+      this.return_reason = "";
 
-      store.commit("SET_SELECTED_RETURN_SHOP_ID", this.shop.id);
-      store.commit("SET_SELECTED_RETURN_SHOP_NAME", this.shop.shop_name);
+      // refresh the dropdown back to the default (unsearched) batch, so
+      // reopening it right after picking a shop doesn't leave you stuck
+      // looking at only the narrow search results that shop matched -
+      // other shops are immediately browsable/searchable again
+      await this.getAllShops();
 
+      await this.search();
+    },
+
+    // get the current page of returns for the selected shop (and filters)
+    async getShopReturns() {
       this.loading = true;
 
-      // initiaize payoad
-      let payload = {};
-      // if function execute as normal(without searches)
-      if (incomming === "normal") {
-        // reset searches
-        this.searchdata = "";
-        this.startdate = "";
-        this.enddate = "";
-        this.shop = "";
-        this.return_reason = "";
-        // process payload
-        payload = {
-          shop_id: this.shop.id,
-          searchdata: this.searchdata,
-          startdate: this.startdate,
-          enddate: this.enddate,
-          return_reason: this.return_reason,
-        };
-      }
-      // if function execute as a search
-      else {
-        // process payload
-        payload = {
-          shop_id: this.shop.id,
-          searchdata: this.searchdata,
-          startdate: this.startdate,
-          enddate: this.enddate,
-          return_reason: this.return_reason,
-        };
-      }
+      const payload = {
+        shop_id: this.shop.id,
+        searchdata: this.searchdata,
+        startdate: this.startdate,
+        enddate: this.enddate,
+        return_reason: this.return_reason,
+        page: this.page,
+        per_page: this.itemsPerPage,
+      };
 
       const res = await ReturnApi.allShopReturns(payload);
-      this.returns = res.data.data;
+      const pagination = res.data.data;
 
+      this.returns = pagination.data;
+      this.totalItems = pagination.total;
+      this.page = pagination.current_page;
+      this.itemsPerPage = pagination.per_page;
       this.loading = false;
+    },
+
+    // load the complete filtered return list (not just the current page)
+    // right before the export fires, so the exported file matches the active filters
+    async loadExportReturns() {
+      const payload = {
+        shop_id: this.shop.id,
+        searchdata: this.searchdata,
+        startdate: this.startdate,
+        enddate: this.enddate,
+        return_reason: this.return_reason,
+        page: 1,
+        per_page: 100000,
+      };
+
+      const res = await ReturnApi.allShopReturns(payload);
+
+      this.exportReturns = res.data.data.data;
+    },
+
+    // search - reset to page 1 since the previous page may not exist
+    // anymore under the new search text
+    async search() {
+      this.page = 1;
+      await this.getShopReturns();
+    },
+
+    // page change
+    async pageChange(data) {
+      this.page = data.page;
+      await this.getShopReturns();
+    },
+
+    // items-per-page change
+    async pageSizeChange(data) {
+      this.page = data.page;
+      this.itemsPerPage = data.per_page;
+      await this.getShopReturns();
+    },
+
+    // reset every filter and reload page 1
+    async clear() {
+      this.searchdata = "";
+      this.startdate = "";
+      this.enddate = "";
+      this.return_reason = "";
+      await this.search();
     },
 
     // close modal
     async closeModal() {
       this.show = false;
-      await this.shopReturns();
+      await this.getShopReturns();
     },
   },
 };

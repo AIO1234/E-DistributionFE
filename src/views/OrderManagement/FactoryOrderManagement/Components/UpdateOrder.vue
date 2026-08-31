@@ -25,6 +25,7 @@
                   class="update_date"
                   v-model="form.date"
                   :rules="[required]"
+                  :config="{ minDate: minSelectableDate }"
                 >
                 </AppDateTimePicker>
               </v-col>
@@ -69,6 +70,8 @@
                 <div class="pt-3"></div>
                 <v-autocomplete
                   :items="products"
+                  :loading="productsLoading"
+                  no-filter
                   item-title="product_name"
                   item-value="id"
                   placeholder="Select Product"
@@ -79,19 +82,39 @@
                   @update:model-value="
                     ExistsProduct(index, orderproduct.product)
                   "
+                  @update:search="onProductSearch"
                 >
                   <template v-slot:item="{ props, item }">
                     <div>
                       <v-list-item
                         v-bind="props"
-                        :title="item.raw.product_name"
-                        :subtitle="getPrice(item.raw.product_amount)"
+                        :title="`${item.raw.product_name} - ${item.raw.model_number || 'N/A'}`"
                       >
-                        <span
+                        <!-- stock -->
+                        <div
                           style="font-size: 13px"
                           v-if="item.raw.stock_count !== null"
-                          >Stock : {{ item.raw.stock_count }}</span
                         >
+                          Balance Stock: {{ item.raw.stock_count }}
+                        </div>
+
+                        <!-- min_selling_price -->
+                        <div
+                          class="pt-1"
+                          style="font-size: 13px"
+                          v-if="item.raw.min_selling_price !== null"
+                        >
+                          Min Selling Price {{ item.raw.min_selling_price }}
+                        </div>
+
+                        <!-- max selling price -->
+                        <div
+                          class="pt-1"
+                          style="font-size: 13px"
+                          v-if="item.raw.min_selling_price !== null"
+                        >
+                          Max Selling Price {{ item.raw.max_selling_price }}
+                        </div>
                       </v-list-item>
                     </div>
                   </template>
@@ -125,10 +148,25 @@
                 <v-text-field
                   placeholder="Amount"
                   v-model="orderproduct.unit_price"
-                  readonly
                   class="product_input"
+                  :rules="[required]"
+                  @update:model-value="
+                    changeUnitPrice(
+                      index,
+                      orderproduct.product,
+                      orderproduct.unit_price,
+                      orderproduct.quantity
+                    )
+                  "
                 >
                 </v-text-field>
+                <span
+                  v-if="sellingPriceRange(orderproduct.product)"
+                  class="pt-1"
+                  style="font-size: 12px; display: block"
+                >
+                  Suggested Range: {{ sellingPriceRange(orderproduct.product) }}
+                </span>
               </v-col>
 
               <!-- amount -->
@@ -197,24 +235,38 @@ export default {
   data() {
     return {
       isFormValid: false,
+      authRole: "",
       products: [],
       orderproducts: [],
       nextTodoId: 1,
       form: {},
       loading: false,
       loadingPage: false,
+      productsLoading: false,
     };
   },
 
   props: {
     order_id: Number,
   },
+
   async created() {
-    await this.allProducts();
-    await this.initializeData();
+    await this.init();
   },
 
   methods: {
+    async init() {
+      this.getAuthUser();
+
+      this.debouncedProductSearch = this.debounce(
+        (searchdata) => this.allProducts(searchdata),
+        400,
+      );
+
+      await this.allProducts();
+      await this.initializeData();
+    },
+
     // initialiedata form the edit order
 
     async initializeData() {
@@ -235,17 +287,37 @@ export default {
 
       this.loadingPage = false;
     },
-    // get all products
-    async allProducts() {
-      this.loadingPage = true;
-      // initialize payload
+    // get products matching the search text, capped so the whole 500+
+    // catalog is never loaded up front - typing narrows the results
+    // server-side instead
+    async allProducts(searchdata = "") {
+      this.productsLoading = true;
+
       const payload = {
-        searchdata: "",
+        searchdata,
+        page: 1,
+        per_page: 40,
       };
       const res = await ProductApi.allProducts(payload);
 
-      this.products = res.data.data;
-      this.loadingPage = false;
+      this.products = res.data.data.data;
+      this.productsLoading = false;
+    },
+
+    // debounced so we don't fire a request on every keystroke. Vuetify
+    // echoes a row's already-selected product name back through this event
+    // when that row's dropdown is simply reopened (not a real search the
+    // user typed) - treat that as no search, otherwise it silently
+    // narrows the list down to just the one product already selected
+    onProductSearch(searchdata) {
+      const isEchoOfSelection = this.orderproducts.some((orderproduct) => {
+        return (
+          orderproduct.product &&
+          searchdata === orderproduct.product.product_name
+        );
+      });
+
+      this.debouncedProductSearch(isEchoOfSelection ? "" : searchdata);
     },
 
     // check quantity is available
@@ -289,8 +361,17 @@ export default {
         }
       }
 
+      // the backend restores every product this pending order already
+      // holds back onto stock_count before reapplying the new quantities
+      // on submit - account for that restore here too, otherwise
+      // re-entering (or increasing up to) the order's own already-reserved
+      // quantity is wrongly rejected as exceeding stock
+      const alreadyReservedByThisOrder = this.form.order_products
+        .filter((original) => original.id === product.id)
+        .reduce((total, original) => total + original.pivot.quantity, 0);
+
       // check weather quantity exceed
-      if (entervalue > product.stock_count) {
+      if (entervalue > product.stock_count + alreadyReservedByThisOrder) {
         // if entered value exceded the product stock
         toast("Entered Quantity Exceeded The Product Stock", "error", 20000);
         this.orderproducts[index].quantity = "";
@@ -300,16 +381,45 @@ export default {
           this.orderproducts[index].amount =
             this.orderproducts[index].unit_price * entervalue;
         } else {
-          this.orderproducts[index].unit_price = product.product_amount;
-
-          this.orderproducts[index].amount =
-            product.product_amount * entervalue;
+          // no unit price yet (product just changed at this row) - leave it
+          // for the user to enter via the Unit Price field; product_amount
+          // is never populated on any product, so reading it here used to
+          // silently save a 0 unit price
+          this.orderproducts[index].amount = "";
         }
       }
     },
 
+    // formatted "min - max" selling price range shown under the unit price
+    // field, sourced from the same product changeUnitPrice validates against
+    // (same pattern as CreateOrder's sellingPriceRange)
+    sellingPriceRange(product) {
+      if (
+        !product ||
+        product.min_selling_price == null ||
+        product.max_selling_price == null
+      ) {
+        return "";
+      }
+
+      return `${this.getPrice(product.min_selling_price)} - ${this.getPrice(product.max_selling_price)}`;
+    },
+
+    //change unit price when changing
+    changeUnitPrice(index, product, enteredunitprice, enteredquantity) {
+      // if unit price in suggested range
+      if (enteredunitprice >= product.min_selling_price) {
+        this.orderproducts[index].amount = enteredunitprice * enteredquantity;
+      }
+
+      // if unit price not in suggested range
+      else {
+        this.orderproducts[index].amount = "";
+      }
+    },
+
     // chcech weather products previousy added or not
-    ExistsProduct(index, product) {
+    async ExistsProduct(index, product) {
       // get previously added product exactly same like this
       const result = this.orderproducts.filter((val) => {
         return val.product.id === product.id;
@@ -319,6 +429,11 @@ export default {
         toast("Product Already Selected Before", "error", 20000);
         this.orderproducts[index].product = "";
       }
+
+      // refresh the dropdown back to the default (unsearched) batch, so
+      // reopening any row right after picking a product doesn't leave it
+      // stuck showing only the narrow search results that product matched
+      await this.allProducts();
     },
 
     // repeat product button

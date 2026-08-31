@@ -13,6 +13,16 @@ export default {
     return await api.post("/returns/shoporderproducts", payload);
   },
 
+  // distinct products available across a shop's orders
+  async shopProductsForShop(payload) {
+    return await api.post("/returns/shopproductsforshop", payload);
+  },
+
+  // shop orders that contain the selected product
+  async shopOrdersForProduct(payload) {
+    return await api.post("/returns/shopordersforproduct", payload);
+  },
+
   async shopReturnInnerSummary(payload) {
     return await api.post("/returns/shopreturninnersummary", payload);
   },

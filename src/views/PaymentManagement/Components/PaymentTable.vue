@@ -7,10 +7,14 @@
       style="background-color: transparent"
     >
       <v-responsive>
-        <v-data-table
+        <v-data-table-server
           :headers="headers"
           :items="shoppayments"
-          items-per-page="100"
+          :items-length="totalItems"
+          :page="currentPage"
+          :items-per-page="itemsPerPage"
+          @update:page="onPage"
+          @update:items-per-page="onPerPage"
         >
           <!-- contents -->
           <template
@@ -21,6 +25,11 @@
             <!-- payment code -->
             <div v-if="header.key === 'payment_code'">
               {{ props.item.payment_code }}
+            </div>
+
+            <!-- shop name -->
+            <div v-if="header.key === 'shop_name'">
+              {{ props.item.shop?.shop_name }}
             </div>
 
             <!-- payment invoice -->
@@ -88,7 +97,7 @@
               {{ firstLetterUpperCase(props.item.last_updated_by) }}
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </v-responsive>
     </v-skeleton-loader>
 
@@ -122,7 +131,9 @@
 
         <v-card-text>
           <UpdateForm
-            :shop="shop"
+            v-if="show"
+            :key="selectedItem.id"
+            :shop="selectedShop"
             @close="closeModal"
             :selectedItem="selectedItem"
           /> </v-card-text
@@ -137,8 +148,13 @@ export default {
     return {
       show: false,
       selectedItem: {},
+      // shop the payment being edited actually belongs to - the page-level
+      // `shop` filter can be empty (e.g. browsing all payments unfiltered),
+      // so this is resolved per-row from the payment's own shops_id instead
+      selectedShop: {},
       headers: [
         { title: "Payment ID", align: "start", key: "payment_code" },
+        { title: "Shop Name", align: "start", key: "shop_name" },
         { title: "Invoice No/S", align: "start", key: "payment_invoices" },
         { title: "Payment Date", align: "start", key: "payment_date" },
         { title: "Paid Amount(Rs)", align: "start", key: "payment_amount" },
@@ -155,19 +171,56 @@ export default {
   },
   props: {
     shop: Object,
+    shops: Array,
     loading: Boolean,
     shoppayments: Array,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 50,
+    },
   },
   methods: {
+    // page change
+    onPage(page) {
+      this.$emit("pagechange", { page });
+    },
+
+    // items-per-page change
+    onPerPage(perPage) {
+      this.$emit("pagesizechange", {
+        page: 1,
+        per_page: perPage == -1 ? 10000 : perPage,
+      });
+    },
+
     // close modal
     closeModal() {
       this.show = false;
       this.$emit("close");
     },
-    // open updte modal
-
+    // open update modal
     openUpdateModal(item) {
       this.selectedItem = item;
+      // resolve the payment's own shop rather than trusting the page-level
+      // filter, which is empty when browsing all payments unfiltered. The
+      // payment carries its own eager-loaded `shop` relation, so use that
+      // first - the `shops` list is only the capped/search-filtered batch
+      // and often won't contain this payment's shop, which previously left
+      // selectedShop as {} and made UpdatePayment call the due-orders
+      // endpoint with no shop_id ("shop id field is required")
+      this.selectedShop =
+        item.shop ||
+        this.shops?.find((val) => val.id === item.shops_id) ||
+        this.shop ||
+        {};
       this.show = true;
     },
   },

@@ -4,8 +4,8 @@
     <div>
       <v-row>
         <v-col lg="6" class="text-right" cols="12"> </v-col>
-        <!-- create Product -->
-        <v-col lg="6" class="text-right" cols="12">
+        <!-- create Product - Super Admin / Admin only -->
+        <v-col lg="6" class="text-right" cols="12" v-if="canManageStock">
           <v-btn class="create_btn" variant="none" @click="show = true">
             <template v-slot:prepend>
               <img src="@/assets/images/IconsSolid.png" />
@@ -29,7 +29,7 @@
         </v-col>
         <!-- search button -->
         <v-col lg="3" cols="12">
-          <v-btn class="search_button" variant="none" @click="getAllProducts()"
+          <v-btn class="search_button" variant="none" @click="search()"
             ><span class="text">Search</span></v-btn
           >
         </v-col>
@@ -40,8 +40,8 @@
             ><span class="text">Clear</span></v-btn
           >
         </v-col>
-        <!-- exfort button -->
-        <v-col lg="4" cols="12">
+        <!-- exfort button - Super Admin only -->
+        <v-col lg="4" cols="12" v-if="isSuperAdmin">
           <v-btn class="exfort_button" variant="none">
             <download-excel
               :data="Products"
@@ -60,7 +60,16 @@
       <div class="pt-12"></div>
       <!-- table -->
       <v-card>
-        <Table :Products="Products" :loading="loading" @close="closeModal" />
+        <Table
+          :Products="Products"
+          :loading="loading"
+          :totalItems="totalItems"
+          :currentPage="page"
+          :itemsPerPage="itemsPerPage"
+          @close="closeModal"
+          @pagechange="pageChange"
+          @pagesizechange="pageSizeChange"
+        />
       </v-card>
     </div>
 
@@ -112,25 +121,28 @@ export default {
         "YYYY-MM-DD"
       ),
       show: false,
+      authRole: "",
       Products: [],
       loading: false,
       searchdata: "",
+      page: 1,
+      itemsPerPage: 50,
+      totalItems: 0,
+      // export columns map to the actual product fields shown in the table -
+      // the previous map referenced sales-report fields that don't exist on
+      // a product row, so the export came out with only code + name filled
       collumns: {
         "Product Code": "product_code",
         "Product Name": "product_name",
-        "Product Type": "product_type",
-        "Product Weight": "product_weight",
-        "Product Volume": "product_volume",
-        "Expre Date": "expire_date",
+        "Model Number": "model_number",
+        "Category": "category.category_name",
+        "Product Cost(Rs)": "product_cost",
+        "Minimum Selling Price(Rs)": "min_selling_price",
+        "Maximum Selling Price(Rs)": "max_selling_price",
+        "Product Stock": "stock_count",
+        "Damage Stock": "damaged_stock_count",
+        "Expire Date": "expire_date",
         "Manufacture Date": "manufacture_date",
-        "Distributor Commision": "distributer_commision",
-        "SalesRep Commision": "salesrep_commision",
-        "Sales Quantity": "quantity",
-        "Product Amount(Rs)": "product_amount",
-        "Return Quantity": "return_quantity",
-        "Return Quantity": "return_value",
-        "Final Quantity": "final_quantity",
-        "Final Amount(Rs)": "final_value",
         "Last Updated By": "last_updated_by",
       },
     };
@@ -141,7 +153,23 @@ export default {
     downloadExcel: JsonExcel,
   },
 
+  computed: {
+    // only Super Admin may add or edit stock - Admin, Staff and Data
+    // Operator are view-only here (Admin/Data Operator can replace a
+    // product image via the row action), matching the backend Add Stock /
+    // Edit Stock permission which only Super Admin now holds
+    canManageStock() {
+      return this.authRole === "Super Admin";
+    },
+
+    // the stock export is Super Admin only
+    isSuperAdmin() {
+      return this.authRole === "Super Admin";
+    },
+  },
+
   async created() {
+    this.getAuthUser();
     await this.getAllProducts();
   },
 
@@ -151,12 +179,40 @@ export default {
       // initialize payload
       const payload = {
         searchdata: this.searchdata,
+        page: this.page,
+        per_page: this.itemsPerPage,
       };
       this.loading = true;
       const res = await ProductsApi.allProducts(payload);
-      this.Products = res.data.data;
+      const pagination = res.data.data;
+
+      this.Products = pagination.data;
+      this.totalItems = pagination.total;
+      this.page = pagination.current_page;
+      this.itemsPerPage = pagination.per_page;
       this.loading = false;
     },
+
+    // search - reset to page 1 since the previous page may not exist
+    // anymore under the new search text
+    async search() {
+      this.page = 1;
+      await this.getAllProducts();
+    },
+
+    // page change
+    async pageChange(data) {
+      this.page = data.page;
+      await this.getAllProducts();
+    },
+
+    // items-per-page change
+    async pageSizeChange(data) {
+      this.page = data.page;
+      this.itemsPerPage = data.per_page;
+      await this.getAllProducts();
+    },
+
     // close
     async closeModal() {
       this.show = false;
@@ -167,6 +223,7 @@ export default {
     // clear search
     async clear() {
       this.searchdata = "";
+      this.page = 1;
       await this.getAllProducts();
     },
   },

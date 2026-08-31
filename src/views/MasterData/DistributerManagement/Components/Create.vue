@@ -1,7 +1,7 @@
 <template>
   <div class="masterdata">
     <!-- title -->
-    <h3 class="form_title">Add Distributor</h3>
+    <h3 class="form_title">Add ShowRoom</h3>
 
     <div class="form">
       <!-- add form -->
@@ -9,7 +9,7 @@
         <VRow>
           <!-- Code -->
           <VCol lg="6" cols="12">
-            <label class="label">Code</label>
+            <label class="label">Code*</label>
             <div class="mt-2" />
             <VTextField
               placeholder="Code"
@@ -21,7 +21,7 @@
 
           <!-- Name -->
           <VCol lg="6" cols="12">
-            <label class="label">Name</label>
+            <label class="label">Name*</label>
             <div class="mt-2" />
             <VTextField
               placeholder="Name"
@@ -48,38 +48,12 @@
             <label class="label">E-mail</label>
             <div class="mt-2" />
             <VTextField
-              :rules="[email]"
               placeholder="Email"
               class="input"
               v-model="form.distributer_email"
             />
           </VCol>
 
-          <!-- password -->
-          <VCol lg="6" cols="12">
-            <label class="label">Password</label>
-            <div class="mt-2" />
-            <AppTextField
-              class="input"
-              v-model="form.password"
-              :rules="[required, password]"
-              placeholder="············"
-              type="password"
-            />
-          </VCol>
-
-          <!-- confirm password -->
-          <VCol lg="6" cols="12">
-            <label class="label">Confirm Password</label>
-            <div class="mt-2" />
-            <AppTextField
-              class="input"
-              v-model="form.password_confirmation"
-              :rules="[required, confirm_password]"
-              placeholder="············"
-              type="password"
-            />
-          </VCol>
           <!-- address -->
           <VCol lg="6" cols="12">
             <label class="label">Address</label>
@@ -117,19 +91,6 @@
               </template>
             </v-autocomplete>
           </VCol>
-
-          <!-- Position -->
-          <VCol lg="6" cols="12">
-            <label class="label">Position</label>
-            <div class="mt-2" />
-
-            <v-autocomplete
-              placeholder="Select Position"
-              class="input"
-              v-model="form.position"
-              :items="['Distributer', 'Area Manager']"
-            ></v-autocomplete>
-          </VCol>
         </VRow>
         <div class="pt-15" />
 
@@ -152,13 +113,18 @@
 
 <script>
 import DistributerApi from "@/Api/Modules/distributer";
+import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 
 export default {
   mixins: [commonmixins],
   data() {
     return {
-      form: { distributer_address: "" },
+      form: {
+        distributer_address: "",
+        distributer_mobile: "",
+        distributer_email: "",
+      },
       loading: false,
       isFormValid: false,
       areas: [],
@@ -168,9 +134,11 @@ export default {
     await this.getAreas();
   },
   methods: {
-    // get areas from the globals
+    // get areas - /areas/index is paginated, request a large per_page to
+    // effectively get everything in one page for the dropdown
     async getAreas() {
-      this.areas = await commonmixins.methods.getAreas();
+      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
+      this.areas = res.data.data.data;
     },
     // add distributor
     async addDistributer() {

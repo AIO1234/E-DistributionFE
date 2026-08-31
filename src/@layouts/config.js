@@ -3,7 +3,7 @@ import { AppContentLayoutNav, ContentWidth, FooterType, HorizontalNavType, Navba
 
 export const layoutConfig = {
   app: {
-    title: 'E-Distribution',
+    title: 'AIO-IT SOLUTIONS',
     // logo: h('img', { src: '/src/assets/logo.svg' }),
     contentWidth: ContentWidth.Boxed,
     contentLayoutNav: AppContentLayoutNav.Vertical,

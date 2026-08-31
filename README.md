@@ -1,35 +1,68 @@
-# vue
+# AIO-IT SOLUTIONS Distribution System — Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Frontend for the AIO-IT SOLUTIONS Distribution System: a Vue 3 admin application for managing the order, stock, and payment flow between a factory, distributers, sub-distributers, sales reps, and shops. Built on the Vuexy Vue admin template (Vuetify 3 + Vite).
 
-## Recommended IDE Setup
+## Tech Stack
 
-[VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur).
+- Vue 3 (`<script setup>`, Composition API)
+- Vite 5 with `unplugin-vue-router` (file-based routing) and `unplugin-auto-import`
+- Vuetify 3 for UI components
+- Pinia + Vuex for state
+- Axios / `ofetch` for API calls
+- Chart.js / ApexCharts for reporting charts
 
-## Type Support for `.vue` Imports in TS
+## Project Structure
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates.
+- `src/@core` — template core: shared components, composables, chart configs, and base SCSS
+- `src/views` — feature modules, organized by domain:
+  - `MasterData` — Area, Shop, Distributer, Sales Rep, Courier, Vehicle management
+  - `OrderManagement` — Factory, Distributer, Sub-Distributer, Sales Rep, and Shop order flows
+  - `StockManagement` — inventory tracking
+  - `PaymentManagement` — payments against orders
+  - `ReturnManagement` — order/stock returns
+  - `ReportManagement` — sales summary and detailed reports
+  - `UserManagement` — application users
+  - `pages/authentication` — login/auth
+- `src/pages` — file-based route entry points (see `unplugin-vue-router`)
 
-However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can run `Volar: Switch TS Plugin on/off` from VS Code command palette.
+## Getting Started
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+Requires Node `lts/*` (see `.nvmrc`) and pnpm (`packageManager: pnpm@8.6.2`).
 
 ```sh
-npm install
+pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+Copy `.env.example` to `.env` and set the API base URL:
+
+```
+VITE_API_BASE_URL=
+```
+
+### Development server
 
 ```sh
-npm run dev
+pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Production build
 
 ```sh
-npm run build
+pnpm build
 ```
+
+### Preview a production build
+
+```sh
+pnpm preview
+```
+
+### Lint
+
+```sh
+pnpm lint
+```
+
+## Docker
+
+`dev.Dockerfile` / `prod.Dockerfile` and the corresponding `docker-compose.dev.yml` / `docker-compose.prod.yml` are provided for containerized development and production deployment, served via `nginx.conf` in production.

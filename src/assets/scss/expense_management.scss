@@ -1,0 +1,170 @@
+
+//--------------------index.vue main expense management file styles start here
+.expense_management {
+  .create_btn {
+    min-width: 191px;
+    height: 41px;
+    border-radius: 8px;
+    background-color: #0d6938 !important;
+    .text {
+      font-family: "Urbanist", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 26px;
+      text-align: left;
+      color: #ffffff;
+    }
+    @media screen and (max-width: 600px) {
+      width: 100%;
+    }
+  }
+
+  // search row — search field, start/end date pickers and action buttons,
+  // same v-row/v-col grid pattern as the WearHouse Orders search row
+  .search_input {
+    width: 100%;
+    height: 39px;
+    border-radius: 6px;
+    font-family: "Urbanist", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    border: 1px solid #67b108;
+  }
+
+  // start/end expense date pickers
+  .search_date {
+    width: 100%;
+    height: 39px;
+    border-radius: 6px;
+    font-family: "Urbanist", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    border: 1px solid #67b108;
+  }
+
+  .search_button {
+    width: 100%;
+    border-radius: 8px;
+    background-color: #67b108 !important;
+    border: 0.2px solid #ffffff;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 15.96px;
+      text-align: right;
+      color: white;
+    }
+  }
+
+  .clear_button {
+    width: 100%;
+    border-radius: 8px;
+    background-color: #67b108 !important;
+    border: 0.2px solid #ffffff;
+    .text {
+      font-family: "Lato", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 15.96px;
+      text-align: right;
+      color: white;
+    }
+  }
+
+  // due/paid balance box for the selected courier/sales rep — same look as
+  // the shop due/paid balance boxes on the Incoming Payments screen
+  .shop_balance_amount {
+    width: 100%;
+    min-height: 50px;
+    height: auto;
+    padding: 12px 17px 19px 25px;
+    border-radius: 8px;
+    background-color: #ffe2bb;
+    @media (max-width: 768px) {
+      width: 100%;
+      height: 100%;
+    }
+    .text {
+      font-family: "Urbanist", sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 26px;
+      text-align: left;
+      color: #3d3c3c;
+      overflow-wrap: anywhere;
+      .amount {
+        font-weight: 750;
+      }
+    }
+  }
+
+  // end index.vue styles
+
+  //-------------------------create expense.vue & update expense.vue styles
+  // (Create.vue and Update.vue share this `.form` structure)
+  .form_title {
+    font-family: "Lato", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .form {
+    margin-top: 20px;
+
+    .label {
+      font-family: "Lato", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 21.6px;
+      letter-spacing: 0.01em;
+      text-align: left;
+      color: #060606;
+    }
+
+    .input {
+      border-radius: 10px;
+      height: 39px;
+      border: 1px solid #67b108;
+      color: #060606;
+    }
+
+    // expense type dropdown sits above the dynamic section, give it room
+    .expense_type_select {
+      width: 100%;
+    }
+
+    // dynamic fields block that changes based on the selected expense type
+    .dynamic_section {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #67b108;
+    }
+
+    .button {
+      width: 187px;
+      height: 40px;
+      border-radius: 8px;
+      background-color: #4340da !important;
+      @media screen and (max-width: 600px) {
+        width: 100%;
+      }
+      .btn_text {
+        font-family: "Lato", sans-serif;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 17.1px;
+        letter-spacing: 0.15000000596046448px;
+        text-align: center;
+        color: #ffffff;
+      }
+    }
+  }
+  //end create expense.vue & update expense.vue styles
+}
+// end index.vue styles

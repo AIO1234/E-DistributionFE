@@ -5,7 +5,7 @@ export default [
     component: () => import("@/views/MasterData/AreaManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff"],
+      role: ["Super Admin"],
       pageTitle: "Area Management",
       breadcrumb: [
         {
@@ -17,12 +17,45 @@ export default [
   },
 
   {
+    path: "/masterdata/vehicles",
+    name: "allvechicles",
+    component: () => import("@/views/MasterData/VehicleManagement/index.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin"],
+      pageTitle: "Vehicle Management",
+      breadcrumb: [
+        {
+          text: "Vehicle Management",
+          active: true,
+        },
+      ],
+    },
+  },
+
+  {
+    path: "/masterdata/couriers",
+    name: "allcouriers",
+    component: () => import("@/views/MasterData/CourierManagement/index.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin"],
+      pageTitle: "Courier Management",
+      breadcrumb: [
+        {
+          text: "Courier Management",
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: "/masterdata/products",
     name: "allproducts",
     component: () => import("@/views/StockManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff"],
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       pageTitle: "Product Management",
       breadcrumb: [
         {
@@ -40,11 +73,11 @@ export default [
       import("@/views/MasterData/DistributerManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Area Manager"],
-      pageTitle: "Distributer Management",
+      role: ["Super Admin", "Area Manager"],
+      pageTitle: "ShowRoom Management",
       breadcrumb: [
         {
-          text: "Distributer Management",
+          text: "ShowRoom Management",
           active: true,
         },
       ],
@@ -57,7 +90,7 @@ export default [
     component: () => import("@/views/MasterData/SalesRepManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Area Manager", "Distributer"],
+      role: ["Super Admin", "Area Manager", "Distributer"],
       pageTitle: "SalesReps Management",
       breadcrumb: [
         {
@@ -74,14 +107,7 @@ export default [
     component: () => import("@/views/MasterData/ShopManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: [
-        "Super Admin",
-        "Admin",
-        "Staff",
-        "Area Manager",
-        "Distributer",
-        "SalesRep",
-      ],
+      role: ["Super Admin", "Area Manager", "Distributer"],
       pageTitle: "Shop Management",
       breadcrumb: [
         {
@@ -92,21 +118,24 @@ export default [
     },
   },
 
+  // product categories route
   {
-    path: "/masterdata/subdistributers",
-    name: "subdistributers",
+    path: "/masterdata/product-categories",
+    name: "product-categories",
     component: () =>
-      import("@/views/MasterData/SubDistributerManagement/index.vue"),
+      import("@/views/MasterData/ProductCategoryManagement/index.vue"),
     meta: {
       authReuire: true,
-      role: ["Super Admin", "Admin", "Staff", "Area Manager", "Distributer"],
-      pageTitle: "SubDistributer",
+      role: ["Super Admin", "Area Manager", "Distributer"],
+      pageTitle: "Product Category Management",
       breadcrumb: [
         {
-          text: "SubDistributer",
+          text: "Product Category",
           active: true,
         },
       ],
     },
   },
-];
+  
+
+]

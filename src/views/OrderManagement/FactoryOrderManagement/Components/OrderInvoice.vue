@@ -33,7 +33,6 @@
           <div ref="pdfContent">
             <div class="order_management">
               <div class="pt-15"></div>
-              <div class="pt-15"></div>
 
               <div>
                 <!-- invoice content -->
@@ -41,22 +40,7 @@
                   <div class="header">
                     <v-row>
                       <v-col lg="7" class="left_col">
-                        <span class="company_name"
-                          >AIO-IT SOLUTIONS(PRIVATE) LIMITED</span
-                        >
-                        <br />
-                        <span class="company_text"
-                          >No. 143, 26/1, Park Heights, Park Road, Colombo
-                          05.</span
-                        >
-                        <br />
-                        <span class="company_text"
-                          >+94 71 345 3110
-                        </span>
-                        <br />
-                        <span class="company_text">aio99solutions@gmail.com</span>
-                        <br />
-                        <span class="company_text">https://aio-tutor.lk</span>
+                        <span class="company_name">{{ company_name }}</span>
                       </v-col>
                       <v-col lg="5" class="right_col">
                         <v-row>
@@ -258,7 +242,6 @@
                         <tr class="table_header table_borders">
                           <th class="text table_borders">Product Code</th>
                           <th class="text table_borders">Product Name</th>
-                          <th class="text table_borders">Unit Size</th>
                           <th class="text table_borders">Qty</th>
                           <th class="text table_borders">Unit Price(Rs)</th>
                           <th class="text table_borders">Value</th>
@@ -277,18 +260,6 @@
                           </td>
                           <td class="text table_borders">
                             {{ product.product_name }}
-                          </td>
-                          <td
-                            class="text table_borders"
-                            v-if="product.product_type === 'Liquid'"
-                          >
-                            {{ getVolume(product.product_volume) }}
-                          </td>
-                          <td
-                            class="text table_borders"
-                            v-else-if="product.product_type === 'Solid'"
-                          >
-                            {{ getWeight(product.product_weight) }}
                           </td>
                           <td class="text table_borders">
                             {{ product.pivot.quantity }}
@@ -322,7 +293,9 @@
                     Total invoice value:
                     {{ getPrice(summary.main_order_details.amount) }}
                     <div class="pt-1"></div>
-                    All cheques should be drawn in favour of "AIO-IT SOLUTIONS(PRIVATE) LIMITED"
+                    All cheques should be drawn in favour of "{{
+                      company_name
+                    }}"
                   </span>
 
                   <br /><br />
@@ -361,16 +334,15 @@
                     >
                     <v-col lg="4">
                       <span>
-                       
                         <br />
                         <span class="footer_note">
                           Authorized Signature
                           <br />
-                          Yasindu Ramanayake
+                          Rifdha Sajan
                           <br />
                           Managing Disrector
                           <br />
-                          AIO-IT SOLUTIONS(PRIVATE) LIMITED</span
+                          {{ company_name }}</span
                         >
                       </span></v-col
                     >

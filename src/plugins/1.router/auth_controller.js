@@ -14,7 +14,6 @@ export default {
         isLogedIn &&
         to.meta.role.includes(getRole) === true
       ) {
-        next();
         return next();
       }
       // if roles are mismatch
@@ -23,11 +22,15 @@ export default {
         isLogedIn &&
         to.meta.role.includes(getRole) === false
       ) {
-        if (getRole === "Admin" || getRole === "Staff") {
+        if (
+          getRole === "Admin" ||
+          getRole === "Staff" ||
+          getRole === "Data Operator"
+        ) {
           window.location.href = "/factoryorder";
         } else if (getRole === "Area Manager" || getRole === "Distributer") {
           window.location.href = "/distributororder";
-        } else if (getRole === "Area Manager" || getRole === "SalesRep") {
+        } else if (getRole === "SalesRep") {
           window.location.href = "/salesreporder";
         } else {
           toast("You Dont Have Permissions To Access This", "error");
@@ -37,19 +40,17 @@ export default {
       }
       // if not logged in
       else if (to.meta.authReuire && !isLogedIn) {
-        next({
+        return next({
           path: "/",
           replace: true,
         });
-        return next();
       }
       //if logged in but auth required
       else if (!to.meta.authReuire && isLogedIn) {
-        next({
+        return next({
           path: "/factoryorder",
           replace: true,
         });
-        return next();
       }
       // if not authenticated
       else {

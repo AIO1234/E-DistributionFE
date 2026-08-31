@@ -82,7 +82,6 @@
                 <tr>
                   <th class="thclass">Product Code</th>
                   <th class="thclass">Product Name</th>
-                  <th class="thclass">Unit Size</th>
                   <th class="thclass">Qty</th>
                   <th class="thclass">Unit Price(Rs)</th>
                   <th class="thclass">Value(Rs)</th>
@@ -91,17 +90,8 @@
               </thead>
               <tbody>
                 <tr v-for="product in summary.return_products" :key="product">
-                  <td class="tdclass">{{ product.product_code }}</td>
-                  <td class="tdclass">{{ product.product_name }}</td>
-                  <td class="tdclass" v-if="product.product_type === 'Solid'">
-                    {{ getWeight(product.product_weight) }}
-                  </td>
-                  <td
-                    class="tdclass"
-                    v-else-if="product.product_type === 'Liquid'"
-                  >
-                    {{ getVolume(product.product_volume) }}
-                  </td>
+                  <td class="tdclass">{{ makeUpperCase(product.product_code) }}</td>
+                  <td class="tdclass">{{ makeUpperCase(product.product_name) }}</td>
                   <td class="tdclass">{{ product.pivot.return_count }}</td>
                   <td class="tdclass">{{ product.pivot.unit_price }}</td>
                   <td class="tdclass">{{ product.pivot.return_amount }}</td>
