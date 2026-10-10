@@ -30,19 +30,13 @@
             :key="header.value"
             v-slot:[`item.${header.key}`]="props"
           >
-            <!-- order reference id -->
-            <div v-if="header.key === 'order_reference_id'">
-              {{ props.item.order_reference_id }}
-            </div>
-
-            <!-- invoice no -->
-            <div v-if="header.key === 'invoice_no'">
-              <span> {{ props.item.invoice_no }}</span>
-            </div>
-
             <!-- date -->
             <div v-if="header.key === 'date'">
               <span> {{ props.item.date }}</span>
+            </div>
+
+            <div v-if="header.key === 'customer'">
+              {{ props.item.customer || "-" }}
             </div>
 
             <!-- amount -->
@@ -52,70 +46,82 @@
               </span>
             </div>
 
-            <!-- remaining quantity per product -->
-            <div v-if="header.key === 'remaining_quantity'">
-              <v-list density="compact" class="remaining_quantity_list">
-                <v-list-item
-                  v-for="product in props.item.order_products"
-                  :key="product"
-                  class="px-0"
-                  min-height="auto"
+
+            <!-- order collection fields -->
+            <div v-if="header.key === 'invoice_no'">
+              {{ props.item.invoice_no || "—" }}
+            </div>
+
+            <div v-if="header.key === 'order_reference_id'">
+              {{ props.item.order_reference_id || "—" }}
+            </div>
+
+            <div v-if="header.key === 'good_receive_notice'">
+              <span v-if="isPendingApproval(props.item)">N/A</span>
+              <template v-else-if="getGrn(props.item)">
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  aria-label="View GRN"
+                  @click="openGrnView(props.item)"
                 >
-                  {{ makeUpperCase(product.product_code) }} - {{ makeUpperCase(product.product_name) }}:
-                  <span class="remaining_quantity_value">{{
-                    product.pivot.uptodate_quantity
-                  }}</span>
-                  / {{ product.pivot.quantity }}
-                </v-list-item>
-              </v-list>
+                  <v-icon icon="tabler-eye" color="primary" />
+                </v-btn>
+                <v-btn
+                  icon
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  aria-label="Update GRN"
+                  @click="openGrnForm(props.item)"
+                >
+                  <v-icon icon="tabler-edit" />
+                </v-btn>
+              </template>
+              <span v-else>N/A</span>
             </div>
 
-            <!-- distribution -->
-            <div v-if="header.key === 'distribution'">
-              <v-row>
-                <v-col lg="4">
-                  <v-btn
-                    color="transparent"
-                    variant="none"
-                    @click="$router.push(`/senddistributer/${props.item.id}`)"
-                  >
-                    <img src="@/assets/images/plus.png" style="width: 70%" />
-                  </v-btn>
-                </v-col>
-                <v-col lg="4">
-                  <v-btn
-                    color="transparent"
-                    variant="none"
-                    @click="
-                      $router.push(`/updatedistributerorders/${props.item.id}`)
-                    "
-                  >
-                    <img src="@/assets/images/edit.png" style="width: 70%" />
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </div>
-
-            <!-- distribution to shop-->
-            <div v-if="header.key === 'shop_distribution'">
+            <div v-if="header.key === 'delivery_note'">
               <v-btn
-                color="transparent"
-                variant="none"
-                @click="
-                  $router.push(
-                    `/sendshop/${props.item.id}/no/no/no/no/directfromfactory`,
-                  )
-                "
+                v-if="props.item.isCollectionItem"
+                color="primary"
+                size="small"
+                @click="openDeliveryNote(props.item)"
               >
-                <img src="@/assets/images/plus.png" style="width: 70%" />
+                View Delivery Note
               </v-btn>
+              <span v-else>N/A</span>
+            </div>
+
+            <div v-if="header.key === 'add_grn'">
+              <span v-if="isPendingApproval(props.item)">N/A</span>
+              <v-btn
+                v-else-if="isConfirmed(props.item)"
+                icon
+                size="small"
+                color="primary"
+                variant="text"
+                aria-label="Add GRN"
+                @click="openGrnForm(props.item)"
+              >
+                <v-icon icon="tabler-plus" />
+              </v-btn>
+              <span v-else>N/A</span>
             </div>
 
             <!-- status -->
             <div v-if="header.key === 'status'">
-              <span>
+              <v-chip
+                v-if="props.item.isCollectionItem"
+                size="small"
+                :color="props.item.status === 'Approved' ? 'success' : 'warning'"
+                variant="tonal"
+              >
                 {{ props.item.status }}
-              </span>
+              </v-chip>
+              <span v-else>{{ props.item.status }}</span>
             </div>
 
             <!-- action -->
@@ -123,15 +129,51 @@
               <v-row>
                 <v-col lg="6">
                   <v-btn
+                    v-if="!props.item.isCollectionItem"
                     color="transparent"
                     variant="none"
                     @click="
-                      $router.push(
-                        `/ordersummary/factoryorder/${props.item.id}`,
-                      )
+                      $router.push({
+                        name: 'ordersummary',
+                        params: {
+                          summary_type: 'factoryorder',
+                          order_id: props.item.id,
+                        },
+                        query: {
+                          uiOnly: 'true',
+                          orderId: props.item.order_reference_id,
+                          customer: props.item.customer,
+                          date: props.item.date,
+                          amount: props.item.amount,
+                        },
+                      })
                     "
                   >
-                    <img src="@/assets/images/eye.png" style="width: 70%" />
+                    <v-icon icon="tabler-eye" color="primary" />
+                  </v-btn>
+                  <v-btn
+                    v-else
+                    color="transparent"
+                    variant="none"
+                    aria-label="View order collection"
+                    @click="
+                      $router.push({
+                        name: 'ordersummary',
+                        params: {
+                          summary_type: 'factoryorder',
+                          order_id: props.item.shopOrderId,
+                        },
+                        query: {
+                          uiOnly: 'true',
+                          orderId: props.item.order_reference_id,
+                          customer: props.item.customer,
+                          date: props.item.date,
+                          amount: props.item.amount,
+                        },
+                      })
+                    "
+                  >
+                    <v-icon icon="tabler-eye" color="primary" />
                   </v-btn>
                 </v-col>
                 <v-col lg="6" v-if="props.item.status === 'Pending'">
@@ -152,9 +194,18 @@
             <!-- download invoice -->
             <div v-if="header.key === 'download_invoice'">
               <v-btn
+                v-if="!props.item.isCollectionItem"
                 color="primary"
-                @click="$router.push(`factoryorderinvoice/${props.item.id}`)"
-                ><span> View Invoice</span>
+                @click="printOrder(props.item)"
+                ><span> Print</span>
+              </v-btn>
+              <v-btn
+                v-else
+                color="primary"
+                variant="outlined"
+                @click="printOrder(props.item)"
+              >
+                <span>Print</span>
               </v-btn>
             </div>
 
@@ -206,26 +257,25 @@
 </template>
 <script>
 import UpdateOrder from "./UpdateOrder.vue";
+import { grnUiState, selectOrderForGrn } from "@/utils/grnUiState";
+import { approveOrderCollection } from "@/utils/orderCollectionUiState";
 export default {
   data() {
     return {
       selectedOrderId: {},
       show: false,
       headers: [
-        { title: "Order ID", align: "start", key: "order_reference_id" },
-        { title: "Invoice No", align: "start", key: "invoice_no" },
         { title: "Date", align: "start", key: "date" },
+        { title: "Customer", align: "start", key: "customer" },
         { title: "Amount(Rs)", align: "start", key: "amount" },
-        {
-          title: "Remaining Qty",
-          align: "start",
-          key: "remaining_quantity",
-        },
-        { title: "Send ShowRoom", align: "start", key: "distribution" },
-        { title: "Send Shop", align: "start", key: "shop_distribution" },
+        { title: "Invoice Number", align: "start", key: "invoice_no" },
+        { title: "Order ID", align: "start", key: "order_reference_id" },
+        { title: "Good Receive Notice", align: "start", key: "good_receive_notice" },
+        { title: "Delivery Note", align: "start", key: "delivery_note", sortable: false },
+        { title: "Add GRN", align: "center", key: "add_grn", sortable: false },
         { title: "Status", align: "start", key: "status" },
         { title: "Action", align: "start", key: "action" },
-        { title: "Invoice", align: "start", key: "download_invoice" },
+        { title: "Print", align: "start", key: "download_invoice" },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
       ],
     };
@@ -251,6 +301,86 @@ export default {
   },
 
   methods: {
+    getRowKey(item) {
+      return String(item?.id ?? item?.order_reference_id ?? "unknown");
+    },
+
+    getGrn(item) {
+      return grnUiState.records[this.getRowKey(item)] || null;
+    },
+
+    isPendingApproval(item) {
+      return String(item?.status || "").toLowerCase() === "pending approval";
+    },
+
+    isConfirmed(item) {
+      return ["confirmed", "approved"].includes(
+        String(item?.status || "").toLowerCase(),
+      );
+    },
+
+    openGrnForm(item) {
+      selectOrderForGrn(item);
+      this.$router.push({
+        name: this.getGrn(item) ? "updategrn" : "addgrn",
+        params: { order_id: this.getRowKey(item) },
+        query: {
+          orderId: item.order_reference_id || "",
+          customer: item.customer || item.shop?.shop_name || "",
+          date: item.date || item.order_date || "",
+        },
+      });
+    },
+
+    openGrnView(item) {
+      this.$router.push({
+        name: "viewgrn",
+        params: { order_id: this.getRowKey(item) },
+      });
+    },
+
+    openDeliveryNote(item) {
+      this.$router.push({
+        name: "shoporderdeliverynote",
+        params: { order_id: item.shopOrderId },
+        query: {
+          uiOnly: "true",
+          collectionId: item.id,
+          orderId: item.order_reference_id,
+          customer: item.customer,
+          date: item.date,
+          invoiceNumber: item.invoice_no,
+          deliveryNoteNumber: item.delivery_note_no,
+          amount: item.amount,
+        },
+      });
+    },
+
+    printOrder(item) {
+      approveOrderCollection(
+        item.isCollectionItem ? item.order_reference_id : item.id,
+      );
+
+      if (!item.isCollectionItem) {
+        this.$router.push(`factoryorderinvoice/${item.id}`);
+        return;
+      }
+
+      this.$router.push({
+        name: "shoporderinvoice",
+        params: { order_id: item.shopOrderId },
+        query: {
+          uiOnly: "true",
+          customer: item.customer,
+          date: item.date,
+          invoiceNumber: item.invoice_no,
+          amount: item.amount,
+          collectionId: item.id,
+          orderId: item.order_reference_id,
+        },
+      });
+    },
+
     // page change
     onPage(page) {
       this.$emit("pagechange", { page });

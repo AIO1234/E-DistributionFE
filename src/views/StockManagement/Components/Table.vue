@@ -461,9 +461,17 @@ export default {
     filteredHeaders() {
       const isSuperAdmin = this.authRole === "Super Admin";
       const showAction = isSuperAdmin || this.isImageOnly;
+      const showingDemoProducts =
+        this.Products.length > 0 && this.Products.every((product) => product.is_demo);
       const superAdminOnlyColumns = ["detailed_view", "stock_movements"];
 
       return this.headers.filter((header) => {
+        if (
+          showingDemoProducts &&
+          ["detailed_view", "stock_movements", "product_image", "action"].includes(header.key)
+        ) {
+          return false;
+        }
         if (header.key === "action") return showAction;
         if (superAdminOnlyColumns.includes(header.key)) return isSuperAdmin;
 

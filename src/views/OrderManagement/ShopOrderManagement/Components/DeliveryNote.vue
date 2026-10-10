@@ -290,11 +290,16 @@
 </template>
 <script>
 import ShopOrderApi from "@/Api/Modules/shop";
+import {
+  createdOrderCollectionRows,
+  sampleOrderCollectionRows,
+} from "@/utils/orderCollectionUiState";
 import html2pdf from "html2pdf.js";
 export default {
   data() {
     return {
       loading: false,
+      isPreviewDeliveryNote: false,
       summary: {
         main_order_details: {},
         distributer: {},
@@ -305,9 +310,61 @@ export default {
   },
 
   async created() {
-    await this.orderSummary();
+    if (this.$route.query.uiOnly === "true") {
+      this.loadPreviewDeliveryNote();
+    } else {
+      await this.orderSummary();
+    }
   },
   methods: {
+    loadPreviewDeliveryNote() {
+      this.isPreviewDeliveryNote = true;
+      const query = this.$route.query;
+      const collection = [
+        ...sampleOrderCollectionRows,
+        ...createdOrderCollectionRows,
+      ].find((order) => String(order.id) === String(query.collectionId));
+      const amount = Number(query.amount) || 0;
+      const products = (collection?.order_products || []).map((product) => {
+        const quantity = Number(product.pivot?.quantity) || 0;
+        const price = Number(product.amount) ||
+          (quantity ? amount / quantity : amount);
+
+        return {
+          product_code: product.product_code || "N/A",
+          product_name: product.product_name || "N/A",
+          pivot: {
+            unit_price: Number(product.pivot?.unit_price) || price,
+            quantity,
+            return_quantity: Number(product.pivot?.return_quantity) || 0,
+            discount_value: product.pivot?.discount_value ?? null,
+            discounted_price: product.pivot?.discounted_price ?? null,
+            price: Number(product.pivot?.price) || price,
+            return_value: Number(product.pivot?.return_value) || 0,
+          },
+        };
+      });
+
+      this.summary.main_order_details = {
+        order_date: query.date || "",
+        order_reference_id: query.orderId || "",
+        invoice_no: query.invoiceNumber || "",
+        delivery_note_no: query.deliveryNoteNumber || "N/A",
+        order_amount: amount,
+        distributer_salesrep_shop_order_items: products,
+      };
+      this.summary.shop = {
+        shop_code: "PREVIEW",
+        shop_name: query.customer || "Sample Customer",
+        shop_address: "",
+        shop_mobile: "",
+        area_code: "",
+        area: { area_name: "" },
+      };
+      this.summary.distributer = {};
+      this.summary.salesrep = {};
+    },
+
     // order summary
     async orderSummary() {
       this.loading = true;

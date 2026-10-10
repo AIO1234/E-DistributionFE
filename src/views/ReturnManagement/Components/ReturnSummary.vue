@@ -47,7 +47,7 @@
             </v-col>
             <v-col lg="3" cols="12" class="pt-6">
               <div class="justify-content-end">
-                <span class="right_heading">Shop Name :</span>
+                <span class="right_heading">Customer Name :</span>
                 <span class="right_heading"> {{ summary.shop_name }}</span>
 
                 <div class="pt-2"></div>

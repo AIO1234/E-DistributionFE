@@ -64,7 +64,7 @@
                       )
                     "
                   >
-                    <img src="@/assets/images/eye.png" style="width: 70%" />
+                    <v-icon icon="tabler-eye" color="primary" />
                   </v-btn>
                 </v-col>
                 <v-col lg="2"> </v-col>

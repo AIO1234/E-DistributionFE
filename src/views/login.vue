@@ -41,15 +41,12 @@
                     placeholder="············"
                   >
                     <template #append-inner>
-                      <img
+                      <v-icon
+                        icon="tabler-eye"
+                        color="primary"
                         @click="show1 = !show1"
-                        src="@/assets/images/eye.png"
-                        style="
-                          width: 20px;
-                          height: 20px;
-                          object-fit: contain;
-                          cursor: pointer;
-                        "
+                        class="cursor-pointer"
+                        aria-label="Toggle password visibility"
                       />
                     </template>
                   </v-text-field>

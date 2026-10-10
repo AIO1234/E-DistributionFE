@@ -351,6 +351,17 @@
     "watchThrottled": true,
     "watchTriggerable": true,
     "watchWithFilter": true,
-    "whenever": true
+    "whenever": true,
+    "addCreatedOrderCollectionRows": true,
+    "approveOrderCollection": true,
+    "approvedOrderCollectionIds": true,
+    "createdOrderCollectionRows": true,
+    "getGrnRecord": true,
+    "grnUiState": true,
+    "saveGrnRecord": true,
+    "selectOrderForGrn": true,
+    "sampleOrderCollectionRows": true,
+    "approveWarehouseOrder": true,
+    "approvedWarehouseOrderIds": true
   }
 }

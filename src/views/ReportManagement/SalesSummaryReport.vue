@@ -5,10 +5,10 @@
       <v-row>
         <!-- select shop -->
         <v-col lg="4" cols="12">
-          <label class="label">Select Shop</label>
+          <label class="label">Select Customer</label>
           <div class="pt-2"></div>
           <v-autocomplete
-            placeholder="Select Shop"
+            placeholder="Select Customer"
             v-model="shop"
             :items="shops"
             :loading="shopsLoading"

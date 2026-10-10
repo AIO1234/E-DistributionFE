@@ -138,7 +138,7 @@
                       )
                     "
                   >
-                    <img src="@/assets/images/eye.png" style="width: 70%" />
+                    <v-icon icon="tabler-eye" color="primary" />
                   </v-btn>
                 </v-col>
                 <v-col lg="2"> </v-col>
@@ -222,7 +222,7 @@
                 `/sendshop/${selectedOrderid}/${selectedDistributerid}/${selectedDistributerOrderid}/no/no/directfromshowroom`,
               )
             "
-            ><span class="text">Direct Shops</span></v-btn
+            ><span class="text">Direct Customers</span></v-btn
           >
         </v-card-text>
       </v-card>

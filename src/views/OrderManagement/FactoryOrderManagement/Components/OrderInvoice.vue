@@ -156,7 +156,7 @@
                     <v-col lg="6" cols="12">
                       <v-row>
                         <v-col lg="5">
-                          <span class="item_header"></span>Number Of Shops
+                          <span class="item_header"></span>Number Of Customers
                         </v-col>
                         <v-col lg="7">
                           <span class="item_text">{{
@@ -201,7 +201,7 @@
                     <v-col lg="6" cols="12">
                       <v-row>
                         <v-col lg="5">
-                          <span class="item_header"></span>Total Shop Order
+                          <span class="item_header"></span>Total Customer Order
                           Amount
                         </v-col>
                         <v-col lg="7">

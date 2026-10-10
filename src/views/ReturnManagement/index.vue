@@ -4,10 +4,10 @@
     <v-row>
       <!-- select shop -->
       <v-col lg="6" cols="12">
-        <label class="label">Select Shop</label>
+        <label class="label">Select Customer</label>
         <div class="pt-2"></div>
         <v-autocomplete
-          placeholder="Select Shop"
+          placeholder="Select Customer"
           v-model="shop"
           :items="shops"
           :loading="shopsLoading"
@@ -50,7 +50,7 @@
     </v-row>
 
     <!-- header searches -->
-    <div class="pt-15" v-if="shop !== 'Select Shop'">
+    <div class="pt-15" v-if="shop !== 'Select Customer'">
       <v-row>
         <!-- search order number -->
         <v-col lg="3" cols="12">
@@ -122,7 +122,7 @@
             <download-excel
               :data="exportReturns"
               :fields="headers"
-              worksheet="Shop Returns"
+              worksheet="Customer Returns"
               :name="
                 shop.shop_name != ''
                   ? `as of ${todaydate} ${shop.shop_name} returns.xls`

@@ -6,7 +6,7 @@
         <v-col lg="3" cols="12">
           <v-text-field
             v-model="searchdata"
-            placeholder="Search Shop"
+            placeholder="Search Customer"
             class="search_input"
           >
             <template v-slot:prepend-inner>
@@ -23,7 +23,7 @@
             :fetch="fetchDueCustomers"
             :fields="exportFields"
             worksheet="Customer Due Balances"
-            :name="`shop due balances ${today}.xls`"
+            :name="`customer due balances ${today}.xls`"
             :before-generate="() => (exportLoading = true)"
             :before-finish="() => (exportLoading = false)"
           >
@@ -36,7 +36,7 @@
             <template v-slot:prepend>
               <img src="@/assets/images/IconsSolid.png" />
             </template>
-            <span class="text">Create Shop</span>
+            <span class="text">Create Customer</span>
           </v-btn>
         </v-col>
       </v-row>
@@ -95,6 +95,10 @@ import JsonExcel from "vue-json-excel3";
 import Table from "./Components/Table.vue";
 import Create from "./Components/Create.vue";
 import ShopsApi from "@/Api/Modules/shop";
+import {
+  createdOrderCollectionRows,
+  sampleOrderCollectionRows,
+} from "@/utils/orderCollectionUiState";
 export default {
   data() {
     return {
@@ -109,8 +113,8 @@ export default {
       today: new Date().toISOString().slice(0, 10),
       // columns for the "due customers" export
       exportFields: {
-        "Shop Code": "shop_code",
-        "Shop Name": "shop_name",
+        "Customer Code": "shop_code",
+        "Customer Name": "shop_name",
         Mobile: "shop_mobile",
         Address: "shop_address",
         "Area Code": "area_code",
@@ -150,22 +154,78 @@ export default {
     async getAllShops({ all = false } = {}) {
       if (!all) this.loading = true;
 
-      const res = await ShopsApi.allShops({
-        seacrh_data: all ? "" : this.searchdata,
-        page: all ? 1 : this.page,
-        per_page: all ? 100000 : this.itemsPerPage,
-      });
-      const pagination = res.data.data;
+      try {
+        const res = await ShopsApi.allShops({
+          seacrh_data: all ? "" : this.searchdata,
+          page: all ? 1 : this.page,
+          per_page: all ? 100000 : this.itemsPerPage,
+        });
+        const pagination = res.data.data;
 
-      if (!all) {
-        this.Shops = pagination.data;
-        this.totalItems = pagination.total;
-        this.page = pagination.current_page;
-        this.itemsPerPage = pagination.per_page;
-        this.loading = false;
+        if (!all) {
+          const customers = this.getWarehouseOrderCustomers();
+          const search = this.searchdata.trim().toLowerCase();
+          const matchingDemoCustomers = search
+            ? customers.filter((customer) =>
+                `${customer.shop_name} ${customer.shop_code}`
+                  .toLowerCase()
+                  .includes(search),
+              )
+            : customers;
+          const useDemoCustomers = !pagination.data.length;
+
+          this.Shops = useDemoCustomers ? matchingDemoCustomers : pagination.data;
+          this.totalItems = useDemoCustomers
+            ? matchingDemoCustomers.length
+            : pagination.total;
+          this.page = pagination.current_page || 1;
+          this.itemsPerPage = pagination.per_page || this.itemsPerPage;
+        }
+
+        return pagination.data;
+      } catch {
+        if (all) return [];
+
+        const customers = this.getWarehouseOrderCustomers();
+        const search = this.searchdata.trim().toLowerCase();
+        this.Shops = search
+          ? customers.filter((customer) =>
+              `${customer.shop_name} ${customer.shop_code}`
+                .toLowerCase()
+                .includes(search),
+            )
+          : customers;
+        this.totalItems = this.Shops.length;
+        return this.Shops;
+      } finally {
+        if (!all) this.loading = false;
       }
+    },
 
-      return pagination.data;
+    getWarehouseOrderCustomers() {
+      const seen = new Set();
+
+      return [...sampleOrderCollectionRows, ...createdOrderCollectionRows]
+        .filter((order) => {
+          const name = String(order.customer || "").trim();
+          if (!name || seen.has(name.toLowerCase())) return false;
+          seen.add(name.toLowerCase());
+          return true;
+        })
+        .map((order, index) => ({
+          id: order.shop_id || `demo-customer-${index + 1}`,
+          is_demo: !order.shop_id,
+          shop_code: `DEMO-${String(index + 1).padStart(3, "0")}`,
+          shop_name: order.customer,
+          shop_mobile: "N/A",
+          shop_address: "N/A",
+          area_code: "N/A",
+          area: null,
+          area_name: "N/A",
+          Uptodate_due_amounts: 0,
+          uptodate_paid_amounts: 0,
+          last_updated_by: "Demo Data",
+        }));
     },
 
     // search - reset to page 1 since the previous page may not exist

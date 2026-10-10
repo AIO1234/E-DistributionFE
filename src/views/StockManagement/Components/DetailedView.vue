@@ -13,11 +13,11 @@
             lg="6"
             cols="12"
           >
-            <label class="label">Select Shop</label>
+            <label class="label">Select Customer</label>
             <div class="pt-2" />
             <VAutocomplete
               v-model="shop"
-              placeholder="Select Shop"
+              placeholder="Select Customer"
               :items="shops"
               :loading="shopsLoading"
               no-filter
@@ -465,7 +465,7 @@
 
         <div class="pt-6" />
         <!-- shops -->
-        <span class="table_topic">Shops</span>
+        <span class="table_topic">Customers</span>
         <div class="pt-3" />
         <table
           v-if="resultshops.length != 0"
@@ -476,7 +476,7 @@
           <thead>
             <tr class="table_header table_borders">
               <th class="text table_borders">
-                Shop Name
+                Customer Name
               </th>
               <th class="text table_borders">
                 Recieved Quantity

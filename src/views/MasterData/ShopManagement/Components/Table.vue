@@ -19,7 +19,7 @@
             <v-toolbar flat>
               <v-toolbar-title
                 ><center>
-                  <span class="table_topic">All Shops</span>
+                  <span class="table_topic">All Customers</span>
                 </center></v-toolbar-title
               >
             </v-toolbar>
@@ -97,6 +97,7 @@
               <v-row>
                 <v-col lg="2">
                   <v-btn
+                    v-if="!props.item.is_demo"
                     color="transparent"
                     variant="none"
                     @click="
@@ -155,8 +156,8 @@ export default {
       selectedItem: {},
       show: false,
       headers: [
-        { title: "Code", align: "start", key: "shop_code" },
-        { title: "Name", align: "start", key: "shop_name" },
+        { title: "Customer Code", align: "start", key: "shop_code" },
+        { title: "Customer Name", align: "start", key: "shop_name" },
         { title: "Mobile", align: "start", key: "shop_mobile" },
         { title: "Address", align: "start", key: "shop_address" },
         { title: "Area Code", align: "start", key: "area_code" },

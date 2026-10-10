@@ -5,7 +5,7 @@
       <v-form v-model="isFormValid">
         <v-row>
           <v-col lg="8" class="pt-5" cols="12">
-            <h2 class="heading">Add Return For {{ shop.shop_name }}</h2>
+            <h2 class="heading">Add Return For Customer {{ shop.shop_name }}</h2>
           </v-col>
           <v-col lg="4" cols="12">
             <label class="label">Return Date *</label>
@@ -53,7 +53,7 @@
           <v-row v-for="(returnorder, index) in returnOrders" :key="returnorder">
             <!-- select shop order, narrowed down to only the orders that contain the selected product -->
             <v-col lg="3" cols="12">
-              <label class="label">Shop Order *</label>
+              <label class="label">Customer Order *</label>
               <div class="pt-2"></div>
               <v-autocomplete
                 :rules="[required]"
@@ -363,7 +363,7 @@ export default {
         // if entered quantity exceded the product stock on this order
 
         toast(
-          "Entered Quantity Exceeded The Shop Order Products",
+          "Entered Quantity Exceeded The Customer Order Products",
           "error",
           20000
         );

@@ -6,10 +6,10 @@ export default [
     meta: {
       authReuire: true,
       role: ["Super Admin", "Admin", "Area Manager", "Distributer"],
-      pageTitle: "Return Management",
+      pageTitle: "Customer Returns",
       breadcrumb: [
         {
-          text: "All Returns",
+          text: "Customer Returns",
           active: true,
         },
       ],
@@ -24,7 +24,7 @@ export default [
     meta: {
       authReuire: true,
       role: ["Super Admin", "Area Manager", "Distributer"],
-      pageTitle: "Return Management",
+      pageTitle: "Customer Returns",
       breadcrumb: [
         {
           text: "Return Summary",

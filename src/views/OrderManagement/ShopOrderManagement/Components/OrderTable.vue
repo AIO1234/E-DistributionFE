@@ -19,7 +19,7 @@
             <v-toolbar flat>
               <v-toolbar-title
                 ><center>
-                  <span class="table_topic">Shop Orders</span>
+                  <span class="table_topic">Customer Wise Sales</span>
                 </center></v-toolbar-title
               >
             </v-toolbar>
@@ -61,9 +61,10 @@
               <span> {{ props.item.invoice_no }}</span>
             </div>
 
+
             <!-- delivery_note_no -->
             <div v-if="header.key === 'delivery_note_no'">
-              <span> {{ props.item.delivery_note_no }}</span>
+              <span>{{ props.item.delivery_note_no || "N/A" }}</span>
             </div>
 
             <!-- parent order no -->
@@ -101,7 +102,7 @@
             <div v-if="header.key === 'download_invoice'">
               <v-btn
                 color="primary"
-                @click="$router.push(`shoporderinvoice/${props.item.id}`)"
+                @click="openInvoice(props.item)"
                 ><span> View Invoice</span>
               </v-btn>
             </div>
@@ -110,7 +111,7 @@
             <div v-if="header.key === 'delivery_note'">
               <v-btn
                 color="primary"
-                @click="$router.push(`shoporderdeliverynote/${props.item.id}`)"
+                @click="openDeliveryNote(props.item)"
                 ><span> View delivery Note</span>
               </v-btn>
             </div>
@@ -127,7 +128,7 @@
 
             <!-- edit order - Super Admin only -->
             <div v-if="header.key === 'action'">
-              <v-btn
+              <v-btn v-if="!props.item.isApprovedWarehouseOrder"
                 color="primary"
                 @click="$router.push(`/updateshop/${props.item.id}`)"
                 ><span>Edit</span>
@@ -144,16 +145,9 @@ export default {
   data() {
     return {
       headers: [
-        { title: "Shop Name", align: "start", key: "shop_name" },
-        { title: "Shop Area", align: "start", key: "shop_area" },
-        { title: "Order Source", align: "start", key: "order_source" },
-        { title: "Shop_Invoice No", align: "start", key: "invoice_no" },
-        { title: "Delivery Nmber", align: "start", key: "delivery_note_no" },
-        {
-          title: "Distributed Order Id",
-          align: "start",
-          key: "parent_order_no",
-        },
+        { title: "Customer Name", align: "start", key: "shop_name" },
+        { title: "Customer Invoice No", align: "start", key: "invoice_no" },
+        { title: "Delivery Note No", align: "start", key: "delivery_note_no" },
         { title: "Date", align: "start", key: "order_date" },
         { title: "Amount(Rs)", align: "start", key: "order_amount" },
         { title: "Due Amount(Rs)", align: "start", key: "total_due_amount" },
@@ -161,13 +155,6 @@ export default {
         { title: "Invoice", align: "start", key: "download_invoice" },
         { title: "Delivery Note", align: "start", key: "delivery_note" },
         { title: "Courier", align: "start", key: "courier_name" },
-
-        { title: "Rep Name", align: "start", key: "rep_name" },
-        {
-          title: "Distributor Name",
-          align: "start",
-          key: "distributer_name",
-        },
         { title: "Last Updated By", align: "start", key: "last_updated_by" },
         { title: "Action", align: "start", key: "action" },
       ],
@@ -213,6 +200,50 @@ export default {
   },
 
   methods: {
+    openDeliveryNote(item) {
+      if (item.isApprovedWarehouseOrder) {
+        this.$router.push({
+          name: "shoporderdeliverynote",
+          params: { order_id: item.id },
+          query: {
+            uiOnly: "true",
+            collectionId: item.collectionId,
+            orderId: item.order_reference_id,
+            customer: item.customer,
+            date: item.order_date,
+            invoiceNumber: item.invoice_no,
+            deliveryNoteNumber: item.delivery_note_no,
+            amount: item.order_amount,
+          },
+        });
+        return;
+      }
+
+      this.$router.push(`shoporderdeliverynote/${item.id}`);
+    },
+
+    // page change
+    openInvoice(item) {
+      if (item.isApprovedWarehouseOrder) {
+        this.$router.push({
+          name: "shoporderinvoice",
+          params: { order_id: item.id },
+          query: {
+            uiOnly: "true",
+            customer: item.customer,
+            date: item.order_date,
+            invoiceNumber: item.invoice_no,
+            amount: item.order_amount,
+            collectionId: item.id,
+            orderId: item.order_reference_id,
+          },
+        });
+        return;
+      }
+
+      this.$router.push(`shoporderinvoice/${item.id}`);
+    },
+
     // page change
     onPage(page) {
       this.$emit("pagechange", { page });
@@ -238,6 +269,7 @@ export default {
     // a showroom, or straight from the factory - each of the latter two can
     // also be sent through a courier
     getOrderSource(item) {
+      if (item.isApprovedWarehouseOrder) return "Direct Factory";
       if (item.reporder_id) {
         return item.salesrep?.rep_name
           ? `Sales Rep (${item.salesrep.rep_name})`

@@ -108,10 +108,10 @@ export default [
     meta: {
       authReuire: true,
       role: ["Super Admin", "Area Manager", "Distributer"],
-      pageTitle: "Shop Management",
+      pageTitle: "Customer Management",
       breadcrumb: [
         {
-          text: "Shop Management",
+          text: "Customer Management",
           active: true,
         },
       ],

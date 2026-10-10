@@ -98,9 +98,6 @@
                           position: 'no',
                         },
                       })
-                      // $router.push(
-                      //   `/sendshop/${props.item.main_order_id}/${props.item.distributer_id}/${props.item.disorder_id}/${props.item.salesrep_id}/${props.item.id}`
-                      // )
                     "
                   >
                     <img src="@/assets/images/plus.png" style="width: 70%" />
@@ -130,7 +127,7 @@
                       )
                     "
                   >
-                    <img src="@/assets/images/eye.png" style="width: 70%" />
+                    <v-icon icon="tabler-eye" color="primary" />
                   </v-btn>
                 </v-col>
                 <v-col lg="2"> </v-col>

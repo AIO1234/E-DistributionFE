@@ -9,8 +9,13 @@ declare global {
   const COOKIE_MAX_AGE_1_YEAR: typeof import('./src/utils/constants.js')['COOKIE_MAX_AGE_1_YEAR']
   const EffectScope: typeof import('vue')['EffectScope']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
+  const addCreatedOrderCollectionRows: typeof import('./src/utils/orderCollectionUiState.js')['addCreatedOrderCollectionRows']
   const alphaDashValidator: typeof import('./src/@core/utils/validators.js')['alphaDashValidator']
   const alphaValidator: typeof import('./src/@core/utils/validators.js')['alphaValidator']
+  const approveOrderCollection: typeof import('./src/utils/orderCollectionUiState.js')['approveOrderCollection']
+  const approveWarehouseOrder: typeof import('./src/utils/orderCollectionUiState.js')['approveWarehouseOrder']
+  const approvedOrderCollectionIds: typeof import('./src/utils/orderCollectionUiState.js')['approvedOrderCollectionIds']
+  const approvedWarehouseOrderIds: typeof import('./src/utils/orderCollectionUiState.js')['approvedWarehouseOrderIds']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const avatarText: typeof import('./src/@core/utils/formatters.js')['avatarText']
@@ -36,6 +41,7 @@ declare global {
   const createTemplatePromise: typeof import('@vueuse/core')['createTemplatePromise']
   const createUnrefFn: typeof import('@vueuse/core')['createUnrefFn']
   const createUrl: typeof import('./src/@core/composable/createUrl.js')['createUrl']
+  const createdOrderCollectionRows: typeof import('./src/utils/orderCollectionUiState.js')['createdOrderCollectionRows']
   const customRef: typeof import('vue')['customRef']
   const debouncedRef: typeof import('@vueuse/core')['debouncedRef']
   const debouncedWatch: typeof import('@vueuse/core')['debouncedWatch']
@@ -53,6 +59,8 @@ declare global {
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getGrnRecord: typeof import('./src/utils/grnUiState.js')['getGrnRecord']
+  const grnUiState: typeof import('./src/utils/grnUiState.js')['grnUiState']
   const h: typeof import('vue')['h']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
@@ -126,6 +134,9 @@ declare global {
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const resolveVuetifyTheme: typeof import('./src/@core/utils/vuetify.js')['resolveVuetifyTheme']
+  const sampleOrderCollectionRows: typeof import('./src/utils/orderCollectionUiState.js')['sampleOrderCollectionRows']
+  const saveGrnRecord: typeof import('./src/utils/grnUiState.js')['saveGrnRecord']
+  const selectOrderForGrn: typeof import('./src/utils/grnUiState.js')['selectOrderForGrn']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const shallowReactive: typeof import('vue')['shallowReactive']
@@ -362,8 +373,11 @@ declare module 'vue' {
     readonly COOKIE_MAX_AGE_1_YEAR: UnwrapRef<typeof import('./src/utils/constants.js')['COOKIE_MAX_AGE_1_YEAR']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly addCreatedOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['addCreatedOrderCollectionRows']>
     readonly alphaDashValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaDashValidator']>
     readonly alphaValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaValidator']>
+    readonly approveOrderCollection: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['approveOrderCollection']>
+    readonly approvedOrderCollectionIds: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['approvedOrderCollectionIds']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly avatarText: UnwrapRef<typeof import('./src/@core/utils/formatters.js')['avatarText']>
@@ -389,6 +403,7 @@ declare module 'vue' {
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
     readonly createUrl: UnwrapRef<typeof import('./src/@core/composable/createUrl.js')['createUrl']>
+    readonly createdOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['createdOrderCollectionRows']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly debouncedRef: UnwrapRef<typeof import('@vueuse/core')['debouncedRef']>
     readonly debouncedWatch: UnwrapRef<typeof import('@vueuse/core')['debouncedWatch']>
@@ -406,6 +421,8 @@ declare module 'vue' {
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getGrnRecord: UnwrapRef<typeof import('./src/utils/grnUiState.js')['getGrnRecord']>
+    readonly grnUiState: UnwrapRef<typeof import('./src/utils/grnUiState.js')['grnUiState']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
@@ -479,6 +496,9 @@ declare module 'vue' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly resolveVuetifyTheme: UnwrapRef<typeof import('./src/@core/utils/vuetify.js')['resolveVuetifyTheme']>
+    readonly sampleOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['sampleOrderCollectionRows']>
+    readonly saveGrnRecord: UnwrapRef<typeof import('./src/utils/grnUiState.js')['saveGrnRecord']>
+    readonly selectOrderForGrn: UnwrapRef<typeof import('./src/utils/grnUiState.js')['selectOrderForGrn']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
@@ -708,8 +728,11 @@ declare module '@vue/runtime-core' {
     readonly COOKIE_MAX_AGE_1_YEAR: UnwrapRef<typeof import('./src/utils/constants.js')['COOKIE_MAX_AGE_1_YEAR']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly addCreatedOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['addCreatedOrderCollectionRows']>
     readonly alphaDashValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaDashValidator']>
     readonly alphaValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaValidator']>
+    readonly approveOrderCollection: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['approveOrderCollection']>
+    readonly approvedOrderCollectionIds: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['approvedOrderCollectionIds']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly avatarText: UnwrapRef<typeof import('./src/@core/utils/formatters.js')['avatarText']>
@@ -735,6 +758,7 @@ declare module '@vue/runtime-core' {
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
     readonly createUrl: UnwrapRef<typeof import('./src/@core/composable/createUrl.js')['createUrl']>
+    readonly createdOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['createdOrderCollectionRows']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly debouncedRef: UnwrapRef<typeof import('@vueuse/core')['debouncedRef']>
     readonly debouncedWatch: UnwrapRef<typeof import('@vueuse/core')['debouncedWatch']>
@@ -752,6 +776,8 @@ declare module '@vue/runtime-core' {
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getGrnRecord: UnwrapRef<typeof import('./src/utils/grnUiState.js')['getGrnRecord']>
+    readonly grnUiState: UnwrapRef<typeof import('./src/utils/grnUiState.js')['grnUiState']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
@@ -825,6 +851,9 @@ declare module '@vue/runtime-core' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly resolveVuetifyTheme: UnwrapRef<typeof import('./src/@core/utils/vuetify.js')['resolveVuetifyTheme']>
+    readonly sampleOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['sampleOrderCollectionRows']>
+    readonly saveGrnRecord: UnwrapRef<typeof import('./src/utils/grnUiState.js')['saveGrnRecord']>
+    readonly selectOrderForGrn: UnwrapRef<typeof import('./src/utils/grnUiState.js')['selectOrderForGrn']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>

@@ -1,5 +1,22 @@
 export default [
   {
+    path: "/monthendreceive",
+    name: "monthendreceive",
+    component: () =>
+      import("@/views/ReportManagement/MonthEndReceiveReport.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin", "Admin"],
+      pageTitle: "Report",
+      breadcrumb: [
+        {
+          text: "Month End Receive",
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: "/salessummary",
     name: "salessummary",
     component: () => import("@/views/ReportManagement/SalesSummaryReport.vue"),

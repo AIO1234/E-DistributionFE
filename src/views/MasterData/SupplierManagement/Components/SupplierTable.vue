@@ -102,7 +102,7 @@
               variant="none"
               @click="$router.push(`/supply_summary/${props.item.id}`)"
             >
-              <VIcon icon="tabler-eye-filled" start size="large" />
+              <VIcon icon="tabler-eye" start size="large" color="primary" />
             </VBtn>
           </div>
           <div v-if="header.key === 'productaction'">

@@ -76,10 +76,10 @@ export default [
     meta: {
       authReuire: true,
       role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
-      pageTitle: "Shops",
+      pageTitle: "Customer Wise Sales",
       breadcrumb: [
         {
-          text: "Order Management",
+          text: "Customer Wise Sales",
           active: true,
         },
       ],
@@ -162,12 +162,12 @@ export default [
     path: "/sendshop/:main_order_id/:distributer_id/:distributer_order_id/:sales_rep_id/:reporder_id/:position",
     name: "sendshop",
     component: () =>
-      import("@/views/OrderManagement/SalesRepOrderManagement/Components/SendShop.vue"),
+      import("@/views/OrderManagement/ShopOrderManagement/Components/SendShop.vue"),
     props: true,
     meta: {
       authReuire: true,
       role: ["Super Admin", "Admin", "Staff", "Data Operator", "SalesRep", "Area Manager"],
-      pageTitle: "Shop Management",
+      pageTitle: "Customer Order Management",
       breadcrumb: [
         {
           text: "Order Management",
@@ -185,13 +185,52 @@ export default [
     meta: {
       authReuire: true,
       role: ["Super Admin"],
-      pageTitle: "Shop Management",
+      pageTitle: "Customer Order Management",
       breadcrumb: [
         {
           text: "Order Management",
           active: true,
         },
       ],
+    },
+  },
+
+  {
+    path: "/shoporder/:order_id/addgrn",
+    name: "addgrn",
+    component: () =>
+      import("@/views/OrderManagement/ShopOrderManagement/Components/AddGrn.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
+      pageTitle: "Add Good Receive Notice",
+      breadcrumb: [{ text: "Order Management", active: true }],
+    },
+  },
+
+  {
+    path: "/shoporder/:order_id/updategrn",
+    name: "updategrn",
+    component: () =>
+      import("@/views/OrderManagement/ShopOrderManagement/Components/UpdateGrn.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
+      pageTitle: "Update Good Receive Notice",
+      breadcrumb: [{ text: "Order Management", active: true }],
+    },
+  },
+
+  {
+    path: "/shoporder/:order_id/viewgrn",
+    name: "viewgrn",
+    component: () =>
+      import("@/views/OrderManagement/ShopOrderManagement/Components/ViewGrn.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin", "Admin", "Staff", "Data Operator"],
+      pageTitle: "Good Receive Notice",
+      breadcrumb: [{ text: "Order Management", active: true }],
     },
   },
 
@@ -314,7 +353,7 @@ export default [
         "SalesRep",
         "Area Manager",
       ],
-      pageTitle: "Shop Order Invoice",
+      pageTitle: "Customer Order Invoice",
       breadcrumb: [
         {
           text: "Order Management",
@@ -339,7 +378,7 @@ export default [
         "SalesRep",
         "Area Manager",
       ],
-      pageTitle: "Shop Order Delivery Note",
+      pageTitle: "Customer Order Delivery Note",
       breadcrumb: [
         {
           text: "Order Management",

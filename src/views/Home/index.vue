@@ -103,7 +103,7 @@
             <!-- shop order income overview chart -->
             <VCol lg="6" cols="12">
               <VCard class="chart1_background">
-                <span class="heading">Shop Order Income Overview</span>
+                <span class="heading">Customer Order Income Overview</span>
                 <apexchart
                   class="apex_chart"
                   type="bar"
@@ -182,7 +182,7 @@ export default {
           title: { text: "Order Amount (Rs)" },
         },
       },
-      orderamountseries: [{ name: "Shop Order Income", data: Array(12).fill(0) }],
+      orderamountseries: [{ name: "Customer Order Income", data: Array(12).fill(0) }],
     };
   },
 

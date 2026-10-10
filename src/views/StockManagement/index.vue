@@ -123,6 +123,72 @@ export default {
       show: false,
       authRole: "",
       Products: [],
+      demoProducts: [
+        {
+          id: "demo-stock-001",
+          is_demo: true,
+          product_code: "SAMPLE-001",
+          product_name: "Sample Green Tea Pack",
+          model_number: "GT-100",
+          category: { category_name: "Tea" },
+          product_cost: 750,
+          min_selling_price: 900,
+          max_selling_price: 1100,
+          stock_count: 120,
+          damaged_stock_count: 2,
+          expire_date: "2027-12-31",
+          manufacture_date: "2026-01-15",
+          last_updated_by: "Demo Data",
+        },
+        {
+          id: "demo-stock-002",
+          is_demo: true,
+          product_code: "SAMPLE-002",
+          product_name: "Sample Black Tea Pack",
+          model_number: "BT-100",
+          category: { category_name: "Tea" },
+          product_cost: 680,
+          min_selling_price: 820,
+          max_selling_price: 1000,
+          stock_count: 85,
+          damaged_stock_count: 1,
+          expire_date: "2027-11-30",
+          manufacture_date: "2026-01-10",
+          last_updated_by: "Demo Data",
+        },
+        {
+          id: "demo-stock-003",
+          is_demo: true,
+          product_code: "SAMPLE-003",
+          product_name: "Sample Coffee Pack",
+          model_number: "CF-250",
+          category: { category_name: "Coffee" },
+          product_cost: 1250,
+          min_selling_price: 1450,
+          max_selling_price: 1750,
+          stock_count: 64,
+          damaged_stock_count: 0,
+          expire_date: "2027-10-31",
+          manufacture_date: "2026-01-20",
+          last_updated_by: "Demo Data",
+        },
+        {
+          id: "demo-stock-004",
+          is_demo: true,
+          product_code: "SAMPLE-004",
+          product_name: "Sample Spice Mix",
+          model_number: "SP-050",
+          category: { category_name: "Spices" },
+          product_cost: 420,
+          min_selling_price: 520,
+          max_selling_price: 650,
+          stock_count: 150,
+          damaged_stock_count: 3,
+          expire_date: "2027-08-31",
+          manufacture_date: "2026-01-05",
+          last_updated_by: "Demo Data",
+        },
+      ],
       loading: false,
       searchdata: "",
       page: 1,
@@ -183,13 +249,22 @@ export default {
         per_page: this.itemsPerPage,
       };
       this.loading = true;
-      const res = await ProductsApi.allProducts(payload);
-      const pagination = res.data.data;
+      try {
+        const res = await ProductsApi.allProducts(payload);
+        const pagination = res.data.data;
+        const hasNoInventory = !pagination.data.length && !this.searchdata;
 
-      this.Products = pagination.data;
-      this.totalItems = pagination.total;
-      this.page = pagination.current_page;
-      this.itemsPerPage = pagination.per_page;
+        this.Products = hasNoInventory ? this.demoProducts : pagination.data;
+        this.totalItems = hasNoInventory
+          ? this.demoProducts.length
+          : pagination.total;
+        this.page = pagination.current_page;
+        this.itemsPerPage = pagination.per_page;
+      } catch {
+        this.Products = this.searchdata ? [] : this.demoProducts;
+        this.totalItems = this.Products.length;
+      }
+
       this.loading = false;
     },
 

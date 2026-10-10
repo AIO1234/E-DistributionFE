@@ -1,7 +1,7 @@
 <template>
   <div class="masterdata">
     <!-- title -->
-    <h3 class="form_title">Add Shop</h3>
+    <h3 class="form_title">Add Customer</h3>
 
     <div class="form">
       <!-- add form -->
@@ -56,32 +56,6 @@
             />
           </VCol>
 
-          <!-- Area -->
-          <VCol lg="6" cols="12">
-            <label class="label">Area *</label>
-            <div class="mt-2" />
-
-            <v-autocomplete
-              placeholder="Select Area"
-              class="input"
-              v-model="form.area"
-              item-title="area_name"
-              item-value="id"
-              :items="areas"
-              return-object=""
-            >
-              <template v-slot:item="{ props, item }">
-                <div>
-                  <v-list-item
-                    v-bind="props"
-                    :title="item.raw.area_code"
-                    :subtitle="item.raw.area_name"
-                  >
-                  </v-list-item>
-                </div>
-              </template>
-            </v-autocomplete>
-          </VCol>
         </VRow>
         <div class="pt-15" />
 

@@ -24,8 +24,7 @@
           <v-row class="pt-5">
             <v-col lg="4" class="pt-5">
               <h2 class="order_id_title">
-                {{ summary.main_order_details.order_reference_id }} - Factory
-                Order
+                {{ summary.main_order_details.order_reference_id }} - Shop Order Summary
               </h2>
             </v-col>
             <v-col lg="8" cols="12" class="text-right"> </v-col>
@@ -110,7 +109,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Number Of Shops
+                      <span class="item_header"></span>Number Of Customers
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -137,7 +136,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Total Shop Order Amount
+                      <span class="item_header"></span>Total Customer Order Amount
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -207,693 +206,6 @@
 
             <div class="pt-8"></div>
 
-            <!-- content card -->
-            <div
-              v-for="distributerorder in summary.distributer_chain"
-              :key="distributerorder"
-            >
-              <v-card class="content_card" style="min-height: 323px">
-                <div class="distributer_inner_view">
-                  <v-row>
-                    <v-col class="heading" lg="6" cols="12">
-                      <span
-                        >{{ distributerorder.distributer.distributer_name }} -
-                        ShowRoom
-                      </span>
-                    </v-col>
-
-                    <v-col lg="2" class="pt-5 text-center" cols="12"> </v-col>
-
-                    <v-col lg="1" class="pt-5" cols="12"> </v-col>
-
-                    <v-col lg="3" class="pt-5 right_align_class" cols="12">
-                      <v-btn
-                        color="primary"
-                        @click="
-                          $router.push(
-                            `/distributeorderinvoice/${distributerorder.id}`,
-                          )
-                        "
-                        ><span>View Invoice</span>
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-
-                  <div class="pt-3"></div>
-                  <div class="hrclass"></div>
-
-                  <!-- distributer product table -->
-
-                  <v-table min-height="300px">
-                    <thead>
-                      <tr>
-                        <th class="thclass">Product Code</th>
-                        <th class="thclass">Product Name</th>
-                        <th class="thclass">Qty</th>
-                        <th class="thclass">Remain Qty</th>
-                        <th class="thclass">Unit Price(Rs)</th>
-                        <th class="thclass">Value(Rs)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr
-                        v-for="distributerproduct in distributerorder.distributer_order_items"
-                        :key="distributerproduct"
-                      >
-                        <td class="tdclass">
-                          {{ distributerproduct.product_code }}
-                        </td>
-                        <td class="tdclass">
-                          {{ distributerproduct.product_name }}
-                        </td>
-
-                        <td class="tdclass">
-                          {{ distributerproduct.pivot.quantity }}
-                        </td>
-
-                        <td class="tdclass">
-                          {{ distributerproduct.pivot.uptodate_quantity }}
-                        </td>
-
-                        <td class="tdclass">
-                          {{ getPrice(distributerproduct.pivot.unit_price) }}
-                        </td>
-                        <td class="tdclass">
-                          {{ getPrice(distributerproduct.pivot.price) }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </v-table>
-
-                  <!-- sales rep card -->
-                  <div
-                    class="sales_rep_view"
-                    style="min-height: 234px"
-                    v-for="salesreporder in distributerorder.distributer_salesrep_orders"
-                    :key="salesreporder"
-                  >
-                    <v-card class="content_card" style="min-height: 250px">
-                      <div class="distributer_inner_view">
-                        <v-row>
-                          <v-col class="heading" lg="5" cols="12">
-                            <span
-                              >{{ salesreporder.salesrep.rep_name }} -
-                              SalesRep({{
-                               'Vehicle No : ' + salesreporder.vehicle.vehicle_no
-
-                              }})</span
-                            >
-                          </v-col>
-
-                          <v-col lg="3" class="pt-5 text-center" cols="12">
-                            <span class="sub_heading"
-                              >Total Order Commission -
-                              {{
-                                getPrice(salesreporder.salesrep_commision)
-                              }}</span
-                            >
-                          </v-col>
-
-                          <v-col lg="1" class="pt-5" cols="12">
-                            <v-btn
-                              color="transparent"
-                              variant="none"
-                              @click="
-                                show = true;
-                                modeltype = 'SalesRep_Commision';
-                                selectedOrderNo =
-                                  salesreporder.order_reference_id;
-                                ((selectedOrderid = salesreporder.id),
-                                  (selectedCommisionvalue =
-                                    salesreporder.salesrep_commision));
-                              "
-                            >
-                              <img
-                                src="@/assets/images/edit.png"
-                                style="width: 70%"
-                              />
-                            </v-btn>
-                          </v-col>
-
-                          <v-col
-                            lg="3"
-                            class="pt-5 right_align_class"
-                            cols="12"
-                          >
-                            <v-btn
-                              color="primary"
-                              @click="
-                                $router.push(
-                                  `/salesreporderinvoice/${salesreporder.id}`,
-                                )
-                              "
-                              ><span>View Invoice</span>
-                            </v-btn>
-                          </v-col>
-                        </v-row>
-
-                        <div class="pt-3"></div>
-                        <div class="hrclass"></div>
-
-                        <v-table
-                          min-height="300px"
-                          style="background-color: #eeeeee"
-                        >
-                          <thead>
-                            <tr>
-                              <th class="thclass">Product Code</th>
-                              <th class="thclass">Product Name</th>
-                              <th class="thclass">Qty</th>
-                              <th class="thclass">Remain Qty</th>
-                              <th class="thclass">Unit Price(Rs)</th>
-                              <th class="thclass">Value(Rs)</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr
-                              v-for="salesreporderitem in salesreporder.distributer_salesrep_order_items"
-                              :key="salesreporderitem"
-                            >
-                              <td class="tdclass">
-                                {{ salesreporderitem.product_code }}
-                              </td>
-                              <td class="tdclass">
-                                {{ salesreporderitem.product_name }}
-                              </td>
-                              <td class="tdclass">
-                                {{ salesreporderitem.pivot.quantity }}
-                              </td>
-
-                              <td class="tdclass">
-                                {{ salesreporderitem.pivot.uptodate_quantity }}
-                              </td>
-
-                              <td class="tdclass">
-                                {{
-                                  getPrice(salesreporderitem.pivot.unit_price)
-                                }}
-                              </td>
-                              <td class="tdclass">
-                                {{ getPrice(salesreporderitem.pivot.price) }}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </v-table>
-
-                        <div class="pt-4"></div>
-
-                        <!-- shop view -->
-                        <div
-                          class="shop_view"
-                          style="min-height: 274px"
-                          v-for="shoporder in salesreporder.distributer_salesrep_shop_orders"
-                          :key="shoporder"
-                        >
-                          <v-row>
-                            <v-col class="heading" lg="3" cols="12">
-                              <span
-                            >{{ shoporder.shop.shop_name }} - Shop<span
-                            >
-                              (Courier : {{
-                                shoporder.courier?.company_name ?? "N/A"
-                              }})</span
-                            ></span
-                          >
-                            </v-col>
-
-                            <v-col
-                              lg="3"
-                              class="pt-5 right_align_class"
-                              cols="12"
-                            >
-                              <span class="sub_heading"
-                                >Order Amount -
-                                {{ getPrice(shoporder.order_amount) }}</span
-                              >
-                                <span
-                                  class="sub_heading"
-                                  v-if="getReturnAmount(shoporder) > 0"
-                                  style="display: block"
-                                  >Return Amount -
-                                  {{ getPrice(getReturnAmount(shoporder)) }}</span
-                                >
-                            </v-col>
-                            <v-col
-                              lg="3"
-                              class="pt-5 right_align_class"
-                              cols="12"
-                            >
-                              <v-btn
-                                color="primary"
-                                @click="
-                                  $router.push(
-                                    `/shoporderinvoice/${shoporder.id}`,
-                                  )
-                                "
-                                ><span>View Invoice</span>
-                              </v-btn>
-                            </v-col>
-
-                            <v-col
-                              lg="3"
-                              class="pt-5 right_align_class"
-                              cols="12"
-                            >
-                              <v-btn
-                                color="primary"
-                                style="width: 100%"
-                                @click="
-                                  $router.push(
-                                    `/shoporderdeliverynote/${shoporder.id}`,
-                                  )
-                                "
-                                ><span>View Delivery Note</span>
-                              </v-btn>
-                            </v-col>
-                          </v-row>
-
-                          <div class="pt-3"></div>
-                          <div class="hrclass"></div>
-
-                          <v-table min-height="300px">
-                            <thead>
-                              <tr>
-                                <th class="thclass">Product Code</th>
-                                <th class="thclass">Product Name</th>
-                                <th class="thclass">Qty</th>
-                                <th class="thclass">Returned Qty</th>
-                                <th class="thclass">Unit Price(Rs)</th>
-                                <th class="thclass">Discount Value</th>
-                                <th class="thclass">Discounted Value</th>
-                                <th class="thclass">Value(Rs)</th>
-                              <th class="thclass">Returned Amount</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr
-                                v-for="shoporderitem in shoporder.distributer_salesrep_shop_order_items"
-                                :key="shoporderitem"
-                              >
-                                <td class="tdclass">
-                                  {{ shoporderitem.product_code }}
-                                </td>
-                                <td class="tdclass">
-                                  {{ shoporderitem.product_name }}
-                                </td>
-                                <td class="tdclass">
-                                  {{
-                                    shoporderitem.pivot.quantity -
-                                    shoporderitem.pivot.return_quantity
-                                  }}
-                                </td>
-                                <td class="tdclass">
-                                  {{ shoporderitem.pivot.return_quantity || 0 }}
-                                </td>
-
-                                <td class="tdclass">
-                                  {{ getPrice(shoporderitem.pivot.unit_price) }}
-                                </td>
-
-                                <td class="tdclass">
-                                  <span
-                                    v-if="
-                                      shoporderitem.pivot.discount_value !==
-                                      null
-                                    "
-                                  >
-                                    {{
-                                      getPrice(
-                                        shoporderitem.pivot.discount_value,
-                                      )
-                                    }}
-                                  </span>
-                                  <span v-else> N/A</span>
-                                </td>
-
-                                <td class="tdclass">
-                                  <span
-                                    v-if="
-                                      shoporderitem.pivot.discounted_price !==
-                                      null
-                                    "
-                                  >
-                                    {{
-                                      getPrice(
-                                        shoporderitem.pivot.discounted_price,
-                                      )
-                                    }}
-                                  </span>
-                                  <span v-else> N/A</span>
-                                </td>
-
-                                <td class="tdclass">
-                                  {{
-                                    getPrice(
-                                      shoporderitem.pivot.price -
-                                        shoporderitem.pivot.return_value,
-                                    )
-                                  }}
-                                </td>
-                                <td class="tdclass">
-                                  {{ getPrice(shoporderitem.pivot.return_value || 0) }}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </v-table>
-                        </div>
-                        <div class="pt-5"></div>
-                      </div>
-                    </v-card>
-                    <div class="pt-5"></div>
-                  </div>
-
-                  <!-- content card direct shop orders (sent straight from this showroom, no sales rep) -->
-                  <div v-if="distributerorder.direct_shop_orders.length !== 0">
-                    <v-card class="content_card" style="min-height: 250px">
-                      <div class="distributer_inner_view">
-                        <div class="sales_rep_view" style="min-height: 234px">
-                          <!-- shop view -->
-                          <div
-                            class="shop_view"
-                            style="min-height: 274px"
-                            v-for="shoporder in distributerorder.direct_shop_orders"
-                            :key="shoporder"
-                          >
-                            <v-row>
-                              <v-col class="heading" lg="3" cols="12">
-                                <span
-                            >{{ shoporder.shop.shop_name }} - Shop<span
-                            >
-                              (Courier : {{
-                                shoporder.courier?.company_name ?? "N/A"
-                              }})</span
-                            ></span
-                          >
-                              </v-col>
-
-                              <v-col
-                                lg="3"
-                                class="pt-5 right_align_class"
-                                cols="12"
-                              >
-                                <span class="sub_heading"
-                                  >Order Amount -
-                                  {{ getPrice(shoporder.order_amount) }}</span
-                                >
-                                  <span
-                                    class="sub_heading"
-                                    v-if="getReturnAmount(shoporder) > 0"
-                                    style="display: block"
-                                    >Return Amount -
-                                    {{ getPrice(getReturnAmount(shoporder)) }}</span
-                                  >
-                              </v-col>
-                              <v-col
-                                lg="3"
-                                class="pt-5 right_align_class"
-                                cols="12"
-                              >
-                                <v-btn
-                                  color="primary"
-                                  @click="
-                                    $router.push(
-                                      `/shoporderinvoice/${shoporder.id}`,
-                                    )
-                                  "
-                                  ><span>View Invoice</span>
-                                </v-btn>
-                              </v-col>
-
-                              <v-col
-                                lg="3"
-                                class="pt-5 right_align_class"
-                                cols="12"
-                              >
-                                <v-btn
-                                  color="primary"
-                                  style="width: 100%"
-                                  @click="
-                                    $router.push(
-                                      `/shoporderdeliverynote/${shoporder.id}`,
-                                    )
-                                  "
-                                  ><span>View Delivery Note</span>
-                                </v-btn>
-                              </v-col>
-                            </v-row>
-
-                            <div class="pt-3"></div>
-                            <div class="hrclass"></div>
-
-                            <v-table min-height="300px">
-                              <thead>
-                                <tr>
-                                  <th class="thclass">Product Code</th>
-                                  <th class="thclass">Product Name</th>
-                                  <th class="thclass">Qty</th>
-                                  <th class="thclass">Returned Qty</th>
-                                  <th class="thclass">Unit Price(Rs)</th>
-                                  <th class="thclass">Discount Value</th>
-                                  <th class="thclass">Discounted Value</th>
-                                  <th class="thclass">Value(Rs)</th>
-                                <th class="thclass">Returned Amount</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr
-                                  v-for="shoporderitem in shoporder.distributer_salesrep_shop_order_items"
-                                  :key="shoporderitem"
-                                >
-                                  <td class="tdclass">
-                                    {{ shoporderitem.product_code }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{ shoporderitem.product_name }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{
-                                      shoporderitem.pivot.quantity -
-                                      shoporderitem.pivot.return_quantity
-                                    }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{ shoporderitem.pivot.return_quantity || 0 }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{
-                                      getPrice(shoporderitem.pivot.unit_price)
-                                    }}
-                                  </td>
-
-                                  <td class="tdclass">
-                                    <span
-                                      v-if="
-                                        shoporderitem.pivot.discount_value !==
-                                        null
-                                      "
-                                    >
-                                      {{
-                                        getPrice(
-                                          shoporderitem.pivot.discount_value,
-                                        )
-                                      }}
-                                    </span>
-                                    <span v-else> N/A</span>
-                                  </td>
-
-                                  <td class="tdclass">
-                                    <span
-                                      v-if="
-                                        shoporderitem.pivot
-                                          .discounted_price !== null
-                                      "
-                                    >
-                                      {{
-                                        getPrice(
-                                          shoporderitem.pivot
-                                            .discounted_price,
-                                        )
-                                      }}
-                                    </span>
-                                    <span v-else> N/A</span>
-                                  </td>
-
-                                  <td class="tdclass">
-                                    {{
-                                      getPrice(
-                                        shoporderitem.pivot.price -
-                                          shoporderitem.pivot.return_value,
-                                      )
-                                    }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{ getPrice(shoporderitem.pivot.return_value || 0) }}
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </v-table>
-                          </div>
-                        </div>
-                      </div>
-                    </v-card>
-                    <div class="pt-5"></div>
-                  </div>
-
-                  <!-- content card sub distributer-->
-                  <div
-                    v-if="
-                      distributerorder.distributer_subdistributer_orders
-                        .length !== 0
-                    "
-                  >
-                    <div
-                      v-for="subdistributer in distributerorder.distributer_subdistributer_orders"
-                      :key="subdistributer"
-                    >
-                      <v-card class="content_card" style="min-height: 250px">
-                        <div class="distributer_inner_view">
-                          <!-- sales rep card -->
-
-                          <div class="sales_rep_view" style="min-height: 234px">
-                            <v-row>
-                              <v-col class="heading" lg="4" cols="12">
-                                <span
-                                  >{{
-                                    subdistributer.subdistributer
-                                      .subdistributer_name
-                                  }}
-                                  - Sub Distributer</span
-                                >
-                              </v-col>
-
-                              <v-col
-                                lg="4"
-                                class="pt-5 right_align_class"
-                                cols="12"
-                              >
-                                <span class="sub_heading"
-                                  >Total Order Amount -
-                                  {{
-                                    getPrice(subdistributer.order_amount)
-                                  }}</span
-                                >
-                              </v-col>
-
-                              <v-col
-                                lg="4"
-                                class="pt-5 right_align_class"
-                                cols="12"
-                              >
-                                <v-btn
-                                  color="primary"
-                                  @click="
-                                    $router.push(
-                                      `/subdistributerorderinvoice/${subdistributer.id}`,
-                                    )
-                                  "
-                                  ><span>View Invoice</span>
-                                </v-btn>
-                              </v-col>
-                            </v-row>
-
-                            <div class="pt-3"></div>
-                            <div class="hrclass"></div>
-
-                            <v-table
-                              min-height="300px"
-                              style="background-color: #eeeeee"
-                            >
-                              <thead>
-                                <tr>
-                                  <th class="thclass">Product Code</th>
-                                  <th class="thclass">Product Name</th>
-                                  <th class="thclass">Qty</th>
-                                  <th class="thclass">Unit Price(Rs)</th>
-                                  <th class="thclass">Discount Value</th>
-                                  <th class="thclass">Discounted Value</th>
-                                  <th class="thclass">Value(Rs)</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr
-                                  v-for="subdistributerorderitem in subdistributer.subdistributer_order_items"
-                                  :key="subdistributerorderitem"
-                                >
-                                  <td class="tdclass">
-                                    {{ subdistributerorderitem.product_code }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{ subdistributerorderitem.product_name }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{ subdistributerorderitem.pivot.quantity }}
-                                  </td>
-                                  <td class="tdclass">
-                                    {{
-                                      getPrice(
-                                        subdistributerorderitem.pivot
-                                          .unit_price,
-                                      )
-                                    }}
-                                  </td>
-
-                                  <td class="tdclass">
-                                    <span
-                                      v-if="
-                                        subdistributerorderitem.pivot
-                                          .discount_value !== null
-                                      "
-                                    >
-                                      {{
-                                        getPrice(
-                                          subdistributerorderitem.pivot
-                                            .discount_value,
-                                        )
-                                      }}
-                                    </span>
-                                    <span v-else> N/A</span>
-                                  </td>
-
-                                  <td class="tdclass">
-                                    <span
-                                      v-if="
-                                        subdistributerorderitem.pivot
-                                          .discounted_price !== null
-                                      "
-                                    >
-                                      {{
-                                        getPrice(
-                                          subdistributerorderitem.pivot
-                                            .discounted_price,
-                                        )
-                                      }}
-                                    </span>
-                                    <span v-else> N/A</span>
-                                  </td>
-
-                                  <td class="tdclass">
-                                    {{
-                                      getPrice(
-                                        subdistributerorderitem.pivot.price,
-                                      )
-                                    }}
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </v-table>
-                            <div class="pt-5"></div>
-                          </div>
-                        </div>
-                        <div class="pt-5"></div>
-                      </v-card>
-                      <div class="pt-5"></div>
-                    </div>
-                  </div>
-                </div>
-              </v-card>
-              <div class="pt-5"></div>
-            </div>
-
             <!-- content card direct shop orders (sent straight from the factory, no showroom or sales rep) -->
             <div v-if="summary.direct_factory_shop_chain.length !== 0">
               <v-card class="content_card" style="min-height: 250px">
@@ -909,7 +221,7 @@
                       <v-row>
                         <v-col class="heading" lg="3" cols="12">
                           <span
-                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >{{ shoporder.shop.shop_name }} - Customer<span
                             >
                               (Courier : {{
                                 shoporder.courier?.company_name ?? "N/A"
@@ -1142,7 +454,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Number Of Shops
+                      <span class="item_header"></span>Number Of Customers
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -1155,7 +467,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Total Shop Order Amount
+                      <span class="item_header"></span>Total Customer Order Amount
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -1306,7 +618,7 @@
                       <v-row>
                         <v-col class="heading" lg="3" cols="12">
                           <span
-                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >{{ shoporder.shop.shop_name }} - Customer<span
                             >
                               (Courier : {{
                                 shoporder.courier?.company_name ?? "N/A"
@@ -1457,7 +769,7 @@
                       <v-row>
                         <v-col class="heading" lg="3" cols="12">
                           <span
-                            >{{ shoporder.shop.shop_name }} - Shop<span
+                            >{{ shoporder.shop.shop_name }} - Customer<span
                             >
                               (Courier : {{
                                 shoporder.courier?.company_name ?? "N/A"
@@ -1808,7 +1120,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Number Of Shops
+                      <span class="item_header"></span>Number Of Customers
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -1835,7 +1147,7 @@
                 <v-col lg="6" cols="12">
                   <v-row>
                     <v-col lg="5">
-                      <span class="item_header"></span>Total Shop Order Amount
+                      <span class="item_header"></span>Total Customer Order Amount
                     </v-col>
                     <v-col lg="7">
                       <span class="item_text">{{
@@ -1905,7 +1217,7 @@
                     <v-row>
                       <v-col class="heading" lg="3" cols="12">
                         <span
-                          >{{ shoporder.shop.shop_name }} - Shop<span
+                          >{{ shoporder.shop.shop_name }} - Customer<span
                           >
                             (Courier : {{
                               shoporder.courier?.company_name ?? "N/A"

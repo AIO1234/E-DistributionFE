@@ -4,9 +4,9 @@
     <v-row>
       <!-- select shop -->
       <v-col lg="6">
-        <label class="label">Select Shop</label>
+        <label class="label">Select Customer</label>
         <v-autocomplete
-          placeholder="Select Shop"
+          placeholder="Select Customer"
           v-model="shop"
           :items="shops"
           :loading="shopsLoading"
@@ -52,7 +52,7 @@
         <span class="text"
           >Due Balance
           <span
-            >For <b>{{ shop.shop_name }}</b></span
+            >For Customer <b>{{ shop.shop_name }}</b></span
           >
           :
           <b class="amount">{{
@@ -67,7 +67,7 @@
         <span class="text"
           >Paid Balance
           <span
-            >From <b>{{ shop.shop_name }}</b></span
+            >From Customer <b>{{ shop.shop_name }}</b></span
           >
           :
           <b class="amount">{{
@@ -78,7 +78,7 @@
     </div>
 
     <!-- header searches -->
-    <div class="pt-15" v-if="shop !== 'Select Shop'">
+    <div class="pt-15" v-if="shop !== 'Select Customer'">
       <v-row>
         <!-- search order number -->
         <v-col lg="3" cols="12">

@@ -17,6 +17,14 @@
             <v-icon icon="tabler-chevron-left" class="text"></v-icon>
             <span class="text pl-2">Back</span></v-btn
           >
+          <v-alert
+            v-if="isPreviewInvoice"
+            type="info"
+            variant="tonal"
+            class="mt-4"
+          >
+            Sample invoice preview. Data is not saved.
+          </v-alert>
           <!-- download -->
           <v-row class="pt-5 shop_invoice">
             <v-col lg="4" class="pt-5"> </v-col>
@@ -25,7 +33,7 @@
                 class="download_invoice"
                 variant="none"
                 @click="generateInvoicePdf()"
-                ><span class="text">Download Invoice</span></v-btn
+                ><span class="text">Download and Print</span></v-btn
               >
             </v-col>
           </v-row>
@@ -189,11 +197,13 @@
 </template>
 <script>
 import ShopOrderApi from "@/Api/Modules/shop";
+import { approveOrderCollection } from "@/utils/orderCollectionUiState";
 import html2pdf from "html2pdf.js";
 export default {
   data() {
     return {
       loading: false,
+      isPreviewInvoice: false,
       generatedOn: "",
       summary: {
         main_order_details: {},
@@ -219,9 +229,50 @@ export default {
 
   async created() {
     this.generatedOn = new Date().toLocaleString();
-    await this.orderSummary();
+    if (this.$route.query.uiOnly === "true") {
+      this.loadPreviewInvoice();
+    } else {
+      await this.orderSummary();
+    }
   },
   methods: {
+    loadPreviewInvoice() {
+      this.isPreviewInvoice = true;
+      const query = this.$route.query;
+      const amount = Number(query.amount) || 0;
+
+      this.summary.main_order_details = {
+        order_date: query.date || "",
+        delivery_note_no: "PREVIEW-DELIVERY",
+        invoice_no: query.invoiceNumber || "",
+        order_amount: amount,
+        distributer_salesrep_shop_order_items: [
+          {
+            model_number: "SAMPLE-001",
+            product_code: "SAMPLE-001",
+            product_name: "Sample Product",
+            pivot: {
+              quantity: 1,
+              return_quantity: 0,
+              discounted_price: amount,
+              unit_price: amount,
+              price: amount,
+              return_value: 0,
+            },
+          },
+        ],
+      };
+      this.summary.shop = {
+        shop_code: "PREVIEW",
+        shop_name: query.customer || "Sample Customer",
+        shop_mobile: "",
+        shop_address: "",
+        area_code: "",
+        area: { area_name: "" },
+        Uptodate_due_amounts: amount,
+      };
+    },
+
     // order summary
     async orderSummary() {
       this.loading = true;
@@ -249,11 +300,17 @@ export default {
     generateInvoicePdf() {
       const element = this.$refs.pdfContent; // Reference the content to convert
 
+      if (this.isPreviewInvoice) {
+        approveOrderCollection(
+          this.$route.query.orderId || this.$route.query.collectionId,
+        );
+      }
+
       // Set PDF options (optional)
       const options = {
         margin: 0,
         filename:
-          `Shopinvoice` +
+          `CustomerInvoice` +
           ` - ` +
           this.summary.main_order_details.invoice_no +
           `.pdf`,

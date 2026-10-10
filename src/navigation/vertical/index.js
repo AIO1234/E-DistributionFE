@@ -14,7 +14,7 @@ export default [
   },
 
   {
-    title: "Order management",
+    title: "Warehouse management",
     icon: { icon: "tabler-gift" },
     role: [
       "Super Admin",
@@ -26,31 +26,24 @@ export default [
     ],
     children: [
       {
-        title: "WearHouse Orders",
+        title: "Warehouse Orders",
         to: { name: "factoryorder" },
         icon: { icon: "tabler-building-factory" },
         role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       },
 
       {
-        title: "ShowRoom Orders",
-        to: { name: "distributororder" },
-        icon: { icon: "tabler-user-share" },
-        role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
+        title: "Warehouse Stock",
+        to: { name: "allproducts" },
+        icon: { icon: "tabler-stack-3" },
+        role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       },
 
       {
-        title: "SalesRep Orders",
-        to: { name: "salesreporder" },
-        icon: { icon: "tabler-user-share" },
-        role: ["Super Admin", "Admin", "Staff", "Data Operator", "SalesRep", "Area Manager"],
-      },
-
-      {
-        title: "Shop Orders",
-        to: { name: "shoporder" },
-        icon: { icon: "tabler-user-share" },
-        role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
+        title: "Order Collection",
+        to: { name: "ordercollection" },
+        icon: { icon: "tabler-clipboard-list" },
+        role: ["Super Admin", "Admin", "Staff", "Data Operator"],
       },
 
       // {
@@ -61,14 +54,7 @@ export default [
     ],
   },
   {
-    title: "Stock management",
-    to: { name: "allproducts" },
-    icon: { icon: "tabler-stack-3" },
-    role: ["Super Admin", "Admin", "Staff", "Data Operator"],
-  },
-
-  {
-    title: "Supplier Management",
+    title: "Supplier CRM",
     to: { name: "suppliers" },
     icon: { icon: "tabler-truck-delivery" },
     role: ["Super Admin", "Data Operator", "Area Manager", "Distributer"],
@@ -106,7 +92,7 @@ export default [
   },
 
   {
-    title: "Return management",
+    title: "Customer Returns",
     to: { name: "returns" },
     icon: { icon: "tabler-credit-card-refund" },
     role: ["Super Admin", "Admin", "Area Manager", "Distributer"],
@@ -117,38 +103,35 @@ export default [
     icon: { icon: "tabler-database-share" },
     role: ["Super Admin", "Area Manager", "Distributer"],
     children: [
-      {
-        title: "Areas",
-        to: { name: "allareas" },
-        role: ["Super Admin"],
-      },
+      // Hidden from the Master Data navigation; routes and features remain available.
+      // {
+      //   title: "Areas",
+      //   to: { name: "allareas" },
+      //   role: ["Super Admin"],
+      // },
+      // {
+      //   title: "Transports",
+      //   to: { name: "allcouriers" },
+      //   role: ["Super Admin"],
+      // },
+      // {
+      //   title: "Vehicles",
+      //   to: { name: "allvechicles" },
+      //   role: ["Super Admin"],
+      // },
+      // {
+      //   title: "ShowRooms/Distributors",
+      //   to: { name: "alldistributers" },
+      //   role: ["Super Admin", "Area Manager"],
+      // },
+      // {
+      //   title: "SalesReps",
+      //   to: { name: "allsalesreps" },
+      //   role: ["Super Admin", "Area Manager", "Distributer"],
+      // },
 
       {
-        title: "Transports",
-        to: { name: "allcouriers" },
-        role: ["Super Admin"],
-      },
-
-      {
-        title: "Vehicles",
-        to: { name: "allvechicles" },
-        role: ["Super Admin"],
-      },
-
-      {
-        title: "ShowRooms/Distributors",
-        to: { name: "alldistributers" },
-        role: ["Super Admin", "Area Manager"],
-      },
-
-      {
-        title: "SalesReps",
-        to: { name: "allsalesreps" },
-        role: ["Super Admin", "Area Manager", "Distributer"],
-      },
-
-      {
-        title: "Shops",
+        title: "Customers",
         to: { name: "allshops" },
         role: ["Super Admin", "Area Manager", "Distributer"],
       },
@@ -165,8 +148,19 @@ export default [
   {
     title: "Reports",
     icon: { icon: "tabler-credit-card-refund" },
-    role: ["Super Admin", "Admin"],
+    role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
     children: [
+      {
+        title: "Customer Wise Sales",
+        to: { name: "shoporder" },
+        icon: { icon: "tabler-user-share" },
+        role: ["Super Admin", "Admin", "Staff", "Data Operator", "Distributer", "Area Manager"],
+      },
+      {
+        title: "Month End Receive",
+        to: { name: "monthendreceive" },
+        role: ["Super Admin", "Admin"],
+      },
       {
         title: "Sales Detailed Report",
         to: { name: "salesdetailed" },

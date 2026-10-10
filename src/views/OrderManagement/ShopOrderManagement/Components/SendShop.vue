@@ -25,10 +25,10 @@
               <v-row>
                 <!-- shop -->
                 <v-col lg="4" cols="12">
-                  <label class="label">Shop *</label>
+                  <label class="label">Customer *</label>
                   <div class="pt-2"></div>
                   <v-autocomplete
-                    placeholder="Select shop"
+                    placeholder="Select customer"
                     :rules="[required]"
                     class="select_shop"
                     v-model="selectedshop.shop_id"
@@ -106,7 +106,7 @@
                   <div class="pt-2"></div>
                   <AppDateTimePicker
                     :rules="[required]"
-                    placeholder="shop Order Date"
+                    placeholder="Customer Order Date"
                     class="send_date"
                     v-model="selectedshop.order_date"
                     :config="{ minDate: minSelectableDate }"
@@ -161,9 +161,15 @@
                     class="select_product"
                     return-object
                     :items="products"
+                    :loading="productsLoading"
                     no-filter
                     item-title="product_name"
-                    item-value="product_id"
+                    :item-value="
+                      position === 'directfromfactory' &&
+                      $route.params.main_order_id === 'no'
+                        ? 'id'
+                        : 'product_id'
+                    "
                     @update:model-value="
                       ExistsProduct(
                         shopindex,
@@ -171,6 +177,7 @@
                         orderproduct.product,
                       )
                     "
+                    @update:search="onProductSearch"
                   >
                     <template v-slot:item="{ props, item }">
                       <div>
@@ -181,7 +188,7 @@
                         >
                           <span
                             style="font-size: 13px"
-                            v-if="item.raw.uptodate_quantity !== null"
+                            v-if="stockQuantity(item.raw) != null"
                             >Balance Stock:
                             {{ balanceStock(item.raw) }}</span
                           >
@@ -300,7 +307,7 @@
                       class="delete_shop"
                       variant="none"
                       @click="removeshop(shopindex)"
-                      ><span class="text">Delete shop</span></v-btn
+                      ><span class="text">Delete customer</span></v-btn
                     >
                   </div>
                 </v-col>
@@ -312,7 +319,7 @@
         <!-- add button -->
         <div class="pt-6 text-right">
           <v-btn class="add_shop" variant="none" @click="repeatshop()"
-            ><span class="text">Add shop</span></v-btn
+            ><span class="text">Add customer</span></v-btn
           >
         </div>
 
@@ -332,6 +339,7 @@
       <!-- shown before the order is actually submitted -->
       <OrderSummaryConfirmDialog
         v-model="showSubmitSummary"
+        entity-label="Customer"
         :shop-summaries="submitSummaries"
         :courier-summaries="courierSummaries"
         :loading="loading"
@@ -342,11 +350,13 @@
 </template>
 <script>
 import DistributerApi from "@/Api/Modules/distributer";
+import ProductApi from "@/Api/Modules/products";
 import SalesRepApi from "@/Api/Modules/salesrep";
 import shopApi from "@/Api/Modules/shop";
 import commonmixins from "@/mixins/commonmixins";
 import { toast } from "@/ApiConstance/toast";
 import OrderSummaryConfirmDialog from "@/components/OrderSummaryConfirmDialog.vue";
+import { addCreatedOrderCollectionRows } from "@/utils/orderCollectionUiState";
 export default {
   components: {
     OrderSummaryConfirmDialog,
@@ -363,6 +373,7 @@ export default {
       shops: [],
       shopsLoading: false,
       products: [],
+      productsLoading: false,
       showSubmitSummary: false,
       // numeric part of the last invoice number proposed to the user -
       // repeatshop() increments this locally so each added shop order gets
@@ -476,6 +487,10 @@ export default {
         (searchdata) => this.AllShops(searchdata),
         400,
       );
+      this.debouncedProductSearch = this.debounce(
+        (searchdata) => this.DeliveredShopProducts(searchdata),
+        400,
+      );
 
       await this.getCouriers();
       await this.AllShops();
@@ -561,7 +576,7 @@ export default {
       });
 
       if (this.shoporders[index - 1] && result.length > 1) {
-        toast("Shop Already Selected Before", "error", 20000);
+        toast("Customer Already Selected Before", "error", 20000);
         this.shoporders[index].shop_id = "";
       } else if (!this.shoporders[index].delivery_note_no) {
         // only propose a new delivery note number the first time this row
@@ -591,7 +606,7 @@ export default {
     },
 
     // get sent products from the factory for the shop
-    async DeliveredShopProducts() {
+    async DeliveredShopProducts(searchdata = "") {
       // if sending from showroom
       if (
         this.$route.params.position == "directfromshowroom" ||
@@ -607,6 +622,18 @@ export default {
       }
       // if sending from factory
       else if (this.$route.params.position == "directfromfactory") {
+        if (this.$route.params.main_order_id == "no") {
+          this.productsLoading = true;
+          const res = await ProductApi.allProducts({
+            searchdata,
+            page: 1,
+            per_page: 40,
+          });
+          this.products = res.data.data.data;
+          this.productsLoading = false;
+          return;
+        }
+
         const payload = {
           order_id: this.$route.params.main_order_id,
         };
@@ -626,23 +653,56 @@ export default {
       }
     },
 
+    onProductSearch(searchdata) {
+      if (
+        this.$route.params.position === "directfromfactory" &&
+        this.$route.params.main_order_id === "no"
+      ) {
+        const isEchoOfSelection = this.shoporders.some((shop) =>
+          shop.orderproducts.some(
+            (orderproduct) =>
+              orderproduct.product &&
+              searchdata === orderproduct.product.product_code,
+          ),
+        );
+        this.debouncedProductSearch(isEchoOfSelection ? "" : searchdata);
+      }
+    },
+
+    getProductId(product) {
+      if (!product) return null;
+      return this.$route.params.position === "directfromfactory" &&
+        this.$route.params.main_order_id === "no"
+        ? product.id
+        : product.product_id;
+    },
+
+    stockQuantity(product) {
+      if (!product) return null;
+      return this.$route.params.position === "directfromfactory" &&
+        this.$route.params.main_order_id === "no"
+        ? product.stock_count
+        : product.uptodate_quantity;
+    },
+
     // live remaining stock for a product = its API balance minus every
     // quantity already entered for that same product anywhere in this form
     // (across all shop rows / item rows), so picking the same product for a
     // later shop shows what's actually left, not the original balance
     balanceStock(product) {
-      if (!product || product.uptodate_quantity == null) return null;
+      const available = this.stockQuantity(product);
+      if (!product || available == null) return null;
 
       let allocated = 0;
       this.shoporders.forEach((shop) => {
         shop.orderproducts.forEach((op) => {
-          if (op.product && op.product.product_id === product.product_id) {
+          if (op.product && this.getProductId(op.product) === this.getProductId(product)) {
             allocated += Number(op.quantity) || 0;
           }
         });
       });
 
-      return product.uptodate_quantity - allocated;
+      return available - allocated;
     },
 
     // check quantity is available
@@ -652,13 +712,13 @@ export default {
       // get full count of privious added produt quantities where this product equal
       this.shoporders.forEach((val) => {
         val.orderproducts.forEach((val1) => {
-          if (val1.product.product_id === product.product_id) {
+          if (val1.product && this.getProductId(val1.product) === this.getProductId(product)) {
             count = count + Number(val1.quantity);
           }
         });
       });
 
-      if (count > product.uptodate_quantity) {
+      if (count > this.stockQuantity(product)) {
         // if full count of privious added produt exceded the product stock
 
         toast("Entered Quantity Exceeded The Product Stock", "error", 20000);
@@ -705,7 +765,11 @@ export default {
     // field, sourced from the same product relation changeUnitPrice
     // validates against
     sellingPriceRange(product) {
-      const rangeProduct = product && product.product;
+      const rangeProduct =
+        this.$route.params.position === "directfromfactory" &&
+        this.$route.params.main_order_id === "no"
+          ? product
+          : product && product.product;
 
       if (
         !rangeProduct ||
@@ -727,7 +791,12 @@ export default {
       enteredquantity,
     ) {
       // if unit price  in suggested range
-      if (enteredunitprice >= product.product.min_selling_price) {
+      const priceProduct =
+        this.$route.params.position === "directfromfactory" &&
+        this.$route.params.main_order_id === "no"
+          ? product
+          : product.product;
+      if (enteredunitprice >= priceProduct.min_selling_price) {
         this.shoporders[shopindex].orderproducts[productindex].amount =
           this.calculateAmount(
             shopindex,
@@ -746,14 +815,14 @@ export default {
     ExistsProduct(shopindex, productindex, sendproduct) {
       // get previously added product exactly same like this
       const result = this.shoporders[shopindex].orderproducts.filter((val) => {
-        return val.product.product_id === sendproduct.product_id;
+        return this.getProductId(val.product) === this.getProductId(sendproduct);
       });
 
       if (
         this.shoporders[shopindex].orderproducts[productindex - 1] &&
         result.length > 1
       ) {
-        toast("Product Already Selected Before By This Shop", "error", 20000);
+        toast("Product Already Selected Before By This Customer", "error", 20000);
         this.shoporders[shopindex].orderproducts[productindex].product = "";
       }
     },
@@ -860,6 +929,53 @@ export default {
       await shopApi
         .storeShopOrder(this.form)
         .then(() => {
+          if (
+            this.$route.params.position === "directfromfactory" &&
+            this.$route.params.main_order_id === "no"
+          ) {
+            const createdAt = Date.now();
+            const rows = this.shoporders.map((shoporder, index) => {
+              const shop = this.shops.find(
+                (item) => item.id === shoporder.shop_id,
+              );
+              const amount = shoporder.orderproducts.reduce(
+                (total, product) => total + (Number(product.amount) || 0),
+                0,
+              );
+              const uniqueId = `${createdAt}-${index}`;
+
+              return {
+                id: `collection-${uniqueId}`,
+                shopOrderId: `ui-${uniqueId}`,
+                shop_id: shoporder.shop_id,
+                customer: shop?.shop_name || "Customer",
+                date:
+                  shoporder.order_date ||
+                  new Date().toISOString().slice(0, 10),
+                delivery_note_no: shoporder.delivery_note_no || "",
+                amount,
+                invoice_no: shoporder.invoice_no || "—",
+                order_reference_id: `ORD-UI-${uniqueId}`,
+                status: "Pending Approval",
+                last_updated_by: "Admin",
+                order_products: shoporder.orderproducts
+                  .filter((product) => product.product)
+                  .map((product) => ({
+                    product_code: product.product.product_code,
+                    product_name: product.product.product_name,
+                    amount: Number(product.amount) || 0,
+                    pivot: {
+                      quantity: Number(product.quantity) || 0,
+                      unit_price: Number(product.unit_price) || 0,
+                      price: Number(product.amount) || 0,
+                    },
+                  })),
+                isCollectionItem: true,
+              };
+            });
+
+            addCreatedOrderCollectionRows(rows);
+          }
           this.loading = false;
           this.$router.push({ name: "shoporder" });
         })

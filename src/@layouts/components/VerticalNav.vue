@@ -150,37 +150,28 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered);
 <script>
 import { store } from "@/store";
 export default {
-  data() {
-    return {
-      nevItemsArray: [],
-    };
-  },
-
   computed: {
     menuItems() {
-      const { isLogedIn } = store.getters;
-      const { getRole } = store.getters;
-      // loop all roles
-      this.navItems.forEach((value) => {
-        // check the role is available in the authenticated user
-        if (isLogedIn && value.role.includes(getRole) === true) {
-          // if the roles has childrens
-          if (value.children) {
-            const childrenarray = [];
-            // loop all children
-            value.children.forEach((value1) => {
-              // add only children to before array ,  that available in the authenticated user
-              if (value1.role.includes(getRole) === true) {
-                childrenarray.push(value1);
-              }
-            });
-            value.children = childrenarray;
-          }
+      const { isLogedIn, getRole } = store.getters;
 
-          this.nevItemsArray.push(value);
+      if (!isLogedIn) return [];
+
+      return this.navItems.reduce((visibleItems, item) => {
+        if (!item.role?.includes(getRole)) return visibleItems;
+
+        const visibleItem = { ...item };
+
+        if (item.children) {
+          visibleItem.children = item.children.filter((child) =>
+            child.role?.includes(getRole)
+          );
+
+          if (!visibleItem.children.length) return visibleItems;
         }
-      });
-      return this.nevItemsArray;
+
+        visibleItems.push(visibleItem);
+        return visibleItems;
+      }, []);
     },
   },
 };

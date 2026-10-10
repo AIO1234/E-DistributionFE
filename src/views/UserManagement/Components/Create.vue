@@ -82,15 +82,12 @@
               :type="showPassword ? 'password' : 'text'"
             >
               <template #append-inner>
-                <img
+                <v-icon
+                  icon="tabler-eye"
+                  color="primary"
                   @click="showPassword = !showPassword"
-                  src="@/assets/images/eye.png"
-                  style="
-                    width: 20px;
-                    height: 20px;
-                    object-fit: contain;
-                    cursor: pointer;
-                  "
+                  class="cursor-pointer"
+                  aria-label="Toggle password visibility"
                 />
               </template>
             </v-text-field>
@@ -109,15 +106,12 @@
               :type="showConfirmPassword ? 'password' : 'text'"
             >
               <template #append-inner>
-                <img
+                <v-icon
+                  icon="tabler-eye"
+                  color="primary"
                   @click="showConfirmPassword = !showConfirmPassword"
-                  src="@/assets/images/eye.png"
-                  style="
-                    width: 20px;
-                    height: 20px;
-                    object-fit: contain;
-                    cursor: pointer;
-                  "
+                  class="cursor-pointer"
+                  aria-label="Toggle confirm password visibility"
                 />
               </template>
             </v-text-field>

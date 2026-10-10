@@ -12,7 +12,7 @@
             <!-- basic details -->
             <v-row>
               <v-col lg="8" class="pt-5" cols="12">
-                <h2 class="heading">Update Payment For {{ shop.shop_name }}</h2>
+                <h2 class="heading">Update Payment For Customer {{ shop.shop_name }}</h2>
               </v-col>
               <v-col lg="4" cols="12"> </v-col>
             </v-row>
@@ -111,7 +111,7 @@
             <hr />
             <!-- order details -->
             <div class="pt-7"></div>
-            <h2 class="heading">Shop Orders</h2>
+            <h2 class="heading">Customer Orders</h2>
             <div class="pt-7"></div>
             <v-row v-for="(order, index) in orders" :key="order">
               <!-- select order -->
@@ -352,7 +352,7 @@ export default {
 
         if (generalCount > Number(this.shopDuePayments || 0)) {
           toast(
-            "You Have Entered Larger Amount Than The Shop's Due Balance Of Rs." +
+            "You Have Entered Larger Amount Than The Customer's Due Balance Of Rs." +
               this.shopDuePayments,
             "error",
             30000

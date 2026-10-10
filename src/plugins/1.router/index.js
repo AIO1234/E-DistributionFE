@@ -2,6 +2,7 @@ import { setupLayouts } from "virtual:generated-layouts";
 import { createRouter, createWebHistory } from "vue-router/auto";
 import home_routes from "@/routes/home_routes";
 import order_routes from "@/routes/order_management";
+import order_collection_routes from "@/routes/order_collection";
 import payments_routes from "@/routes/payment_management";
 import return_routes from "@/routes/return_management";
 import masterdata_routes from "@/routes/masterdata_route";
@@ -28,6 +29,7 @@ const routes = [
   ...home_routes,
   ...masterdata_routes,
   ...order_routes,
+  ...order_collection_routes,
   ...payments_routes,
   ...return_routes,
   ...auth_routes,

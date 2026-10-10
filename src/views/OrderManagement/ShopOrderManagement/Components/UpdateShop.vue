@@ -21,9 +21,13 @@
               >
             </v-col>
             <v-col lg="8" cols="12" class="pt-5">
-              <h2 class="title">Update Shop Order</h2>
+              <h2 class="title">Update Customer Order</h2>
             </v-col>
           </v-row>
+
+          <v-alert v-if="isCollectionPreview" type="info" variant="tonal" class="mt-4">
+            Sample order preview. Changes are not saved.
+          </v-alert>
 
           <!-- form content -->
           <v-form v-model="isFormValid">
@@ -33,7 +37,7 @@
                   <v-row>
                     <!-- shop - fixed at creation, cannot change on update -->
                     <v-col lg="4" cols="12">
-                      <label class="label">Shop</label>
+                      <label class="label">Customer</label>
                       <div class="pt-2"></div>
                       <v-text-field
                         readonly
@@ -53,7 +57,7 @@
                       <div class="pt-2"></div>
                       <AppDateTimePicker
                         :rules="[required]"
-                        placeholder="shop Order Date"
+                        placeholder="Customer Order Date"
                         class="send_date"
                         v-model="order.order_date"
                       >
@@ -253,9 +257,6 @@
   </div>
 </template>
 <script>
-import DistributerApi from "@/Api/Modules/distributer";
-import SalesRepApi from "@/Api/Modules/salesrep";
-import shopApi from "@/Api/Modules/shop";
 import { toast } from "@/ApiConstance/toast";
 
 export default {
@@ -265,6 +266,7 @@ export default {
       authRole: "",
       loading: false,
       pageLoad: false,
+      isCollectionPreview: false,
       shop: null,
       hasCourier: false,
       courierName: "",
@@ -306,77 +308,49 @@ export default {
     async initializeData() {
       this.pageLoad = true;
 
-      const payload = { shop_order_id: this.$route.params.shop_order_id };
-      const res = await shopApi.GetShopOrderForUpdate(payload);
-      const orderData = res.data.data;
-
-      this.shop = orderData.shop;
-      this.reporder_id = orderData.reporder_id;
-      this.disorder_id = orderData.disorder_id;
-      this.main_order_id = orderData.main_order_id;
-
-      this.hasCourier = orderData.courier_id !== null;
-      this.courierName = orderData.courier ? orderData.courier.company_name : "";
-
-      this.order.order_date = orderData.order_date;
-      this.order.delivery_note_no = orderData.delivery_note_no;
-      this.order.invoice_no = orderData.invoice_no;
-      this.order.order_reference_id = orderData.order_reference_id;
-      this.order.cartons_unit_price = orderData.cartons_unit_price;
-      this.order.cartons_quantity = orderData.cartons_quantity;
-
-      // get the branch-appropriate available products list before mapping
-      // this order's own products, so quantity/stock validation has
-      // something to compare against right away
-      await this.getAvailableProducts();
-
-      const items = [];
-
-      orderData.distributer_salesrep_shop_order_items.forEach((val) => {
-        const obj = this.products.find((value) => value.product_id === val.id);
-
-        items.push({
-          product: obj,
-          quantity: val.pivot.quantity,
-          unitprice: val.pivot.unit_price,
-          discount_value: val.pivot.discount_value,
-          amount: val.pivot.price,
-        });
-      });
-
-      this.order.orderproducts = items;
-
-      // accumulate this order's original per-product quantities for the
-      // stock-ceiling restore below
-      items.forEach((item) => {
-        if (!item.product) return;
-        const productId = item.product.product_id;
-        this.originalReservedByProduct[productId] =
-          (this.originalReservedByProduct[productId] || 0) +
-          Number(item.quantity);
-      });
-
+      this.initializeCollectionPreview();
       this.pageLoad = false;
     },
 
-    // get sent products from whichever stage this order originated from
-    async getAvailableProducts() {
-      if (this.reporder_id) {
-        const res = await shopApi.SendProductsForShops({
-          salesrep_order_id: this.reporder_id,
-        });
-        this.products = res.data.data;
-      } else if (this.disorder_id) {
-        const res = await SalesRepApi.SendProductsForsalesreps({
-          distributer_order_id: this.disorder_id,
-        });
-        this.products = res.data.data;
-      } else {
-        const res = await DistributerApi.SendProductsForDistributers({
-          order_id: this.main_order_id,
-        });
-        this.products = res.data.data;
-      }
+    initializeCollectionPreview() {
+      this.isCollectionPreview = true;
+
+      const query = this.$route.query;
+      const price = Number(query.amount) || 0;
+      const product = {
+        product_id: 1,
+        product_code: "SAMPLE-001",
+        product_name: "Sample Product",
+        model_number: "Preview item",
+        unit_price: price,
+        uptodate_quantity: 10,
+        min_selling_price: price,
+        max_selling_price: price,
+        product: {
+          min_selling_price: price,
+          max_selling_price: price,
+        },
+      };
+
+      this.shop = { id: 1, shop_name: query.customer || "Sample Customer" };
+      this.products = [product];
+      this.order = {
+        order_date: query.date || "",
+        delivery_note_no: "PREVIEW-DELIVERY",
+        invoice_no: query.invoiceNumber || "",
+        order_reference_id: query.orderId || "",
+        cartons_unit_price: "",
+        cartons_quantity: "",
+        orderproducts: [
+          {
+            product,
+            quantity: 1,
+            unitprice: price,
+            discount_value: 0,
+            amount: price,
+          },
+        ],
+      };
     },
 
     // check quantity is available
@@ -492,28 +466,7 @@ export default {
 
     // submit updated shop order
     async updateOrder() {
-      this.loading = true;
-
-      const payload = {
-        shop_order_id: this.$route.params.shop_order_id,
-        order_date: this.order.order_date,
-        delivery_note_no: this.order.delivery_note_no,
-        invoice_no: this.order.invoice_no,
-        order_reference_id: this.order.order_reference_id,
-        cartons_unit_price: this.order.cartons_unit_price,
-        cartons_quantity: this.order.cartons_quantity,
-        orderproducts: this.order.orderproducts,
-      };
-
-      await shopApi
-        .UpdateShopOrder(payload)
-        .then(() => {
-          this.loading = false;
-          this.$router.push({ name: "shoporder" });
-        })
-        .catch(() => {
-          this.loading = false;
-        });
+      toast("Shop order updates are preview only; changes are not saved.", "info", 5000);
     },
   },
 };

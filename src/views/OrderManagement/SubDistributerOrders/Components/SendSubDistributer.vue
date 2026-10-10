@@ -25,7 +25,7 @@
             <v-row>
               <v-col lg="4" cols="12">
                 <v-autocomplete
-                  placeholder="Select shop"
+                  placeholder="Select customer"
                   :rules="[required]"
                   class="select_shop"
                   v-model="selectedshop.shop_id"
@@ -53,7 +53,7 @@
               <v-col lg="4" cols="12">
                 <AppDateTimePicker
                   :rules="[required]"
-                  placeholder="shop Order Date"
+                  placeholder="Customer Order Date"
                   class="send_date"
                   v-model="selectedshop.order_date"
                 >
@@ -192,7 +192,7 @@
                     class="delete_shop"
                     variant="none"
                     @click="removeshop(shopindex)"
-                    ><span class="text">Delete shop</span></v-btn
+                    ><span class="text">Delete customer</span></v-btn
                   >
                 </div>
               </v-col>
@@ -204,7 +204,7 @@
       <!-- add button -->
       <div class="pt-6 text-right">
         <v-btn class="add_shop" variant="none" @click="repeatshop()"
-          ><span class="text">Add shop</span></v-btn
+          ><span class="text">Add customer</span></v-btn
         >
       </div>
 
@@ -287,7 +287,7 @@ export default {
       });
 
       if (this.shoporders[index - 1] && result.length > 1) {
-        toast("Shop Already Selected Before", "error", 20000);
+        toast("Customer Already Selected Before", "error", 20000);
         this.shoporders[index].shop_id = "";
       } else {
         // autogenarate ids
@@ -344,7 +344,7 @@ export default {
         this.shoporders[shopindex].orderproducts[productindex - 1] &&
         result.length > 1
       ) {
-        toast("Product Already Selected Before By This Shop", "error", 20000);
+        toast("Product Already Selected Before By This Customer", "error", 20000);
         this.shoporders[shopindex].orderproducts[productindex].product = "";
       }
     },

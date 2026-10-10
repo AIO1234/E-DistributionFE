@@ -3,7 +3,9 @@
     <v-card class="order_summary_confirm_dialog">
       <v-card-text class="pa-8">
         <!-- title -->
-        <h3 class="dialog_title text-center">Confirm Order Details</h3>
+        <h3 class="dialog_title text-center">
+          {{ summaryType === "grn" ? "Confirm GRN Details" : "Confirm Order Details" }}
+        </h3>
 
         <div class="pt-4"></div>
         <div class="hrclass"></div>
@@ -20,6 +22,11 @@
           <div class="summary_row">
             <span class="summary_label">{{ entityLabel }}</span>
             <span class="summary_value">{{ shop.shopName || "N/A" }}</span>
+          </div>
+
+          <div v-if="summaryType === 'grn'" class="summary_row">
+            <span class="summary_label">Order ID</span>
+            <span class="summary_value">{{ shop.orderReference || "N/A" }}</span>
           </div>
 
           <!-- courier details: only rendered for courier-based shop orders -->
@@ -54,10 +61,18 @@
               <tr>
                 <th>Product Code</th>
                 <th>Product</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th v-if="showDiscountColumn">Discount</th>
-                <th>Amount</th>
+                <template v-if="summaryType === 'grn'">
+                  <th>Ordered Qty</th>
+                  <th>Received Qty</th>
+                  <th>Returned - Damaged</th>
+                  <th>Returned - Other</th>
+                </template>
+                <template v-else>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th v-if="showDiscountColumn">Discount</th>
+                  <th>Amount</th>
+                </template>
               </tr>
             </thead>
             <tbody>
@@ -67,12 +82,20 @@
               >
                 <td>{{ product.productCode || "N/A" }}</td>
                 <td>{{ product.productName || "N/A" }}</td>
-                <td>{{ product.quantity || "N/A" }}</td>
-                <td>{{ product.unitPrice || "N/A" }}</td>
-                <td v-if="showDiscountColumn">
-                  {{ product.discountValue || "N/A" }}
-                </td>
-                <td>{{ product.amount || "N/A" }}</td>
+                <template v-if="summaryType === 'grn'">
+                  <td>{{ product.orderedQuantity ?? 0 }}</td>
+                  <td>{{ product.receivedQuantity ?? 0 }}</td>
+                  <td>{{ product.returnedDamaged ?? 0 }}</td>
+                  <td>{{ product.returnedOther ?? 0 }}</td>
+                </template>
+                <template v-else>
+                  <td>{{ product.quantity || "N/A" }}</td>
+                  <td>{{ product.unitPrice || "N/A" }}</td>
+                  <td v-if="showDiscountColumn">
+                    {{ product.discountValue || "N/A" }}
+                  </td>
+                  <td>{{ product.amount || "N/A" }}</td>
+                </template>
               </tr>
             </tbody>
           </table>
@@ -119,7 +142,11 @@
         <!-- confirm question -->
         <div class="pt-6"></div>
         <p class="confirm_question text-center">
-          Do you want to submit this order?
+          {{
+            summaryType === "grn"
+              ? "Do you want to save this GRN?"
+              : "Do you want to submit this order?"
+          }}
         </p>
 
         <!-- back / yes buttons -->
@@ -175,6 +202,12 @@ export default {
     entityLabel: {
       type: String,
       default: "Shop",
+    },
+    // grn mode reuses the same dialog shell to confirm received/returned
+    // quantities before saving a Good Receive Notice.
+    summaryType: {
+      type: String,
+      default: "order",
     },
     // one entry per shop/showroom order: { shopName, showCourierDetails,
     // courierName, cartonUnitPrice, cartonQuantity, products: [{ productCode,

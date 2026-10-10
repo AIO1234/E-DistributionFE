@@ -154,7 +154,7 @@ export default {
       selectedShop: {},
       headers: [
         { title: "Payment ID", align: "start", key: "payment_code" },
-        { title: "Shop Name", align: "start", key: "shop_name" },
+        { title: "Customer Name", align: "start", key: "shop_name" },
         { title: "Invoice No/S", align: "start", key: "payment_invoices" },
         { title: "Payment Date", align: "start", key: "payment_date" },
         { title: "Paid Amount(Rs)", align: "start", key: "payment_amount" },

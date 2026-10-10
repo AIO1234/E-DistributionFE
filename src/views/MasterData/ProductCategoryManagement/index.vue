@@ -169,6 +169,29 @@ export default {
 
 
       allcategories: [],
+      demoCategories: [
+        {
+          id: "demo-category-001",
+          is_demo: true,
+          category_code: "DEMO-CAT-001",
+          category_name: "Tea",
+          product_count: 2,
+        },
+        {
+          id: "demo-category-002",
+          is_demo: true,
+          category_code: "DEMO-CAT-002",
+          category_name: "Coffee",
+          product_count: 1,
+        },
+        {
+          id: "demo-category-003",
+          is_demo: true,
+          category_code: "DEMO-CAT-003",
+          category_name: "Spices",
+          product_count: 1,
+        },
+      ],
 
 
       searchdata: "",
@@ -205,8 +228,23 @@ export default {
         const res = await CategoryApi.AllCategory(payload)
         const pagination = res?.data?.data
 
-        this.allcategories = pagination?.data || []
-        this.totalItems = pagination?.total || 0
+        const categories = pagination?.data || []
+        const search = this.searchQuery.trim().toLowerCase()
+        const matchingDemoCategories = search
+          ? this.demoCategories.filter((category) =>
+              `${category.category_code} ${category.category_name}`
+                .toLowerCase()
+                .includes(search),
+            )
+          : this.demoCategories
+        const useDemoCategories = !categories.length
+
+        this.allcategories = useDemoCategories
+          ? matchingDemoCategories
+          : categories
+        this.totalItems = useDemoCategories
+          ? matchingDemoCategories.length
+          : pagination?.total || 0
         this.page = pagination?.current_page || 1
         this.itemsPerPage = pagination?.per_page || this.itemsPerPage
       } catch (error) {
@@ -215,7 +253,15 @@ export default {
           error,
         )
 
-        this.allcategories = []
+        const search = this.searchQuery.trim().toLowerCase()
+        this.allcategories = search
+          ? this.demoCategories.filter((category) =>
+              `${category.category_code} ${category.category_name}`
+                .toLowerCase()
+                .includes(search),
+            )
+          : this.demoCategories
+        this.totalItems = this.allcategories.length
       } finally {
         this.loading = false
       }

@@ -9,10 +9,10 @@ export default [
     meta: {
       authReuire: true,
       role: ["Super Admin", "Data Operator", "Area Manager", "Distributer"],
-      pageTitle: "Suppliers",
+      pageTitle: "Supplier CRM",
       breadcrumb: [
         {
-          text: "Supplier Management",
+          text: "Supplier CRM",
           active: true,
         },
       ],

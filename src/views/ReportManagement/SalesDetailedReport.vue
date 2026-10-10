@@ -4,10 +4,10 @@
     <v-row>
       <!-- select shop -->
       <v-col lg="3" cols="12">
-        <label class="label">Select Shop</label>
+        <label class="label">Select Customer</label>
         <div class="pt-2"></div>
         <v-autocomplete
-          placeholder="Select Shop"
+          placeholder="Select Customer"
           v-model="shop"
           :items="shops"
           :loading="shopsLoading"
@@ -213,7 +213,7 @@
                     selectedItem = props.item;
                   "
                 >
-                  <img src="@/assets/images/eye.png" style="width: 70%" />
+                  <v-icon icon="tabler-eye" color="primary" />
                 </v-btn>
               </div>
 
@@ -402,7 +402,7 @@ export default {
       loading: false,
       headers: [
         { title: "Invoice No", align: "start", key: "invoice_no" },
-        { title: "Shop Name", align: "start", key: "shop" },
+        { title: "Customer Name", align: "start", key: "shop" },
         { title: "Invoice Date", align: "start", key: "order_date" },
         { title: "Product Summary", align: "start", key: "product_summary" },
         { title: "Distributer Name", align: "start", key: "distributer" },
@@ -425,7 +425,7 @@ export default {
       ],
       collumns: {
         "Invoice No": "invoice_no",
-        "Shop Name": "shop.shop_name",
+        "Customer Name": "shop.shop_name",
         "Invoice Date": "order_date",
         "Distributer Name": "distributer.distributer_name",
         "Rep Name": "salesrep.rep_name",

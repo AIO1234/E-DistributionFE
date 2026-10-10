@@ -96,9 +96,9 @@
       <!-- table -->
       <v-card>
         <Table
-          :FactryOrders="factoryOrders"
+          :FactryOrders="factoryOrdersWithCollections"
           :loading="loading"
-          :totalItems="totalItems"
+          :totalItems="displayedTotalItems"
           :currentPage="page"
           :itemsPerPage="itemsPerPage"
           @close="closeModal"
@@ -147,6 +147,11 @@ import CreateOrder from "./Components/CreateOrder.vue";
 import OrderApi from "@/Api/Modules/master_order";
 import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
+import {
+  approvedOrderCollectionIds,
+  createdOrderCollectionRows,
+  sampleOrderCollectionRows,
+} from "@/utils/orderCollectionUiState";
 
 export default {
   // needed for this.debounce(), used by the searchdata watcher below
@@ -162,6 +167,7 @@ export default {
       enddate: "",
       show: false,
       factoryOrders: [],
+      orderCollectionRows: sampleOrderCollectionRows,
       // full result set matching the current filters (not just the current
       // page), lazily loaded right before Export fires
       exportOrders: [],
@@ -170,8 +176,6 @@ export default {
       itemsPerPage: 50,
       totalItems: 0,
       headers: {
-        "Order Id": "order_reference_id",
-        "Invoice No": "invoice_no",
         Amount: "amount",
         Date: "date",
         Status: "status",
@@ -186,6 +190,46 @@ export default {
   },
 
   computed: {
+    factoryOrdersWithCollections() {
+      const warehouseOrders = this.factoryOrders.map((order) => ({
+        ...order,
+        status:
+          approvedOrderCollectionIds.has(String(order.id)) ||
+          approvedOrderCollectionIds.has(String(order.order_reference_id))
+            ? "Approved"
+            : order.status,
+      }));
+
+      return this.page === 1
+        ? [
+            ...this.orderCollectionRows.map((order) => ({
+              ...order,
+              status: approvedOrderCollectionIds.has(
+                String(order.order_reference_id),
+              )
+                ? "Approved"
+                : order.status,
+            })),
+            ...createdOrderCollectionRows.map((order) => ({
+              ...order,
+              status: approvedOrderCollectionIds.has(
+                String(order.order_reference_id),
+              )
+                ? "Approved"
+                : order.status,
+            })),
+            ...warehouseOrders,
+          ]
+        : warehouseOrders;
+    },
+
+    displayedTotalItems() {
+      return this.totalItems +
+        (this.page === 1
+          ? this.orderCollectionRows.length + createdOrderCollectionRows.length
+          : 0);
+    },
+
     // sum the live remaining quantity for each product in the currently
     // loaded page of orders (table is now server-paginated, so this is no
     // longer a true grand total across every matching order)

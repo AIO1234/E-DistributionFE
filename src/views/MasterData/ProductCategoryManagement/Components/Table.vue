@@ -32,7 +32,7 @@
             {{ props.item.product_count }}
           </div>
           <div v-if="header.key === 'action'">
-            <VRow>
+            <VRow v-if="!props.item.is_demo">
               <VCol lg="3">
                 <VBtn
                   color="transparent"

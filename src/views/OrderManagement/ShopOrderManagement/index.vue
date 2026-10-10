@@ -2,10 +2,10 @@
   <div class="order_management mt-5">
     <!-- select shop id -->
     <div>
-      <label class="label">Select Shop</label>
+      <label class="label">Select Customer</label>
       <div class="pt-2"></div>
       <v-autocomplete
-        placeholder="Select Shop"
+        placeholder="Select Customer"
         class="user_select_button"
         v-model="shop_id"
         :items="shops"
@@ -35,7 +35,7 @@
           <span class="text"
             >Remaining Due Amount
             <span
-              >For <b>{{ shop_name ? shop_name : null }}</b></span
+              >For Customer <b>{{ shop_name ? shop_name : null }}</b></span
             >
             :
 
@@ -52,7 +52,7 @@
           <!-- total quantity sent to the selected shop -->
           <div class="shop_balance_amount">
             <span class="text">
-              Sent Stock For <b>{{ shop_name || "Selected Shop" }}</b> :
+              Sent Stock For <b>{{ shop_name || "Selected Customer" }}</b> :
               <b class="amount">{{ sentShopStockQuantity }}</b>
             </span>
           </div>
@@ -61,7 +61,7 @@
           <!-- total quantity returned by the selected shop -->
           <div class="shop_balance_amount">
             <span class="text">
-              Returned Stock For <b>{{ shop_name || "Selected Shop" }}</b> :
+              Returned Stock For <b>{{ shop_name || "Selected Customer" }}</b> :
               <b class="amount">{{ returnedShopStockQuantity }}</b>
             </span>
           </div>
@@ -73,7 +73,7 @@
           <span class="text"
             >Full Paid Amount
             <span
-              >From <b>{{ shop_name ? shop_name : null }}</b></span
+              >From Customer <b>{{ shop_name ? shop_name : null }}</b></span
             >
             :
 
@@ -85,7 +85,7 @@
     </div>
 
     <!-- search boxes -->
-    <div class="pt-15" v-if="shop_id !== 'Select Shop'">
+    <div class="pt-15" v-if="shop_id !== 'Select Customer'">
       <v-row>
         <!-- search order number -->
         <v-col lg="3" cols="12">
@@ -141,7 +141,7 @@
             <download-excel
               :data="exportShopOrders"
               :fields="headers"
-              worksheet="All Shop Orders"
+              worksheet="Customer Wise Sales"
               :name="
                 shop_id != ''
                   ? `as of ${todaydate} ${shop_name} orders.xls`
@@ -163,7 +163,7 @@
         <Table
           :ShopOrders="shopOrders"
           :loading="loading"
-          :totalItems="totalItems"
+          :totalItems="displayedTotalItems"
           :currentPage="page"
           :itemsPerPage="itemsPerPage"
           @pagechange="pageChange"
@@ -179,6 +179,10 @@ import shopApi from "@/Api/Modules/shop";
 import ReportApi from "@/Api/Modules/reports";
 import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
+import {
+  createdOrderCollectionRows,
+  sampleOrderCollectionRows,
+} from "@/utils/orderCollectionUiState";
 
 export default {
   data() {
@@ -207,13 +211,9 @@ export default {
       authRole: "",
 
       headers: {
-        "Shop Name": "shop.shop_name",
-        "Shop Area": "shop.area.area_name",
-        "Distributor Name": "distributer.distributer_name",
-        "Rep Name": "salesrep.rep_name",
+        "Customer Name": "shop.shop_name",
         "Invoice No": "invoice_no",
-        "Distributed Order Id": "rep_order.parent_order_no",
-        "Distributed Invoice No": "rep_order.parent_invoice _no",
+        "Delivery Note No": "delivery_note_no",
         Amount: "order_amount",
         "Due Amount(Rs)": "total_due_amount",
         "Paid Amount(Rs)": "total_paid_amount",
@@ -230,6 +230,36 @@ export default {
   },
 
   computed: {
+    warehouseOrderRows() {
+      return [...sampleOrderCollectionRows, ...createdOrderCollectionRows]
+        .filter((order) => {
+          if (this.shop_id === "") return true;
+          if (order.shop_id != null)
+            return String(order.shop_id) === String(this.shop_id);
+          const selectedShop = this.shops.find(
+            (shop) => String(shop.id) === String(this.shop_id),
+          );
+          return order.customer === (selectedShop?.shop_name || this.shop_name);
+        })
+        .map((order) => ({
+          ...order,
+          id: order.shopOrderId,
+          collectionId: order.id,
+          shop: { shop_name: order.customer },
+          order_source: "Direct Factory",
+          order_date: order.date,
+          delivery_note_no: order.delivery_note_no || order.deliveryNoteNumber,
+          order_amount: order.amount,
+          total_due_amount: 0,
+          total_paid_amount: order.amount,
+          isApprovedWarehouseOrder: true,
+        }));
+    },
+    displayedTotalItems() {
+      return this.totalItems +
+        (this.page === 1 ? this.warehouseOrderRows.length : 0);
+    },
+
     // loaded product items for only the selected shop's orders
     selectedShopStockDetails() {
       return this.shopOrderStockDetails.filter(
@@ -399,18 +429,23 @@ export default {
       if (res.data.data != null) {
         const pagination = res.data.data.shop_orders;
 
-        this.shopOrders = pagination.data;
         this.totalItems = pagination.total;
         this.page = pagination.current_page;
         this.itemsPerPage = pagination.per_page;
         this.shop_paid_amount = res.data.data.paid_amount;
         this.shop_due_amount = res.data.data.due_amount;
         this.shop_name = res.data.data.shop_name;
+        this.shopOrders = this.page === 1
+          ? [...this.warehouseOrderRows, ...pagination.data]
+          : pagination.data;
         // load all item quantities through one aggregated report request
         await this.loadShopOrderStockDetails();
       } else {
         // clear old values when the selected shop has no orders
-        this.shopOrders = [];
+        this.shop_name = this.shops.find(
+          (shop) => String(shop.id) === String(this.shop_id),
+        )?.shop_name || "";
+        this.shopOrders = this.page === 1 ? [...this.warehouseOrderRows] : [];
         this.totalItems = 0;
         this.shopOrderStockDetails = [];
       }

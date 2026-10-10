@@ -89,20 +89,11 @@
               <template v-slot:item.shop_order_income="props">
                 {{ getPrice(props.item.shop_order_income) }}
               </template>
-              <template v-slot:item.showroom_distributed_income="props">
-                {{ getPrice(props.item.showroom_distributed_income) }}
-              </template>
               <template v-slot:item.total_income="props">
                 {{ getPrice(props.item.total_income) }}
               </template>
 
               <!-- expense category amounts -->
-              <template v-slot:item.courier_expenses="props">
-                {{ getPrice(props.item.courier_expenses) }}
-              </template>
-              <template v-slot:item.salesrep_expenses="props">
-                {{ getPrice(props.item.salesrep_expenses) }}
-              </template>
               <template v-slot:item.supplier_expenses="props">
                 {{ getPrice(props.item.supplier_expenses) }}
               </template>
@@ -138,7 +129,7 @@
                   variant="none"
                   @click="openExpenseBreakdown(props.item)"
                 >
-                  <v-icon icon="tabler-eye" size="large" />
+                  <v-icon icon="tabler-eye" size="large" color="primary" />
                 </v-btn>
               </template>
             </v-data-table>
@@ -234,16 +225,9 @@ export default {
       fixedHeaders: [
         { title: "Month", align: "start", key: "month_name" },
         {
-          title: "Shop Order Income(Rs)",
+          title: "Customer Order Income(Rs)",
           align: "start",
           key: "shop_order_income",
-          headerProps: { class: "income_column" },
-          cellProps: { class: "income_column" },
-        },
-        {
-          title: "Showroom Distributed Income(Rs)",
-          align: "start",
-          key: "showroom_distributed_income",
           headerProps: { class: "income_column" },
           cellProps: { class: "income_column" },
         },
@@ -253,20 +237,6 @@ export default {
           key: "total_income",
           headerProps: { class: "income_column" },
           cellProps: { class: "income_column" },
-        },
-        {
-          title: "Courier Expenses(Rs)",
-          align: "start",
-          key: "courier_expenses",
-          headerProps: { class: "expense_column" },
-          cellProps: { class: "expense_column" },
-        },
-        {
-          title: "Sales Rep Expenses(Rs)",
-          align: "start",
-          key: "salesrep_expenses",
-          headerProps: { class: "expense_column" },
-          cellProps: { class: "expense_column" },
         },
         {
           title: "Supplier Expenses(Rs)",
@@ -297,11 +267,8 @@ export default {
       ],
       fixedColumns: {
         Month: "month_name",
-        "Shop Order Income(Rs)": "shop_order_income",
-        "Showroom Distributed Income(Rs)": "showroom_distributed_income",
+        "Customer Order Income(Rs)": "shop_order_income",
         "Total Income(Rs)": "total_income",
-        "Courier Expenses(Rs)": "courier_expenses",
-        "Sales Rep Expenses(Rs)": "salesrep_expenses",
         "Supplier Expenses(Rs)": "supplier_expenses",
       },
       trailingColumns: {
