@@ -150,10 +150,12 @@
 <script>
 import SupplierPaymentTable from "@/views/PaymentManagement/SupplierPayments/Components/SupplierPaymentTable.vue";
 import CreateSupplierPayment from "@/views/PaymentManagement/SupplierPayments/Components/CreateSupplierPayment.vue";
-import SupplierPaymentApi from "@/Api/Modules/supplier_payments";
-import SupplyChainApi from "@/Api/Modules/supply_chain";
 import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
+import {
+  demoSuppliers,
+  getDemoSupplierPayments,
+} from "@/utils/supplierReturnDemoData";
 
 export default {
   components: {
@@ -171,8 +173,8 @@ export default {
       startdate: "",
       enddate: "",
       showAddModal: false,
-      suppliers: [],
-      supplier: "",
+      suppliers: demoSuppliers,
+      supplier: demoSuppliers[0],
       supplierpayments: [],
       exportPayments: [],
       loading: false,
@@ -199,8 +201,7 @@ export default {
     // get all suppliers
     async getAllSuppliers() {
       this.loading = true;
-      const res = await SupplyChainApi.AllSuppliers({ searchdata: "", page: 1, per_page: 1000 });
-      this.suppliers = res.data.data.data;
+      this.suppliers = demoSuppliers;
       this.loading = false;
     },
 
@@ -224,43 +225,29 @@ export default {
     // fetch the current page of payments using the current filters/page state
     async getSupplierPayments() {
       this.loading = true;
-
-      const payload = {
+      const filtered = getDemoSupplierPayments({
         suplier_id: this.supplier ? this.supplier.id : "",
         searchdata: this.searchdata,
         startdate: this.startdate,
         enddate: this.enddate,
         payment_status: this.payment_status,
-        page: this.page,
-        per_page: this.itemsPerPage,
-      };
-
-      const res = await SupplierPaymentApi.getAllSupplierPayments(payload);
-      const pagination = res.data.data;
-
-      this.supplierpayments = pagination.data;
-      this.totalItems = pagination.total;
-      this.page = pagination.current_page;
-      this.itemsPerPage = pagination.per_page;
-
+      });
+      const start = (this.page - 1) * this.itemsPerPage;
+      this.supplierpayments = filtered.slice(start, start + this.itemsPerPage);
+      this.totalItems = filtered.length;
       this.loading = false;
     },
 
     // full filtered dataset (uncapped) for the Export button, since the
     // table itself only ever holds one page of results
     async getExportPayments() {
-      const payload = {
+      this.exportPayments = getDemoSupplierPayments({
         suplier_id: this.supplier ? this.supplier.id : "",
         searchdata: this.searchdata,
         startdate: this.startdate,
         enddate: this.enddate,
         payment_status: this.payment_status,
-        page: 1,
-        per_page: 100000,
-      };
-
-      const res = await SupplierPaymentApi.getAllSupplierPayments(payload);
-      this.exportPayments = res.data.data.data;
+      });
     },
 
     // page change

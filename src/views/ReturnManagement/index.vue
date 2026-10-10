@@ -190,11 +190,10 @@
 </template>
 <script>
 import JsonExcel from "vue-json-excel3";
-import ReturnApi from "@/Api/Modules/returns";
-import ShopApi from "@/Api/Modules/shop";
 import Table from "./Components/ReturnTable.vue";
 import CreateForm from "./Components/CreateReturn.vue";
 import mixin from "@/mixins/commonmixins";
+import { demoCustomerShops, demoReturns } from "@/utils/supplierReturnDemoData";
 
 export default {
   data() {
@@ -209,9 +208,7 @@ export default {
       enddate: "",
       show: false,
       shops: [],
-      shop: {
-        shop_name: "",
-      },
+      shop: demoCustomerShops[0],
 
       headers: {
         "Order Id": "order_reference_id",
@@ -251,9 +248,10 @@ export default {
     // server-side instead
     async getAllShops(searchdata = "") {
       this.shopsLoading = true;
-      const res = await ShopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
-
-      this.shops = res.data.data.data;
+      const query = searchdata.trim().toLowerCase();
+      this.shops = demoCustomerShops.filter((shop) =>
+        `${shop.shop_name} ${shop.area_name}`.toLowerCase().includes(query),
+      );
       this.shopsLoading = false;
     },
 
@@ -289,43 +287,45 @@ export default {
     // get the current page of returns for the selected shop (and filters)
     async getShopReturns() {
       this.loading = true;
-
-      const payload = {
-        shop_id: this.shop.id,
-        searchdata: this.searchdata,
-        startdate: this.startdate,
-        enddate: this.enddate,
-        return_reason: this.return_reason,
-        page: this.page,
-        per_page: this.itemsPerPage,
-      };
-
-      const res = await ReturnApi.allShopReturns(payload);
-      const pagination = res.data.data;
-
-      this.returns = pagination.data;
-      this.totalItems = pagination.total;
-      this.page = pagination.current_page;
-      this.itemsPerPage = pagination.per_page;
+      const query = this.searchdata.trim().toLowerCase();
+      const filtered = demoReturns.filter((row) => {
+        const matchesShop = String(row.shop_id) === String(this.shop.id);
+        const matchesQuery = `${row.order_reference_id} ${row.invoice_no}`
+          .toLowerCase()
+          .includes(query);
+        const matchesStart = !this.startdate || row.return_date >= this.startdate;
+        const matchesEnd = !this.enddate || row.return_date <= this.enddate;
+        const matchesReason =
+          !this.return_reason ||
+          row.return_products.some(
+            (product) => product.pivot.reason_type === this.return_reason,
+          );
+        return matchesShop && matchesQuery && matchesStart && matchesEnd && matchesReason;
+      });
+      const start = (this.page - 1) * this.itemsPerPage;
+      this.returns = filtered.slice(start, start + this.itemsPerPage);
+      this.totalItems = filtered.length;
       this.loading = false;
     },
 
     // load the complete filtered return list (not just the current page)
     // right before the export fires, so the exported file matches the active filters
     async loadExportReturns() {
-      const payload = {
-        shop_id: this.shop.id,
-        searchdata: this.searchdata,
-        startdate: this.startdate,
-        enddate: this.enddate,
-        return_reason: this.return_reason,
-        page: 1,
-        per_page: 100000,
-      };
-
-      const res = await ReturnApi.allShopReturns(payload);
-
-      this.exportReturns = res.data.data.data;
+      const query = this.searchdata.trim().toLowerCase();
+      this.exportReturns = demoReturns.filter((row) => {
+        const matchesShop = String(row.shop_id) === String(this.shop.id);
+        const matchesQuery = `${row.order_reference_id} ${row.invoice_no}`
+          .toLowerCase()
+          .includes(query);
+        const matchesStart = !this.startdate || row.return_date >= this.startdate;
+        const matchesEnd = !this.enddate || row.return_date <= this.enddate;
+        const matchesReason =
+          !this.return_reason ||
+          row.return_products.some(
+            (product) => product.pivot.reason_type === this.return_reason,
+          );
+        return matchesShop && matchesQuery && matchesStart && matchesEnd && matchesReason;
+      });
     },
 
     // search - reset to page 1 since the previous page may not exist

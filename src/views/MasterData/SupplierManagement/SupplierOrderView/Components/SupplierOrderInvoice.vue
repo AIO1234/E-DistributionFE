@@ -198,6 +198,10 @@
 <script>
 import SupplierApi from "@/Api/Modules/supply_chain";
 import html2pdf from "html2pdf.js";
+import {
+  findDemoPurchaseOrder,
+  findDemoSupplier,
+} from "@/utils/supplierReturnDemoData";
 
 export default {
   data() {
@@ -214,6 +218,24 @@ export default {
   methods: {
     async orderSummary() {
       this.loading = true;
+
+      const demoOrder = findDemoPurchaseOrder(
+        this.$route.params.order_id,
+        this.$route.params.supplier_id,
+      );
+      if (demoOrder) {
+        const supplier = findDemoSupplier(this.$route.params.supplier_id);
+        this.summary = {
+          ...demoOrder,
+          supplier: supplier || {},
+          suplier_name: supplier?.suplier_name || "",
+          suplier_address: supplier?.suplier_address || "",
+          contact_no: supplier?.contact_no || "",
+          order_items: demoOrder.order_items,
+        };
+        this.loading = false;
+        return;
+      }
 
       const payload = {
         order_id: this.$route.params.order_id,

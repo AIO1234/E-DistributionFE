@@ -352,15 +352,17 @@
   </div>
 </template>
 <script>
-import ReportApi from "@/Api/Modules/reports";
-import shopApi from "@/Api/Modules/shop";
-import SalesRepApi from "@/Api/Modules/salesrep";
-import DistributerApi from "@/Api/Modules/distributer";
-import AreasApi from "@/Api/Modules/areas";
 import commonmixins from "@/mixins/commonmixins";
 import { store } from "@/store";
 import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
+import {
+  demoCustomerShops,
+  demoDistributors,
+  demoSalesAreas,
+  demoSalesReps,
+  getDemoSalesDetailedRows,
+} from "@/utils/supplierReturnDemoData";
 
 export default {
   mixins: [commonmixins],
@@ -492,20 +494,17 @@ export default {
     // get areas - /areas/index is paginated, request a large per_page to
     // effectively get everything in one page for the dropdown
     async getAreas() {
-      const res = await AreasApi.allAreas({ page: 1, per_page: 1000 });
-      this.areas = res.data.data.data;
+      this.areas = demoSalesAreas;
     },
 
     // get salesreps
     async SalesReps() {
-      const res = await SalesRepApi.allSalesReps({ page: 1, per_page: 1000 });
-      this.salesreps = res.data.data.data;
+      this.salesreps = demoSalesReps;
     },
 
     // get distributers
     async Distributers() {
-      const res = await DistributerApi.allDistributers({ page: 1, per_page: 1000 });
-      this.distributors = res.data.data.data;
+      this.distributors = demoDistributors;
     },
 
     // get shops matching the search text, capped so the whole 187+ shop
@@ -513,9 +512,10 @@ export default {
     // server-side instead
     async getShops(searchdata = "") {
       this.shopsLoading = true;
-      const res = await shopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
-
-      this.shops = res.data.data.data;
+      const query = searchdata.trim().toLowerCase();
+      this.shops = demoCustomerShops.filter((shop) =>
+        `${shop.shop_name} ${shop.area_name}`.toLowerCase().includes(query),
+      );
       this.shopsLoading = false;
     },
 
@@ -551,44 +551,33 @@ export default {
     // get sales detailed report for the current page/filters
     async DetailedReport() {
       this.loading = true;
-
-      const res = await ReportApi.SalesWiseDetailedReport(
-        this.searchdata,
-        this.shop.id,
-        this.distributor.id,
-        this.salesrep.id,
-        this.area.id,
-        this.startdate,
-        this.enddate,
-        this.page,
-        this.itemsPerPage,
-      );
-      const pagination = res.data.data;
-
-      this.salesreport = pagination.data;
-      this.totalItems = pagination.total;
-      this.page = pagination.current_page;
-      this.itemsPerPage = pagination.per_page;
-
+      const filtered = getDemoSalesDetailedRows({
+        searchdata: this.searchdata,
+        shop_id: this.shop.id,
+        distributor_id: this.distributor.id,
+        salesrep_id: this.salesrep.id,
+        area_id: this.area.id,
+        startdate: this.startdate,
+        enddate: this.enddate,
+      });
+      const start = (this.page - 1) * this.itemsPerPage;
+      this.salesreport = filtered.slice(start, start + this.itemsPerPage);
+      this.totalItems = filtered.length;
       this.loading = false;
     },
 
     // load the complete filtered report (not just the current page) right
     // before the export fires, so the exported file matches the active filters
     async loadExportSalesReport() {
-      const res = await ReportApi.SalesWiseDetailedReport(
-        this.searchdata,
-        this.shop.id,
-        this.distributor.id,
-        this.salesrep.id,
-        this.area.id,
-        this.startdate,
-        this.enddate,
-        1,
-        100000,
-      );
-
-      this.exportSalesReport = res.data.data.data;
+      this.exportSalesReport = getDemoSalesDetailedRows({
+        searchdata: this.searchdata,
+        shop_id: this.shop.id,
+        distributor_id: this.distributor.id,
+        salesrep_id: this.salesrep.id,
+        area_id: this.area.id,
+        startdate: this.startdate,
+        enddate: this.enddate,
+      });
     },
 
     // search - reset to page 1 since the previous page may not exist

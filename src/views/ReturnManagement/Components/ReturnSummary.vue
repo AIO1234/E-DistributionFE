@@ -108,6 +108,7 @@
 <script>
 import ReturnApi from "@/Api/Modules/returns";
 import JsonExcel from "vue-json-excel3";
+import { findDemoReturn } from "@/utils/supplierReturnDemoData";
 export default {
   components: {
     downloadExcel: JsonExcel,
@@ -138,6 +139,12 @@ export default {
 
     async returnSummary() {
       this.loading = true;
+      const demoReturn = findDemoReturn(this.$route.params.id);
+      if (demoReturn) {
+        this.summary = demoReturn;
+        this.loading = false;
+        return;
+      }
       const payload = {
         id: this.$route.params.id,
       };

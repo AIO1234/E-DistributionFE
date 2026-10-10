@@ -10,6 +10,7 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const addCreatedOrderCollectionRows: typeof import('./src/utils/orderCollectionUiState.js')['addCreatedOrderCollectionRows']
+  const addDemoReturn: typeof import('./src/utils/supplierReturnDemoData.js')['addDemoReturn']
   const alphaDashValidator: typeof import('./src/@core/utils/validators.js')['alphaDashValidator']
   const alphaValidator: typeof import('./src/@core/utils/validators.js')['alphaValidator']
   const approveOrderCollection: typeof import('./src/utils/orderCollectionUiState.js')['approveOrderCollection']
@@ -50,15 +51,34 @@ declare global {
   const defineLoader: typeof import('vue-router/auto')['defineLoader']
   const definePage: typeof import('unplugin-vue-router/runtime')['_definePage']
   const defineStore: typeof import('pinia')['defineStore']
+  const demoCustomerShops: typeof import('./src/utils/supplierReturnDemoData.js')['demoCustomerShops']
+  const demoDistributors: typeof import('./src/utils/supplierReturnDemoData.js')['demoDistributors']
+  const demoIncomingPayments: typeof import('./src/utils/supplierReturnDemoData.js')['demoIncomingPayments']
+  const demoReturns: typeof import('./src/utils/supplierReturnDemoData.js')['demoReturns']
+  const demoSalesAreas: typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesAreas']
+  const demoSalesDetailedRows: typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesDetailedRows']
+  const demoSalesReps: typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesReps']
+  const demoSupplierPayments: typeof import('./src/utils/supplierReturnDemoData.js')['demoSupplierPayments']
+  const demoSuppliers: typeof import('./src/utils/supplierReturnDemoData.js')['demoSuppliers']
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const emailValidator: typeof import('./src/@core/utils/validators.js')['emailValidator']
   const extendRef: typeof import('@vueuse/core')['extendRef']
+  const findDemoPurchaseOrder: typeof import('./src/utils/supplierReturnDemoData.js')['findDemoPurchaseOrder']
+  const findDemoReturn: typeof import('./src/utils/supplierReturnDemoData.js')['findDemoReturn']
+  const findDemoSupplier: typeof import('./src/utils/supplierReturnDemoData.js')['findDemoSupplier']
   const formatDate: typeof import('./src/@core/utils/formatters.js')['formatDate']
   const formatDateToMonthShort: typeof import('./src/@core/utils/formatters.js')['formatDateToMonthShort']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getDemoCustomerOutstandingRows: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoCustomerOutstandingRows']
+  const getDemoIncomingPayments: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoIncomingPayments']
+  const getDemoOrdersForProduct: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoOrdersForProduct']
+  const getDemoSalesDetailedRows: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSalesDetailedRows']
+  const getDemoSalesSummaryRows: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSalesSummaryRows']
+  const getDemoShopProducts: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoShopProducts']
+  const getDemoSupplierPayments: typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSupplierPayments']
   const getGrnRecord: typeof import('./src/utils/grnUiState.js')['getGrnRecord']
   const grnUiState: typeof import('./src/utils/grnUiState.js')['grnUiState']
   const h: typeof import('vue')['h']
@@ -374,6 +394,7 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly addCreatedOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['addCreatedOrderCollectionRows']>
+    readonly addDemoReturn: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['addDemoReturn']>
     readonly alphaDashValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaDashValidator']>
     readonly alphaValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaValidator']>
     readonly approveOrderCollection: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['approveOrderCollection']>
@@ -412,15 +433,34 @@ declare module 'vue' {
     readonly defineLoader: UnwrapRef<typeof import('vue-router/auto')['defineLoader']>
     readonly definePage: UnwrapRef<typeof import('unplugin-vue-router/runtime')['_definePage']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly demoCustomerShops: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoCustomerShops']>
+    readonly demoDistributors: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoDistributors']>
+    readonly demoIncomingPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoIncomingPayments']>
+    readonly demoReturns: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoReturns']>
+    readonly demoSalesAreas: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesAreas']>
+    readonly demoSalesDetailedRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesDetailedRows']>
+    readonly demoSalesReps: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesReps']>
+    readonly demoSupplierPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSupplierPayments']>
+    readonly demoSuppliers: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSuppliers']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly emailValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['emailValidator']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly findDemoPurchaseOrder: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['findDemoPurchaseOrder']>
+    readonly findDemoReturn: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['findDemoReturn']>
+    readonly findDemoSupplier: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['findDemoSupplier']>
     readonly formatDate: UnwrapRef<typeof import('./src/@core/utils/formatters.js')['formatDate']>
     readonly formatDateToMonthShort: UnwrapRef<typeof import('./src/@core/utils/formatters.js')['formatDateToMonthShort']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getDemoCustomerOutstandingRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoCustomerOutstandingRows']>
+    readonly getDemoIncomingPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoIncomingPayments']>
+    readonly getDemoOrdersForProduct: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoOrdersForProduct']>
+    readonly getDemoSalesDetailedRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSalesDetailedRows']>
+    readonly getDemoSalesSummaryRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSalesSummaryRows']>
+    readonly getDemoShopProducts: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoShopProducts']>
+    readonly getDemoSupplierPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSupplierPayments']>
     readonly getGrnRecord: UnwrapRef<typeof import('./src/utils/grnUiState.js')['getGrnRecord']>
     readonly grnUiState: UnwrapRef<typeof import('./src/utils/grnUiState.js')['grnUiState']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
@@ -729,6 +769,7 @@ declare module '@vue/runtime-core' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly addCreatedOrderCollectionRows: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['addCreatedOrderCollectionRows']>
+    readonly addDemoReturn: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['addDemoReturn']>
     readonly alphaDashValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaDashValidator']>
     readonly alphaValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['alphaValidator']>
     readonly approveOrderCollection: UnwrapRef<typeof import('./src/utils/orderCollectionUiState.js')['approveOrderCollection']>
@@ -767,15 +808,34 @@ declare module '@vue/runtime-core' {
     readonly defineLoader: UnwrapRef<typeof import('vue-router/auto')['defineLoader']>
     readonly definePage: UnwrapRef<typeof import('unplugin-vue-router/runtime')['_definePage']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly demoCustomerShops: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoCustomerShops']>
+    readonly demoDistributors: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoDistributors']>
+    readonly demoIncomingPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoIncomingPayments']>
+    readonly demoReturns: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoReturns']>
+    readonly demoSalesAreas: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesAreas']>
+    readonly demoSalesDetailedRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesDetailedRows']>
+    readonly demoSalesReps: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSalesReps']>
+    readonly demoSupplierPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSupplierPayments']>
+    readonly demoSuppliers: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['demoSuppliers']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly emailValidator: UnwrapRef<typeof import('./src/@core/utils/validators.js')['emailValidator']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly findDemoPurchaseOrder: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['findDemoPurchaseOrder']>
+    readonly findDemoReturn: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['findDemoReturn']>
+    readonly findDemoSupplier: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['findDemoSupplier']>
     readonly formatDate: UnwrapRef<typeof import('./src/@core/utils/formatters.js')['formatDate']>
     readonly formatDateToMonthShort: UnwrapRef<typeof import('./src/@core/utils/formatters.js')['formatDateToMonthShort']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getDemoCustomerOutstandingRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoCustomerOutstandingRows']>
+    readonly getDemoIncomingPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoIncomingPayments']>
+    readonly getDemoOrdersForProduct: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoOrdersForProduct']>
+    readonly getDemoSalesDetailedRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSalesDetailedRows']>
+    readonly getDemoSalesSummaryRows: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSalesSummaryRows']>
+    readonly getDemoShopProducts: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoShopProducts']>
+    readonly getDemoSupplierPayments: UnwrapRef<typeof import('./src/utils/supplierReturnDemoData.js')['getDemoSupplierPayments']>
     readonly getGrnRecord: UnwrapRef<typeof import('./src/utils/grnUiState.js')['getGrnRecord']>
     readonly grnUiState: UnwrapRef<typeof import('./src/utils/grnUiState.js')['grnUiState']>
     readonly h: UnwrapRef<typeof import('vue')['h']>

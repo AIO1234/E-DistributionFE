@@ -80,87 +80,6 @@
                   </v-row>
                 </v-col>
 
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number of ShowRooms
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.distributor_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number of Sales Reps
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.salesrep_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number Of Customers
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.shop_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Sales Rep
-                      Commission
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(summary.main_order_details.salesrep_commision)
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Customer Order Amount
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(summary.shop_order_amount)
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Profit
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(
-                          summary.shop_order_amount -
-                            summary.main_order_details.salesrep_commision,
-                        )
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
               </v-row>
             </div>
 
@@ -438,44 +357,6 @@
                   </v-row>
                 </v-col>
 
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number of Sales Reps
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.salesrep_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number Of Customers
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.shop_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Customer Order Amount
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(summary.shop_order_amount)
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
               </v-row>
             </div>
 
@@ -1117,45 +998,6 @@
                   </v-row>
                 </v-col>
 
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Number Of Customers
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        summary.main_order_details.shop_count
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Sales Rep
-                      Commission
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(summary.main_order_details.salesrep_commision)
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
-
-                <v-col lg="6" cols="12">
-                  <v-row>
-                    <v-col lg="5">
-                      <span class="item_header"></span>Total Customer Order Amount
-                    </v-col>
-                    <v-col lg="7">
-                      <span class="item_text">{{
-                        getPrice(summary.shop_order_amount)
-                      }}</span>
-                    </v-col>
-                  </v-row>
-                </v-col>
               </v-row>
             </div>
 
@@ -1462,19 +1304,53 @@ export default {
 
       // if route comming from factory order
       if (this.$route.params.summary_type === "factoryorder") {
-        const payload = {
-          order_id: this.$route.params.order_id,
-        };
-        const res = await OrderApi.FactoryOrderSummary(payload);
+        if (this.$route.query.uiOnly === "true") {
+          // Frontend demo rows already provide the summary fields. Skip the
+          // factory summary API until this screen is connected to live data.
+          let orderProducts = [];
+          try {
+            const queryProducts = this.$route.query.orderProducts;
+            orderProducts = queryProducts ? JSON.parse(queryProducts) : [];
+          } catch {
+            orderProducts = [];
+          }
+          orderProducts = orderProducts.map((product) => {
+            const pivot = product.pivot || {};
+            const quantity = Number(pivot.quantity || 0);
+            const unitPrice = Number(pivot.unit_price || 0);
 
-        this.summary.main_order_details = res.data.data.mainordersummary;
+            return {
+              ...product,
+              pivot: {
+                ...pivot,
+                quantity,
+                uptodate_quantity: Number(pivot.uptodate_quantity ?? quantity),
+                unit_price: unitPrice,
+                price: Number(pivot.price ?? unitPrice * quantity),
+              },
+            };
+          });
+          this.summary.main_order_details = {
+            order_reference_id: this.$route.query.orderId || "",
+            date: this.$route.query.date || "",
+            amount: this.$route.query.amount || 0,
+            order_products: orderProducts,
+            order_product_count: orderProducts.length,
+            shop_count: 0,
+          };
+          this.summary.shop_order_amount = this.$route.query.amount || 0;
+        } else {
+          const payload = {
+            order_id: this.$route.params.order_id,
+          };
+          const res = await OrderApi.FactoryOrderSummary(payload);
 
-        this.summary.shop_order_amount = res.data.data.shoporderamount;
-
-        this.summary.distributer_chain = res.data.data.distributingchain;
-
-        this.summary.direct_factory_shop_chain =
-          res.data.data.directfactoryshoporderchain;
+          this.summary.main_order_details = res.data.data.mainordersummary;
+          this.summary.shop_order_amount = res.data.data.shoporderamount;
+          this.summary.distributer_chain = res.data.data.distributingchain;
+          this.summary.direct_factory_shop_chain =
+            res.data.data.directfactoryshoporderchain;
+        }
       }
       // if route comming from distributer order
       else if (this.$route.params.summary_type === "distributerorder") {

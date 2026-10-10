@@ -56,6 +56,19 @@
             />
           </VCol>
 
+          <!-- payment term -->
+          <VCol lg="6" cols="12">
+            <label class="label">Payment Term</label>
+            <div class="mt-2" />
+            <VSelect
+              v-model="form.payment_term_days"
+              :items="paymentTermOptions"
+              item-title="title"
+              item-value="value"
+              class="input"
+            />
+          </VCol>
+
         </VRow>
         <div class="pt-15" />
 
@@ -87,6 +100,12 @@ export default {
       form: {},
       loading: false,
       areas: [],
+      paymentTermOptions: [
+        { title: "30 Days", value: 30 },
+        { title: "60 Days", value: 60 },
+        { title: "90 Days", value: 90 },
+        { title: "100 Days", value: 100 },
+      ],
     };
   },
 
@@ -100,7 +119,10 @@ export default {
   methods: {
     // initialize data
     async initiaizeData() {
-      this.form = this.formData;
+      this.form = {
+        ...this.formData,
+        payment_term_days: Number(this.formData?.payment_term_days || 30),
+      };
       await this.getAreas();
     },
 

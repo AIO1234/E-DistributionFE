@@ -128,10 +128,9 @@
 
 <script setup>
 import { computed, onMounted, ref } from "vue"
-import PaymentApi from "@/Api/Modules/payments"
 import mixin from "@/mixins/commonmixins"
+import { getDemoIncomingPayments } from "@/utils/supplierReturnDemoData"
 
-const PER_PAGE = 1000
 const today = new Date()
 const currentYear = today.getFullYear()
 const selectedYear = ref(currentYear)
@@ -231,51 +230,12 @@ async function loadReport() {
   }
   /* eslint-enable camelcase */
 
-  try {
-    const allPayments = await fetchAllPayments(params)
-    const uniquePayments = new Map()
-
-    allPayments
-      .filter(payment => ["received", "recieved"].includes(
-        String(payment.status || payment.payment_status || "").toLowerCase(),
-      ))
-      .forEach((payment, index) => {
-        const key = String(payment.id ?? payment.payment_code ?? index)
-        if (!uniquePayments.has(key)) uniquePayments.set(key, payment)
-      })
-
-    payments.value = [...uniquePayments.values()]
-  } catch (error) {
-    payments.value = []
-    errorMessage.value =
-      error?.response?.data?.message || "Unable to load received payments."
-  } finally {
-    loading.value = false
-  }
-}
-
-async function fetchAllPayments(filters) {
-  const allPayments = []
-  let page = 1
-  let lastPage = 1
-
-  do {
-    /* eslint-disable camelcase */
-    const response = await PaymentApi.allShopPayments({
-      ...filters,
-      page,
-      per_page: PER_PAGE,
-    })
-    /* eslint-enable camelcase */
-
-    const pagination = response?.data?.data
-
-    allPayments.push(...(pagination?.data || []))
-    lastPage = Number(pagination?.last_page) || 1
-    page += 1
-  } while (page <= lastPage)
-
-  return allPayments
+  payments.value = getDemoIncomingPayments(params).filter(payment =>
+    ["received", "recieved"].includes(
+      String(payment.status || payment.payment_status || "").toLowerCase(),
+    ),
+  )
+  loading.value = false
 }
 
 onMounted(loadReport)

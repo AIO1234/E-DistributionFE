@@ -166,6 +166,11 @@ export default [
         to: { name: "salesdetailed" },
         role: ["Super Admin", "Admin"],
       },
+      {
+        title: "Customer Outstanding",
+        to: { name: "customeroutstanding" },
+        role: ["Super Admin", "Admin"],
+      },
 
       // {
       //   title: "Sales Detailed Report",

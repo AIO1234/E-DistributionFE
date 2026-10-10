@@ -87,7 +87,7 @@
 import SupplierTable from "@/views/MasterData/SupplierManagement/Components/SupplierTable.vue";
 import AddSuplier from "@/views/MasterData/SupplierManagement/Components/AddSuplier.vue";
 import EditSuplier from "@/views/MasterData/SupplierManagement/Components/EditSuplier.vue";
-import SupplierApi from "@/Api/Modules/supply_chain";
+import { demoSuppliers } from "@/utils/supplierReturnDemoData";
 
 export default {
   components: {
@@ -152,26 +152,16 @@ export default {
     // allsuppliers
     async getAllSupplierData() {
       this.loading = true;
-
-      try {
-        const res = await SupplierApi.AllSuppliers({
-          searchdata: this.searchdata,
-          page: this.page,
-          per_page: this.itemsPerPage,
-        });
-        const pagination = res?.data?.data;
-
-        this.allsuppliers = pagination?.data || [];
-        this.totalItems = pagination?.total || 0;
-        this.page = pagination?.current_page || 1;
-        this.itemsPerPage = pagination?.per_page || this.itemsPerPage;
-      } catch (error) {
-        console.error("Error loading suppliers:", error);
-
-        this.allsuppliers = [];
-      } finally {
-        this.loading = false;
-      }
+      const search = this.searchdata.trim().toLowerCase();
+      const filtered = demoSuppliers.filter((supplier) =>
+        `${supplier.suplier_name} ${supplier.contact_no} ${supplier.email}`
+          .toLowerCase()
+          .includes(search),
+      );
+      const start = (this.page - 1) * this.itemsPerPage;
+      this.allsuppliers = filtered.slice(start, start + this.itemsPerPage);
+      this.totalItems = filtered.length;
+      this.loading = false;
     },
 
     // search - reset to page 1 since the previous page may not exist

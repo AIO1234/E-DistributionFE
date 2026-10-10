@@ -476,6 +476,7 @@
 <script>
 import SupplierApi from "@/Api/Modules/supply_chain";
 import EditSuplier from "@/views/MasterData/SupplierManagement/Components/EditSuplier.vue";
+import { findDemoSupplier } from "@/utils/supplierReturnDemoData";
 
 export default {
   components: {
@@ -528,17 +529,28 @@ export default {
 
     async showSuplierSummary() {
       this.loading = true;
+      const supplier = findDemoSupplier(this.$route.params.id);
+      if (supplier) {
+        const orders = supplier.suplier_orders.filter((order) => {
+          const date = order.purchased_date;
+          return (
+            (!this.purhasedstartdate || date >= this.purhasedstartdate) &&
+            (!this.purhasedenddate || date <= this.purhasedenddate)
+          );
+        });
+        this.summaryData = { ...supplier, suplier_orders: orders };
+        this.loading = false;
+        return;
+      }
 
       const payload = {
         id: this.$route.params.id,
         start_purchased_date: this.purhasedstartdate,
         end_purhased_date: this.purhasedenddate,
       };
-
       await SupplierApi.showsuppliersummary(payload)
         .then((res) => {
           this.summaryData = res.data.data;
-
           this.loading = false;
         })
         .catch(() => {

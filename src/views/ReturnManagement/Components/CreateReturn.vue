@@ -197,6 +197,11 @@
 import ReturnApi from "@/Api/Modules/returns";
 import { toast } from "@/ApiConstance/toast";
 import OrderSummaryConfirmDialog from "@/components/OrderSummaryConfirmDialog.vue";
+import {
+  addDemoReturn,
+  getDemoOrdersForProduct,
+  getDemoShopProducts,
+} from "@/utils/supplierReturnDemoData";
 export default {
   components: {
     OrderSummaryConfirmDialog,
@@ -285,6 +290,11 @@ export default {
     // get every product that appears in one of this shop's orders, so a
     // return can be started from the product rather than the order
     async getShopProducts() {
+      if (String(this.shop?.id).startsWith("93")) {
+        this.shopProducts = getDemoShopProducts(this.shop.id);
+        this.form = { shop_id: this.shop.id };
+        return;
+      }
       const payload = { shop_id: this.shop.id };
 
       const res = await ReturnApi.shopProductsForShop(payload);
@@ -308,6 +318,14 @@ export default {
         },
       ];
       this.nextTodoId = 1;
+
+      if (String(this.shop?.id).startsWith("93")) {
+        this.shopOrders = getDemoOrdersForProduct(
+          this.shop.id,
+          this.selected_product,
+        );
+        return;
+      }
 
       const payload = {
         shop_id: this.shop.id,
@@ -416,6 +434,23 @@ export default {
         amount: returnorder.amount,
         reason_type: returnorder.reason_type,
       }));
+
+      if (String(this.shop?.id).startsWith("93")) {
+        const product = this.shopProducts.find(
+          (item) => String(item.product_id) === String(this.selected_product),
+        );
+        addDemoReturn({
+          shop: this.shop,
+          product,
+          returnOrders: this.returnOrders.filter((row) => row.shop_order_id),
+          returnDate: this.form.return_date,
+          returnCode: this.form.return_code,
+        });
+        this.loading = false;
+        this.showSubmitSummary = false;
+        this.$emit("close");
+        return;
+      }
 
       await ReturnApi.storeShopReturn(this.form)
         .then(() => {

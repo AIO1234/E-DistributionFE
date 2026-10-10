@@ -219,11 +219,13 @@
 </template>
 <script>
 import Table from "./Components/PaymentTable.vue";
-import ShopApi from "@/Api/Modules/shop";
-import PaymentApi from "@/Api/Modules/payments";
 import CreateForm from "./Components/CreatePayment.vue";
 import JsonExcel from "vue-json-excel3";
 import mixin from "@/mixins/commonmixins";
+import {
+  demoCustomerShops,
+  getDemoIncomingPayments,
+} from "@/utils/supplierReturnDemoData";
 
 export default {
   data() {
@@ -236,9 +238,9 @@ export default {
       startdate: "",
       enddate: "",
       show: false,
-      shops: [],
+      shops: demoCustomerShops,
       shopsLoading: false,
-      shop: "",
+      shop: demoCustomerShops[0],
       shoppayments: [],
       exportPayments: [],
       loading: false,
@@ -279,9 +281,10 @@ export default {
     // server-side instead
     async getAllShops(searchdata = "") {
       this.shopsLoading = true;
-      const res = await ShopApi.allShops({ seacrh_data: searchdata, page: 1, per_page: 40 });
-
-      this.shops = res.data.data.data;
+      const query = searchdata.trim().toLowerCase();
+      this.shops = demoCustomerShops.filter((shop) =>
+        `${shop.shop_name} ${shop.area_name}`.toLowerCase().includes(query),
+      );
       this.shopsLoading = false;
     },
 
@@ -340,27 +343,16 @@ export default {
     // fetch payments for the current page/filters
     async getShopPayments() {
       this.loading = true;
-
-      const payload = {
+      const filtered = getDemoIncomingPayments({
         shop_id: this.shop.id,
         searchdata: this.searchdata,
         startdate: this.startdate,
         enddate: this.enddate,
         payment_status: this.payment_status,
-        page: this.page,
-        per_page: this.itemsPerPage,
-      };
-
-      const res = await PaymentApi.allShopPayments(payload);
-      const pagination = res.data.data;
-
-      // the backend returns nothing for a role that isn't allowed to see
-      // every shop's payments and hasn't picked a shop yet
-      this.shoppayments = pagination?.data || [];
-      this.totalItems = pagination?.total || 0;
-      this.page = pagination?.current_page || 1;
-      this.itemsPerPage = pagination?.per_page || this.itemsPerPage;
-
+      });
+      const start = (this.page - 1) * this.itemsPerPage;
+      this.shoppayments = filtered.slice(start, start + this.itemsPerPage);
+      this.totalItems = filtered.length;
       this.loading = false;
     },
 
@@ -368,19 +360,13 @@ export default {
     // right before the export fires, so the exported file matches the
     // active filters
     async loadExportPayments() {
-      const payload = {
+      this.exportPayments = getDemoIncomingPayments({
         shop_id: this.shop.id,
         searchdata: this.searchdata,
         startdate: this.startdate,
         enddate: this.enddate,
         payment_status: this.payment_status,
-        page: 1,
-        per_page: 100000,
-      };
-
-      const res = await PaymentApi.allShopPayments(payload);
-
-      this.exportPayments = res.data.data?.data || [];
+      });
     },
 
     // page change

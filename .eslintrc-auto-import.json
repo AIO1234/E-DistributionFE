@@ -362,6 +362,26 @@
     "selectOrderForGrn": true,
     "sampleOrderCollectionRows": true,
     "approveWarehouseOrder": true,
-    "approvedWarehouseOrderIds": true
+    "approvedWarehouseOrderIds": true,
+    "addDemoReturn": true,
+    "demoCustomerShops": true,
+    "demoReturns": true,
+    "demoSuppliers": true,
+    "findDemoPurchaseOrder": true,
+    "findDemoReturn": true,
+    "findDemoSupplier": true,
+    "getDemoOrdersForProduct": true,
+    "getDemoShopProducts": true,
+    "demoDistributors": true,
+    "demoIncomingPayments": true,
+    "demoSalesAreas": true,
+    "demoSalesDetailedRows": true,
+    "demoSalesReps": true,
+    "demoSupplierPayments": true,
+    "getDemoIncomingPayments": true,
+    "getDemoSalesDetailedRows": true,
+    "getDemoSupplierPayments": true,
+    "getDemoSalesSummaryRows": true,
+    "getDemoCustomerOutstandingRows": true
   }
 }

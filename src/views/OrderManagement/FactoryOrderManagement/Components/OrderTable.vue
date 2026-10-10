@@ -145,6 +145,9 @@
                           customer: props.item.customer,
                           date: props.item.date,
                           amount: props.item.amount,
+                          orderProducts: JSON.stringify(
+                            props.item.order_products || [],
+                          ),
                         },
                       })
                     "
@@ -169,6 +172,9 @@
                           customer: props.item.customer,
                           date: props.item.date,
                           amount: props.item.amount,
+                          orderProducts: JSON.stringify(
+                            props.item.order_products || [],
+                          ),
                         },
                       })
                     "
@@ -258,7 +264,6 @@
 <script>
 import UpdateOrder from "./UpdateOrder.vue";
 import { grnUiState, selectOrderForGrn } from "@/utils/grnUiState";
-import { approveOrderCollection } from "@/utils/orderCollectionUiState";
 export default {
   data() {
     return {
@@ -357,10 +362,6 @@ export default {
     },
 
     printOrder(item) {
-      approveOrderCollection(
-        item.isCollectionItem ? item.order_reference_id : item.id,
-      );
-
       if (!item.isCollectionItem) {
         this.$router.push(`factoryorderinvoice/${item.id}`);
         return;

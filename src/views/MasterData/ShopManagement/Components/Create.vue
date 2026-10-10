@@ -56,6 +56,19 @@
             />
           </VCol>
 
+          <!-- payment term -->
+          <VCol lg="6" cols="12">
+            <label class="label">Payment Term</label>
+            <div class="mt-2" />
+            <VSelect
+              v-model="form.payment_term_days"
+              :items="paymentTermOptions"
+              item-title="title"
+              item-value="value"
+              class="input"
+            />
+          </VCol>
+
         </VRow>
         <div class="pt-15" />
 
@@ -84,9 +97,15 @@ export default {
   mixins: [commonmixins],
   data() {
     return {
-      form: { shop_address: "" },
+      form: { shop_address: "", payment_term_days: 30 },
       loading: false,
       areas: [],
+      paymentTermOptions: [
+        { title: "30 Days", value: 30 },
+        { title: "60 Days", value: 60 },
+        { title: "90 Days", value: 90 },
+        { title: "100 Days", value: 100 },
+      ],
     };
   },
   async created() {

@@ -52,6 +52,10 @@
               </span>
             </div>
 
+            <div v-if="header.key === 'payment_term_days'">
+              {{ Number(props.item.payment_term_days || 30) }} Days
+            </div>
+
             <div v-if="header.key === 'area_code'">
               <span v-if="props.item.area === null">
                 {{ props.item.area_code }}
@@ -160,6 +164,7 @@ export default {
         { title: "Customer Name", align: "start", key: "shop_name" },
         { title: "Mobile", align: "start", key: "shop_mobile" },
         { title: "Address", align: "start", key: "shop_address" },
+        { title: "Payment Term", align: "start", key: "payment_term_days" },
         { title: "Area Code", align: "start", key: "area_code" },
         { title: "Area Name", align: "start", key: "area_name" },
         {

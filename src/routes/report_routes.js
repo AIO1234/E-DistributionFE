@@ -49,6 +49,23 @@ export default [
       ],
     },
   },
+  {
+    path: "/customeroutstanding",
+    name: "customeroutstanding",
+    component: () =>
+      import("@/views/ReportManagement/CustomerOutstandingReport.vue"),
+    meta: {
+      authReuire: true,
+      role: ["Super Admin", "Admin"],
+      pageTitle: "Report",
+      breadcrumb: [
+        {
+          text: "Customer Outstanding",
+          active: true,
+        },
+      ],
+    },
+  },
 
   {
     path: "/profitandloss",
