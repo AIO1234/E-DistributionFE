@@ -18,7 +18,12 @@ export const sampleOrderCollectionRows = [
       {
         product_code: "PRD-001",
         product_name: "Sample Plantation Product",
-        pivot: { quantity: 10 },
+        pivot: {
+          quantity: 10,
+          uptodate_quantity: 10,
+          unit_price: 8000,
+          price: 80000,
+        },
       },
     ],
     isCollectionItem: true,
@@ -37,7 +42,12 @@ export const sampleOrderCollectionRows = [
       {
         product_code: "PRD-002",
         product_name: "Sample Garden Product",
-        pivot: { quantity: 6 },
+        pivot: {
+          quantity: 6,
+          uptodate_quantity: 6,
+          unit_price: 80000 / 6,
+          price: 80000,
+        },
       },
     ],
     isCollectionItem: true,

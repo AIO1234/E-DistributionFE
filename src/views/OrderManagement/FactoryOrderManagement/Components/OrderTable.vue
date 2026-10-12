@@ -111,6 +111,19 @@
               <span v-else>N/A</span>
             </div>
 
+            <!-- supplier payment is available once the order is approved -->
+            <div v-if="header.key === 'make_payment'">
+              <v-btn
+                v-if="isApproved(props.item)"
+                color="primary"
+                size="small"
+                @click="openSupplierPayments(props.item)"
+              >
+                Make Payment
+              </v-btn>
+              <span v-else>N/A</span>
+            </div>
+
             <!-- status -->
             <div v-if="header.key === 'status'">
               <v-chip
@@ -278,6 +291,7 @@ export default {
         { title: "Good Receive Notice", align: "start", key: "good_receive_notice" },
         { title: "Delivery Note", align: "start", key: "delivery_note", sortable: false },
         { title: "Add GRN", align: "center", key: "add_grn", sortable: false },
+        { title: "Make Payment", align: "center", key: "make_payment", sortable: false },
         { title: "Status", align: "start", key: "status" },
         { title: "Action", align: "start", key: "action" },
         { title: "Print", align: "start", key: "download_invoice" },
@@ -324,6 +338,25 @@ export default {
       );
     },
 
+    isApproved(item) {
+      return String(item?.status || "").toLowerCase() === "approved";
+    },
+
+    openSupplierPayments(item) {
+      this.$router.push({
+        name: "payments",
+        query: {
+          create: "true",
+          demoPayment: "true",
+          orderId: item.order_reference_id || "",
+          invoiceNumber: item.invoice_no || "",
+          orderAmount: item.amount || item.order_amount || 0,
+          shopId: item.shop_id || item.shop?.id || "",
+          customer: item.customer || item.shop?.shop_name || "",
+        },
+      });
+    },
+
     openGrnForm(item) {
       selectOrderForGrn(item);
       this.$router.push({
@@ -363,7 +396,10 @@ export default {
 
     printOrder(item) {
       if (!item.isCollectionItem) {
-        this.$router.push(`factoryorderinvoice/${item.id}`);
+        this.$router.push({
+          path: `/factoryorderinvoice/${item.id}`,
+          query: { confirmPrint: "true" },
+        });
         return;
       }
 
@@ -378,6 +414,7 @@ export default {
           amount: item.amount,
           collectionId: item.id,
           orderId: item.order_reference_id,
+          confirmPrint: "true",
         },
       });
     },

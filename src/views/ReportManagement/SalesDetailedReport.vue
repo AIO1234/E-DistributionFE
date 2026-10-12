@@ -217,28 +217,6 @@
                 </v-btn>
               </div>
 
-              <!-- distributer: null for orders sent directly without a showroom -->
-              <div v-if="header.key === 'distributer'">
-                <span>
-                  {{ props.item.distributer?.distributer_name ?? "N/A" }}</span
-                >
-              </div>
-
-              <!-- salesrep: null for orders sent directly without a sales rep -->
-              <div v-if="header.key === 'salesrep'">
-                <span> {{ props.item.salesrep?.rep_name ?? "N/A" }}</span>
-              </div>
-
-              <!-- courier: null when the shop order wasn't sent by courier -->
-              <div v-if="header.key === 'courier'">
-                <span> {{ props.item.courier?.company_name ?? "N/A" }}</span>
-              </div>
-
-              <!-- area -->
-              <div v-if="header.key === 'area'">
-                <span> {{ props.item.shop?.area?.area_name ?? "N/A" }}</span>
-              </div>
-
               <!-- invoice amount -->
               <div v-if="header.key === 'order_amount'">
                 <span> {{ getPrice(props.item.order_amount) }}</span>
@@ -407,10 +385,6 @@ export default {
         { title: "Customer Name", align: "start", key: "shop" },
         { title: "Invoice Date", align: "start", key: "order_date" },
         { title: "Product Summary", align: "start", key: "product_summary" },
-        { title: "Distributer Name", align: "start", key: "distributer" },
-        { title: "Rep Name", align: "start", key: "salesrep" },
-        { title: "Courier", align: "start", key: "courier" },
-        { title: "Area Name", align: "start", key: "area" },
         { title: "Invoice Amount(Rs)", align: "start", key: "order_amount" },
         { title: "Paid Amount(Rs)", align: "start", key: "total_paid_amount" },
         { title: "Due Amount(Rs)", align: "start", key: "total_due_amount" },
@@ -429,10 +403,6 @@ export default {
         "Invoice No": "invoice_no",
         "Customer Name": "shop.shop_name",
         "Invoice Date": "order_date",
-        "Distributer Name": "distributer.distributer_name",
-        "Rep Name": "salesrep.rep_name",
-        "Courier": "courier.company_name",
-        "Area Name": "shop.area.area_name",
         "Invoice Amount(Rs)": "order_amount",
         "Paid Amount(Rs)": "total_paid_amount",
         "Due Amount(Rs)": "total_due_amount",

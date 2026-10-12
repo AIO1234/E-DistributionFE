@@ -282,7 +282,6 @@ export default {
       expenseTypes: [
         { value: "Additional Payment", label: "Additional Payment" },
         { value: "Transport", label: "Transport" },
-        { value: "Sales Rep Commission", label: "Sales Rep Commission" },
         { value: "Cost of Goods Sold", label: "Cost of Goods Sold" },
         { value: "Operating Expenses", label: "Operating Expenses" },
         { value: "Transportation & Delivery", label: "Transportation & Delivery" },

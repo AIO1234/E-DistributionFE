@@ -212,7 +212,15 @@
         </div>
 
         <v-card-text>
-          <CreateForm :shop="shop" @close="closeModal" /> </v-card-text
+          <CreateForm
+            :shop="shop"
+            :target-order-id="$route.query.orderId"
+            :target-invoice-number="$route.query.invoiceNumber"
+            :target-order-amount="$route.query.orderAmount"
+            :demo-mode="$route.query.demoPayment === 'true'"
+            @close="closeModal"
+          />
+        </v-card-text
       ></v-card>
     </v-dialog>
   </div>
@@ -273,6 +281,17 @@ export default {
     );
 
     await this.getAllShops();
+    const { shopId, customer, create } = this.$route.query;
+    if (create === "true") {
+      const requestedShop = this.shops.find(
+        (candidate) =>
+          (shopId && String(candidate.id) === String(shopId)) ||
+          (customer &&
+            candidate.shop_name?.toLowerCase() === String(customer).toLowerCase()),
+      );
+      if (requestedShop) this.shop = requestedShop;
+      this.show = true;
+    }
     await this.shopPayment();
   },
   methods: {

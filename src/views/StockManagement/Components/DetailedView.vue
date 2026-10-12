@@ -7,7 +7,11 @@
       type="image, list-item-two-line"
     >
       <VResponsive>
-        <VRow>
+        <VAlert v-if="demoMode" type="info" variant="tonal" class="mb-4">
+          Preview only: the live detailed report is temporarily unavailable.
+          The breakdown below uses sample data.
+        </VAlert>
+        <VRow v-if="!demoMode">
           <!-- select shop -->
           <VCol
             lg="6"
@@ -44,9 +48,10 @@
             v-if="
               authRole === 'Super Admin' ||
                 authRole === 'Admin' ||
-                authRole === 'Staff' ||
-                authRole === 'Area Manager' ||
-                authRole === 'Distributer'
+          authRole === 'Staff' ||
+          authRole === 'Area Manager' ||
+              authRole === 'Distributer'
+          && !demoMode
             "
             lg="6"
             cols="12"
@@ -104,7 +109,7 @@
           </VCol>
         </VRow>
         <!-- searches -->
-        <VRow>
+        <VRow v-if="!demoMode">
           <!-- start order date -->
           <VCol
             lg="4"
@@ -160,24 +165,12 @@
         <div class="pt-6" />
         <!-- distributors -->
         <span
-          v-if="
-            authRole === 'Super Admin' ||
-              authRole === 'Admin' ||
-              authRole === 'Staff' ||
-              authRole === 'Area Manager' ||
-              authRole === 'Distributer'
-          "
+          v-if="!demoMode && ['Super Admin', 'Admin', 'Staff', 'Area Manager', 'Distributer'].includes(authRole)"
           class="table_topic"
         >Distributors</span>
         <div class="pt-3" />
         <table
-          v-if="
-            authRole === 'Super Admin' ||
-              authRole === 'Admin' ||
-              authRole === 'Staff' ||
-              authRole === 'Area Manager' ||
-              authRole === 'Distributer'
-          "
+          v-if="!demoMode && ['Super Admin', 'Admin', 'Staff', 'Area Manager', 'Distributer'].includes(authRole)"
           class="table table-sm table_borders"
           sortable
           style="width: 100%"
@@ -271,10 +264,10 @@
 
         <div class="pt-6" />
         <!-- Sales Reps -->
-        <span class="table_topic">SalesReps</span>
+        <span v-if="!demoMode" class="table_topic">SalesReps</span>
         <div class="pt-3" />
         <table
-          v-if="resultsalesreps.length !== 0"
+          v-if="!demoMode && resultsalesreps.length !== 0"
           class="table table-sm table_borders"
           sortable
           style="width: 100%"
@@ -368,10 +361,10 @@
 
         <div class="pt-6" />
         <!-- Vehicles -->
-        <span class="table_topic">Vehicles</span>
+        <span v-if="!demoMode" class="table_topic">Vehicles</span>
         <div class="pt-3" />
         <table
-          v-if="resultvehicles.length !== 0"
+          v-if="!demoMode && resultvehicles.length !== 0"
           class="table table-sm table_borders"
           sortable
           style="width: 100%"
@@ -552,6 +545,10 @@ import commonmixins from "@/mixins/commonmixins"
 export default {
   props: {
     selectedItem: Object,
+    demoMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -596,6 +593,55 @@ export default {
     )
 
     this.getAuthUser()
+    if (this.demoMode) {
+      this.resultdistributors = [
+        {
+          distributer_name: "Sample Showroom",
+          sum_quantity: 24,
+          recived_amount: 12000,
+          balance_quantity: 8,
+          sold_quantity: 14,
+          sold_amount: 7000,
+          returned_quantity: 2,
+          returned_amount: 1000,
+        },
+      ]
+      this.resultsalesreps = [
+        {
+          rep_name: "Sample Sales Rep",
+          sum_quantity: 12,
+          recived_amount: 6000,
+          balance_quantity: 3,
+          sold_quantity: 8,
+          sold_amount: 4000,
+          returned_quantity: 1,
+          returned_amount: 500,
+        },
+      ]
+      this.resultvehicles = [
+        {
+          vehicle_no: "Sample Vehicle",
+          sum_quantity: 10,
+          recived_amount: 5000,
+          balance_quantity: 2,
+          sold_quantity: 7,
+          sold_amount: 3500,
+          returned_quantity: 1,
+          returned_amount: 500,
+        },
+      ]
+      this.resultshops = [
+        {
+          shop_name: "Sample Customer",
+          sum_quantity: 8,
+          sum_sales: 4000,
+          sum_return_quantity: 1,
+          sum_return_amount: 500,
+          balance_quantity: 2,
+        },
+      ]
+      return
+    }
     await this.getProductBinCard()
     await this.getShops()
     await this.SalesReps()

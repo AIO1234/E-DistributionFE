@@ -229,14 +229,63 @@ export default {
   async created() {
     this.form.payment_code =
       "PAY-SHOP-" + Math.floor(Math.random() * 100000000);
-    await this.getDueOrders();
-    await this.refreshShopDue();
+    if (this.demoMode && this.targetOrderId) {
+      this.selectTargetOrder();
+    } else {
+      await this.getDueOrders();
+      await this.refreshShopDue();
+      this.selectTargetOrder();
+    }
     // autogenarate ids
   },
   props: {
     shop: Object,
+    targetOrderId: {
+      type: [String, Number],
+      default: "",
+    },
+    targetInvoiceNumber: {
+      type: String,
+      default: "",
+    },
+    targetOrderAmount: {
+      type: [String, Number],
+      default: 0,
+    },
+    demoMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
+    // preselect the warehouse order passed in the Incoming Payments route
+    selectTargetOrder() {
+      if (!this.targetOrderId) return;
+
+      const targetId = String(this.targetOrderId);
+      let targetOrder = this.dueOrders.find((order) =>
+        [order.id, order.order_reference_id, order.invoice_no]
+          .filter((value) => value != null)
+          .some((value) => String(value) === targetId),
+      );
+
+      if (!targetOrder && this.demoMode) {
+        targetOrder = {
+          id: targetId,
+          order_reference_id: targetId,
+          invoice_no: this.targetInvoiceNumber || targetId,
+          order_amount: Number(this.targetOrderAmount || 0),
+          total_due_amount: Number(this.targetOrderAmount || 0),
+          shop_id: this.shop.id,
+        };
+        this.dueOrders = [targetOrder, ...this.dueOrders];
+      }
+
+      if (targetOrder) {
+        this.orders[0].shoporder = targetOrder;
+      }
+    },
+
     // re-fetch this shop's current due amount rather than trusting the
     // prop snapshot - searches by the shop's own (unique) code, which
     // reliably resolves back to this exact shop, without needing a

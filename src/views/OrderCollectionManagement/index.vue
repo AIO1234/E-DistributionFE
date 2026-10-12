@@ -207,6 +207,7 @@ export default {
           customer: row.customer,
           date: row.date,
           amount: row.amount,
+          orderProducts: JSON.stringify(row.order_products || []),
         },
       });
     },

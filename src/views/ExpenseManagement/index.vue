@@ -228,7 +228,6 @@ export default {
       expenseTypes: [
         "Additional Payment",
         "Transport",
-        "Sales Rep Commission",
         "Cost of Goods Sold",
         "Operating Expenses",
         "Transportation & Delivery",

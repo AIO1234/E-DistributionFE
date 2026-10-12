@@ -314,7 +314,6 @@ export default {
       // "Transportation & Delivery" as a sub category (see subCategoriesByType)
       expenseTypes: [
         { value: "Additional Payment", label: "Additional Payment" },
-        { value: "Sales Rep Commission", label: "Sales Rep Commission" },
         { value: "Cost of Goods Sold", label: "Cost of Goods Sold" },
         { value: "Operating Expenses", label: "Operating Expenses" },
         { value: "Transportation & Delivery", label: "Transportation & Delivery" },

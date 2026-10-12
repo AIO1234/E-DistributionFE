@@ -24,7 +24,7 @@
               <v-btn
                 class="download_invoice"
                 variant="none"
-                @click="generateInvoicePdf()"
+                @click="handleDownloadInvoice"
                 ><span class="text">Download Invoice</span></v-btn
               >
             </v-col>
@@ -354,15 +354,24 @@
         </div>
       </v-responsive>
     </v-skeleton-loader>
+    <ConfirmActionDialog
+      v-model="showPrintConfirmation"
+      question="Do you want to continue?"
+      @confirm="confirmDownloadInvoice"
+      @cancel="showPrintConfirmation = false"
+    />
   </div>
 </template>
 <script>
 import OrderApi from "@/Api/Modules/master_order";
 import html2pdf from "html2pdf.js";
+import ConfirmActionDialog from "@/components/ConfirmActionDialog.vue";
 export default {
+  components: { ConfirmActionDialog },
   data() {
     return {
       loading: false,
+      showPrintConfirmation: false,
       summary: {
         main_order_details: {},
         shop_order_amount: "",
@@ -376,6 +385,20 @@ export default {
     await this.orderSummary();
   },
   methods: {
+    confirmDownloadInvoice() {
+      this.showPrintConfirmation = false;
+      this.generateInvoicePdf();
+    },
+
+    handleDownloadInvoice() {
+      if (this.$route.query.confirmPrint === "true") {
+        this.showPrintConfirmation = true;
+        return;
+      }
+
+      this.generateInvoicePdf();
+    },
+
     // order summary
     async orderSummary() {
       this.loading = true;

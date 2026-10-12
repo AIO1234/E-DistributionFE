@@ -316,7 +316,9 @@
           </v-btn>
         </div>
 
-        <v-card-text> <DetailedView :selectedItem="selectedItem" /></v-card-text
+        <v-card-text>
+          <DetailedView :selectedItem="selectedItem" demo-mode />
+        </v-card-text
       ></v-card>
     </v-dialog>
   </div>
@@ -372,16 +374,6 @@ export default {
         { title: "Product Name", align: "start", key: "product_name" },
         { title: "Product Type", align: "start", key: "product_type" },
         { title: "Detailed View", align: "start", key: "detailed_view" },
-        {
-          title: "Distributed Quantity(Distributer)",
-          align: "start",
-          key: "distributer_distributed_products",
-        },
-        {
-          title: "Distributed Quantity(Rep)",
-          align: "start",
-          key: "rep_distributed_products",
-        },
         { title: "Sales Quantity", align: "start", key: "quantity" },
         { title: "Sales Amount", align: "start", key: "sales_amount" },
         { title: "Return Quantity", align: "start", key: "return_quantity" },
@@ -393,8 +385,6 @@ export default {
         "Product Code": "product_code",
         "Product Name": "product_name",
         "Product Type": "product_type",
-        "Distributed Quantity(Distributer)": "distributer_distributed_products",
-        "Distributed Quantity(Rep)": "rep_distributed_productse",
         "Sales Quantity": "quantity",
         "Sales Amount(Rs)": "sales_amount",
         "Return Quantity": "return_quantity",
