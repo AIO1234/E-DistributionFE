@@ -304,7 +304,6 @@
 <script>
 import AddCategory from "@/views/MasterData/ProductCategoryManagement/Components/AddCategory.vue";
 import AddProduct from "@/views/StockManagement/Components/Create.vue";
-import SupplyChainApi from "@/Api/Modules/supply_chain";
 import SupplierPaymentApi from "@/Api/Modules/supplier_payments";
 import { toast } from "@/ApiConstance/toast";
 
@@ -357,10 +356,7 @@ export default {
       showCategoryModal: false,
       showProductModal: false,
 
-      // the supplier prop can be stale (the parent page fetches the
-      // supplier list once and doesn't refresh it after other pages
-      // change credit_balance/due) - this is refreshed from the live
-      // supplierSummary call in getOrders() below
+      // Demo mode reads balances from the locally seeded supplier record.
       supplierCreditBalance: this.supplier.credit_balance,
 
       // remaining account-level due, used to cap a payment line that has
@@ -431,17 +427,24 @@ export default {
 
     // get orders for the supplier
     async getOrders() {
-      const payload = {
-        id: this.supplier.id,
-        start_purchased_date: "",
-        end_purhased_date: "",
-      };
+      // API disabled while this screen uses demo data. The summary endpoint
+      // can fail when the add-payment dialog opens in the demo environment.
+      // const payload = {
+      //   id: this.supplier.id,
+      //   start_purchased_date: "",
+      //   end_purhased_date: "",
+      // };
+      // const res = await SupplyChainApi.showsuppliersummary(payload);
+      // this.supplierOrders = res.data.data.suplier_orders || [];
+      // this.supplierCreditBalance = res.data.data.credit_balance ?? this.supplier.credit_balance;
+      // this.supplierDuePayments = res.data.data.due_payments ?? this.supplier.due_payments;
 
-      const res = await SupplyChainApi.showsuppliersummary(payload);
-
-      this.supplierOrders = res.data.data.suplier_orders || [];
-      this.supplierCreditBalance = res.data.data.credit_balance ?? this.supplier.credit_balance;
-      this.supplierDuePayments = res.data.data.due_payments ?? this.supplier.due_payments;
+      this.supplierOrders = (this.supplier.suplier_orders || []).map((order) => ({
+        ...order,
+        due_amount: Number(order.due_amount || 0),
+      }));
+      this.supplierCreditBalance = Number(this.supplier.credit_balance || 0);
+      this.supplierDuePayments = Number(this.supplier.due_payments || 0);
     },
 
     handleDirectionChange() {

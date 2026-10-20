@@ -44,6 +44,7 @@ const purchaseOrders = [
     receiving_invoice_no: "SUP-INV-4418",
     purchased_order_total: 191850,
     purchase_total: 191850,
+    due_amount: 41850,
     order_items: purchaseLines,
   },
   {
@@ -54,6 +55,7 @@ const purchaseOrders = [
     receiving_invoice_no: "SUP-INV-4472",
     purchased_order_total: 81600,
     purchase_total: 81600,
+    due_amount: 31600,
     order_items: [purchaseLines[0]],
   },
 ];
@@ -95,6 +97,7 @@ export const demoSuppliers = reactive([
         purchased_status: "Received",
         receiving_invoice_no: "GV-8820",
         purchased_order_total: 126000,
+        due_amount: 0,
         order_items: [
           {
             ...purchaseLines[1],
